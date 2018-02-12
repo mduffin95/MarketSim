@@ -1,10 +1,15 @@
-import co.paralleluniverse.fibers.SuspendExecution;
+package events;
+
 import desmoj.core.simulator.ExternalEvent;
 import desmoj.core.simulator.*;
+import entities.Order;
+import entities.TradingAgent;
+import models.MarketSimModel;
 
 import java.util.concurrent.TimeUnit;
 
 public class TradingAgentGeneratorEvent extends ExternalEvent {
+
     public TradingAgentGeneratorEvent(Model owner, String name, boolean showInTrace) {
         super(owner, name, showInTrace);
 
@@ -12,16 +17,16 @@ public class TradingAgentGeneratorEvent extends ExternalEvent {
 
     @Override
     public void eventRoutine() {
-        ExchangeModel model = (ExchangeModel)getModel();
+        MarketSimModel model = (MarketSimModel) getModel();
 
         TradingAgent agent = new TradingAgent(model);
+        model.exchange.registerPrimary(agent);
 
-        ArrivalEvent agentArrival = new ArrivalEvent(model, "AgentArrivalEvent", true);
-
-        agentArrival.schedule(agent, new TimeSpan(0, TimeUnit.SECONDS));
+        //Get an order from the trading agent and send it to the exchange
+        Order order = agent.getOrder();
+        order.send();
 
         //Schedule generator again
         schedule(new TimeSpan(model.getAgentArrivalTime(), TimeUnit.SECONDS));
-
     }
 }
