@@ -1,7 +1,4 @@
-package entities;
-
 import desmoj.core.simulator.*;
-import models.MarketSimModel;
 
 public class TradingAgent extends NetworkEntity {
     private int limit;
@@ -31,7 +28,7 @@ public class TradingAgent extends NetworkEntity {
         }
 
         order.price = limit;
-        order.ta = this;
+        order.agent = this;
 
         return order;
     }

@@ -1,8 +1,4 @@
-package entities;
-
 import desmoj.core.simulator.*;
-import entities.Order;
-import models.MarketSimModel;
 
 public class SellOrder extends Order {
     MarketSimModel marketSimModel;

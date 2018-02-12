@@ -1,7 +1,4 @@
-package events;
-
 import desmoj.core.simulator.*;
-import entities.*;
 
 public class PacketArrivalEvent extends Event<Packet> {
 

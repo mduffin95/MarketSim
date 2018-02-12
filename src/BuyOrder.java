@@ -1,5 +1,3 @@
-package entities;
-
 import desmoj.core.simulator.*;
 
 public class BuyOrder extends Order {

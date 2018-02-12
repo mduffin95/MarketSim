@@ -1,5 +1,3 @@
-package entities;
-
 import desmoj.core.simulator.*;
 
 public abstract class NetworkEntity extends Entity {

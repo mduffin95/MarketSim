@@ -1,9 +1,4 @@
-package entities;
-
-import com.sun.xml.internal.bind.v2.runtime.reflect.Lister;
 import desmoj.core.simulator.*;
-import events.PacketArrivalEvent;
-import models.MarketSimModel;
 
 import java.util.concurrent.TimeUnit;
 

@@ -1,8 +1,4 @@
-package entities;// import the DESMO-J stuff
-
 import desmoj.core.simulator.*;
-import entities.NetworkEntity;
-import models.MarketSimModel;
 
 public class Exchange extends NetworkEntity {
     MarketSimModel marketSimModel;
@@ -34,8 +30,9 @@ public class Exchange extends NetworkEntity {
 
         if (b.price >= s.price) {
             sellQueue.removeFirst();
-            s.ta.traded(s.price);
-            b.ta.traded(s.price);
+            s.agent.traded(s.price);
+            b.agent.traded(s.price);
+            marketSimModel.tradePrices.update(s.price);
 
         } else {
             buyQueue.insert(b);
@@ -52,10 +49,11 @@ public class Exchange extends NetworkEntity {
             return;
         }
 
-        if (s.price <= b.price) {
+        if (b.price >= s.price) {
             buyQueue.removeFirst();
-            b.ta.traded(b.price);
-            s.ta.traded(b.price);
+            b.agent.traded(b.price);
+            s.agent.traded(b.price);
+            marketSimModel.tradePrices.update(b.price);
 
         } else {
             sellQueue.insert(s);

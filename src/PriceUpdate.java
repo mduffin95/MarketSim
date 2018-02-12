@@ -1,4 +1,4 @@
-package entities;
+
 
 import desmoj.core.simulator.Model;
 

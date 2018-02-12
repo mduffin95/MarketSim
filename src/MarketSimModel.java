@@ -1,17 +1,16 @@
-package models;
-
 import desmoj.core.dist.BoolDistBernoulli;
 import desmoj.core.dist.ContDistExponential;
 import desmoj.core.dist.DiscreteDistUniform;
+import desmoj.core.dist.DistributionManager;
 import desmoj.core.simulator.*;
-import entities.Exchange;
-import entities.TradingAgent;
-import events.TradingAgentGeneratorEvent;
+import desmoj.core.statistic.TimeSeries;
 
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 public class MarketSimModel extends Model {
 
+    protected DistributionManager distributionManager;
 
     // define model components here
     //Random number stream used to draw an arrival time for the next trading agent
@@ -23,9 +22,12 @@ public class MarketSimModel extends Model {
     //Random boolean used to determine whether agent is buying or selling
     private BoolDistBernoulli buyOrSell;
 
-    public static int MIN_PRICE = 10;
-    public static int MAX_PRICE = 1000;
+    protected TimeSeries tradePrices;
+
+    public static int MIN_PRICE = 1;
+    public static int MAX_PRICE = 200;
     public static int NUM_TRADERS = 10;
+    public static int SIM_LENGTH = 1440;
 
     //TODO: Extend this to a list of exchanges
     public Exchange exchange;
@@ -42,22 +44,39 @@ public class MarketSimModel extends Model {
 
     @Override
     public void doInitialSchedules() {
-        TradingAgentGeneratorEvent generator = new TradingAgentGeneratorEvent(this, "TradingAgentGenerator", true);
+        TradingAgentGeneratorEvent generator = new TradingAgentGeneratorEvent(this,
+                "TradingAgentGenerator", true);
 
         generator.schedule(new TimeSpan(0, TimeUnit.SECONDS));
     }
 
     @Override
     public void init() {
+        Random generator = new Random();
+        long seed = generator.nextLong();
+        distributionManager = new DistributionManager("Distribution Manager", seed);
+
+
+        //Distributions
         agentArrivalTime = new ContDistExponential(this, "AgentArrivalTimeStream", 3, true, false);
         agentArrivalTime.setNonNegative(true);
 
-        limitPrice = new DiscreteDistUniform(this, "LimitPriceStream", MIN_PRICE, MAX_PRICE, true, false);
+        limitPrice = new DiscreteDistUniform(this, "LimitPriceStream", MIN_PRICE, MAX_PRICE,
+                true, false);
 
         buyOrSell = new BoolDistBernoulli(this, "BuyOrSell", 0.5, true, false);
 
+        distributionManager.register(agentArrivalTime);
+        distributionManager.register(limitPrice);
+        distributionManager.register(buyOrSell);
+
+        //Entities
         exchange = new Exchange(this, "Exchange", true);
 
+
+        //Reporting
+        tradePrices = new TimeSeries(this, "Trade prices over time", "trade_prices.txt",
+                new TimeInstant(0.0), new TimeInstant(MarketSimModel.SIM_LENGTH), true, false);
     }
 
 
@@ -91,10 +110,9 @@ public class MarketSimModel extends Model {
 
         // set experiment parameters
         exp.setShowProgressBar(true);
-        TimeInstant stopTime = new TimeInstant(1440, TimeUnit.SECONDS);
+        TimeInstant stopTime = new TimeInstant(MarketSimModel.SIM_LENGTH, TimeUnit.SECONDS);
         exp.tracePeriod(new TimeInstant(0), stopTime);
         exp.stop(stopTime);
-
         // start experiment
         exp.start();
 
