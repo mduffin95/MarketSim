@@ -6,6 +6,7 @@ public class Exchange extends NetworkEntity {
     protected Queue<BuyOrder> buyQueue;
     protected Queue<SellOrder> sellQueue;
 
+    //Entities that need to be notified of price changes
     protected Queue<NetworkEntity> observers;
     /**
      * constructs a model...
@@ -34,6 +35,10 @@ public class Exchange extends NetworkEntity {
             b.agent.traded(s.price);
             marketSimModel.tradePrices.update(s.price);
 
+            //Clear both queues after trade (Gode and Sunder)
+            buyQueue.removeAll();
+            sellQueue.removeAll();
+
         } else {
             buyQueue.insert(b);
         }
@@ -50,10 +55,13 @@ public class Exchange extends NetworkEntity {
         }
 
         if (b.price >= s.price) {
-            buyQueue.removeFirst();
             b.agent.traded(b.price);
             s.agent.traded(b.price);
             marketSimModel.tradePrices.update(b.price);
+
+            //Clear both queues after trade (Gode and Sunder)
+            buyQueue.removeAll();
+            sellQueue.removeAll();
 
         } else {
             sellQueue.insert(s);

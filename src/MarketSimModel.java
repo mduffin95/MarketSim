@@ -10,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 
 public class MarketSimModel extends Model {
 
+    protected Random generator;
     protected DistributionManager distributionManager;
 
     // define model components here
@@ -25,16 +26,17 @@ public class MarketSimModel extends Model {
     protected TimeSeries tradePrices;
 
     public static int MIN_PRICE = 1;
-    public static int MAX_PRICE = 200;
+    public static int MAX_PRICE = 600;
     public static int NUM_TRADERS = 10;
-    public static int SIM_LENGTH = 1440;
+    public static int MEAN_TIME_BETWEEN_TRADES = 5;
+    public static int SIM_LENGTH = 500;
 
     //TODO: Extend this to a list of exchanges
     public Exchange exchange;
 
     public MarketSimModel() {
         super(null, "ExchangeModel", true, true);
-
+        generator = new Random();
     }
 
     @Override
@@ -44,21 +46,33 @@ public class MarketSimModel extends Model {
 
     @Override
     public void doInitialSchedules() {
-        TradingAgentGeneratorEvent generator = new TradingAgentGeneratorEvent(this,
-                "TradingAgentGenerator", true);
 
-        generator.schedule(new TimeSpan(0, TimeUnit.SECONDS));
+        //Create the supply and demand curves
+        int lower = 40;
+        for(int i=lower; i<=200; i+= lower) {
+            TradingAgent agentBuy = new TradingAgent(this, i, true);
+            TradingAgent agentSell = new TradingAgent(this, i, false);
+            exchange.registerPrimary(agentBuy);
+            exchange.registerPrimary(agentSell);
+
+            SubmitTradeEvent buy = new SubmitTradeEvent(this, "SubmitBuyOrder", true);
+            SubmitTradeEvent sell = new SubmitTradeEvent(this, "SubmitSellOrder", true);
+
+            buy.schedule(agentBuy, new TimeSpan(getAgentArrivalTime(), TimeUnit.SECONDS));
+            sell.schedule(agentSell, new TimeSpan(getAgentArrivalTime(), TimeUnit.SECONDS));
+        }
     }
 
     @Override
     public void init() {
-        Random generator = new Random();
+
         long seed = generator.nextLong();
         distributionManager = new DistributionManager("Distribution Manager", seed);
 
 
         //Distributions
-        agentArrivalTime = new ContDistExponential(this, "AgentArrivalTimeStream", 3, true, false);
+        agentArrivalTime = new ContDistExponential(this, "AgentArrivalTimeStream",
+                MEAN_TIME_BETWEEN_TRADES, true, false);
         agentArrivalTime.setNonNegative(true);
 
         limitPrice = new DiscreteDistUniform(this, "LimitPriceStream", MIN_PRICE, MAX_PRICE,

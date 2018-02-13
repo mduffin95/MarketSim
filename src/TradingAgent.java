@@ -9,13 +9,12 @@ public class TradingAgent extends NetworkEntity {
 
     private MarketSimModel exchangeModel;
 
-    public TradingAgent(Model model) {
+    public TradingAgent(Model model, int limit, boolean buy) {
         super(model, "TradingAgent", true);
         utility = 0;
         exchangeModel = (MarketSimModel) model;
-        buy = exchangeModel.getBuyOrSell();
-        limit = exchangeModel.getLimitPrice();
-
+        this.buy = buy;
+        this.limit = limit;
     }
 
     public Order getOrder() {
@@ -23,11 +22,14 @@ public class TradingAgent extends NetworkEntity {
         Order order;
         if (buy) {
             order = new BuyOrder(exchangeModel, "BuyOrderEvent", true, this, primaryExchange);
+            //Buy for limit or less
+            order.price = exchangeModel.generator.nextInt(limit + 1);
         } else {
             order = new SellOrder(exchangeModel, "SellOrderEvent", true, this, primaryExchange);
+            //Sell for limit or more
+            order.price = limit + exchangeModel.generator.nextInt(exchangeModel.MAX_PRICE - limit + 1);
         }
-
-        order.price = limit;
+//        order.price = exchangeModel.getLimitPrice();
         order.agent = this;
 
         return order;
