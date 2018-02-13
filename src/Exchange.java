@@ -31,8 +31,8 @@ public class Exchange extends NetworkEntity {
 
         if (b.price >= s.price) {
             sellQueue.removeFirst();
-            s.agent.traded(s.price);
-            b.agent.traded(s.price);
+            s.agent.traded(s.price, false);
+            b.agent.traded(s.price, true);
             marketSimModel.tradePrices.update(s.price);
 
             //Clear both queues after trade (Gode and Sunder)
@@ -55,8 +55,8 @@ public class Exchange extends NetworkEntity {
         }
 
         if (b.price >= s.price) {
-            b.agent.traded(b.price);
-            s.agent.traded(b.price);
+            b.agent.traded(b.price, true);
+            s.agent.traded(b.price, false);
             marketSimModel.tradePrices.update(b.price);
 
             //Clear both queues after trade (Gode and Sunder)

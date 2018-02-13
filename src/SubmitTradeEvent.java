@@ -10,6 +10,10 @@ public class SubmitTradeEvent extends Event<TradingAgent> {
 
     @Override
     public void eventRoutine(TradingAgent tradingAgent) {
+        if(tradingAgent.traded) {
+            return;
+        }
+
         MarketSimModel model = (MarketSimModel) getModel();
 
         //Get an order from the trading agent and send it to the exchange

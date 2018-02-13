@@ -1,47 +1,41 @@
 import desmoj.core.simulator.*;
 
-public class TradingAgent extends NetworkEntity {
-    private int limit;
-    private boolean buy; //Buy or sell
-    private int utility;
+public abstract class TradingAgent extends NetworkEntity {
+
+    public boolean traded = false; //TODO: remove this
+
+    protected int limit;
+    protected int utility;
 
     protected Exchange primaryExchange;
 
-    private MarketSimModel exchangeModel;
+    protected MarketSimModel marketSimModel;
 
-    public TradingAgent(Model model, int limit, boolean buy) {
+    public TradingAgent(Model model, int limit) {
         super(model, "TradingAgent", true);
         utility = 0;
-        exchangeModel = (MarketSimModel) model;
-        this.buy = buy;
+        marketSimModel = (MarketSimModel) model;
         this.limit = limit;
     }
 
-    public Order getOrder() {
+    public abstract Order getOrder();
 
-        Order order;
-        if (buy) {
-            order = new BuyOrder(exchangeModel, "BuyOrderEvent", true, this, primaryExchange);
-            //Buy for limit or less
-            order.price = exchangeModel.generator.nextInt(limit + 1);
-        } else {
-            order = new SellOrder(exchangeModel, "SellOrderEvent", true, this, primaryExchange);
-            //Sell for limit or more
-            order.price = limit + exchangeModel.generator.nextInt(exchangeModel.MAX_PRICE - limit + 1);
-        }
-//        order.price = exchangeModel.getLimitPrice();
-        order.agent = this;
-
-        return order;
-    }
-
-    protected void traded(int price) {
+    protected void traded(int price, boolean buy) {
+        traded = true;
+        int theoretical;
         if (buy) {
             utility = limit - price;
+            theoretical = limit - MarketSimModel.EQUILIBRIUM;
         } else {
             utility = price - limit;
+            theoretical = MarketSimModel.EQUILIBRIUM - limit;
+        }
+        marketSimModel.totalUtility += utility;
+        if(theoretical > 0) {
+            marketSimModel.theoreticalUtility += theoretical;
         }
         sendTraceNote(getName() + " utility = " + utility);
+        sendTraceNote(getName() + " theoretical utility = " + theoretical);
     }
 
     @Override
