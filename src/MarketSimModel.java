@@ -1,6 +1,5 @@
 import desmoj.core.dist.*;
 import desmoj.core.simulator.*;
-import desmoj.core.statistic.Tally;
 import desmoj.core.statistic.TimeSeries;
 
 import java.util.Random;
@@ -27,11 +26,12 @@ public class MarketSimModel extends Model {
     protected long theoreticalUtility;
 
     public static int MIN_PRICE = 1;
-    public static int MAX_PRICE = 600;
+    public static int MAX_PRICE = 200;
     //    public static int NUM_TRADERS = 10;
     public static int MEAN_TIME_BETWEEN_TRADES = 10;
-    public static int SIM_LENGTH = 2000;
-    public static int EQUILIBRIUM = 120;
+    public static int SIM_LENGTH = 1440;
+    public static int EQUILIBRIUM = 100;
+    public static boolean CLEAR_AFTER_TRADE = false;
 
     //TODO: Extend this to a list of exchanges
     public Exchange exchange;
@@ -50,18 +50,17 @@ public class MarketSimModel extends Model {
     public void doInitialSchedules() {
 
         //Create the supply and demand curves
-        int lower = 40;
-        for (int i = 1; i <= 5; i++) {
-            TradingAgent agentBuy = new ZIC(this, i * 40, true);
-            TradingAgent agentSell = new ZIC(this, (i - 1) * 60, false);
+        for (int i = 0; i < 25; i++) {
+            TradingAgent agentBuy = new ZIU(this, 40 + i*5, true);
+            TradingAgent agentSell = new ZIU(this, 40 + i*5, false);
             exchange.registerPrimary(agentBuy);
             exchange.registerPrimary(agentSell);
 
-            SubmitTradeEvent buy = new SubmitTradeEvent(this, "SubmitBuyOrder", true);
-            SubmitTradeEvent sell = new SubmitTradeEvent(this, "SubmitSellOrder", true);
+            TradingAgentDecisionEvent buy = new TradingAgentDecisionEvent(this, "BuyDecision", true);
+            TradingAgentDecisionEvent sell = new TradingAgentDecisionEvent(this, "SellDecision", true);
 
-            buy.schedule(agentBuy, new TimeSpan(getAgentArrivalTime(), TimeUnit.SECONDS));
-            sell.schedule(agentSell, new TimeSpan(getAgentArrivalTime(), TimeUnit.SECONDS));
+            buy.schedule(agentBuy, getAgentArrivalTime());
+            sell.schedule(agentSell, getAgentArrivalTime());
         }
     }
 
@@ -90,7 +89,7 @@ public class MarketSimModel extends Model {
         distributionManager.register(buyOrSell);
 
         //Entities
-        exchange = new Exchange(this, "Exchange", true);
+        exchange = new Exchange(this, "Exchange", true, CLEAR_AFTER_TRADE);
 
 
         //Reporting
@@ -102,9 +101,9 @@ public class MarketSimModel extends Model {
     }
 
 
-    public double getAgentArrivalTime() {
+    public TimeSpan getAgentArrivalTime() {
 //        return agentArrivalTime.sample();
-        return agentArrivalTimeUniform.sample();
+        return new TimeSpan(agentArrivalTimeUniform.sample(), TimeUnit.SECONDS);
     }
 
     public int getRandomPrice() {
@@ -115,9 +114,9 @@ public class MarketSimModel extends Model {
         return buyOrSell.sample();
     }
 
-    public long getLatency(Entity a, Entity b) {
+    public TimeSpan getLatency(Entity a, Entity b) {
         //TODO: Implement adjacency matrix
-        return 0;
+        return new TimeSpan(0, TimeUnit.MICROSECONDS);
     }
 
     /**
@@ -148,6 +147,8 @@ public class MarketSimModel extends Model {
         double allocative_efficiency = model.totalUtility / (double) model.theoreticalUtility;
 
         System.out.println("Allocative Efficiency = " + allocative_efficiency);
+
+        model.exchange.printQueues();
     }
 
 }

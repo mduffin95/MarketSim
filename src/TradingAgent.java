@@ -1,9 +1,7 @@
 import desmoj.core.simulator.*;
 
 public abstract class TradingAgent extends NetworkEntity {
-
-    public boolean traded = false; //TODO: remove this
-
+    protected boolean finished;
     protected int limit;
     protected int utility;
 
@@ -16,40 +14,34 @@ public abstract class TradingAgent extends NetworkEntity {
         utility = 0;
         marketSimModel = (MarketSimModel) model;
         this.limit = limit;
+        this.finished = false;
     }
 
-    public abstract Order getOrder();
+    public void sendPacket() { //(int numOrders, NumericalDist<Double> dist) {
+
+        //Get an order from the trading agent and send it to the exchange
+        Packet packet = getPacket();
+
+        PacketSendEvent sendEvent = new PacketSendEvent(marketSimModel, "PacketSendEvent", true);
+        sendEvent.schedule(packet, new TimeSpan(0)); //Send now
+    }
+
+    public abstract Packet getPacket();
+
+    public void handlePacket(Packet packet) {
+        //TODO: At some point it needs to be able to handle price updates
+        throw new UnsupportedOperationException();
+    }
 
     protected void traded(int price, boolean buy) {
-        traded = true;
-        int theoretical;
+        this.finished = true;
         if (buy) {
             utility = limit - price;
-            theoretical = limit - MarketSimModel.EQUILIBRIUM;
         } else {
             utility = price - limit;
-            theoretical = MarketSimModel.EQUILIBRIUM - limit;
         }
         marketSimModel.totalUtility += utility;
-        if(theoretical > 0) {
-            marketSimModel.theoreticalUtility += theoretical;
-        }
+
         sendTraceNote(getName() + " utility = " + utility);
-        sendTraceNote(getName() + " theoretical utility = " + theoretical);
-    }
-
-    @Override
-    public void handleSellOrder(SellOrder sellOrder) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void handleBuyOrder(BuyOrder buyOrder) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void handlePriceUpdate(PriceUpdate priceUpdate) {
-        throw new UnsupportedOperationException();
     }
 }

@@ -6,7 +6,5 @@ public abstract class NetworkEntity extends Entity {
         super(model, name, showInTrace);
     }
 
-    public abstract void handleSellOrder(SellOrder sellOrder);
-    public abstract void handleBuyOrder(BuyOrder buyOrder);
-    public abstract void handlePriceUpdate(PriceUpdate priceUpdate);
+    public abstract void handlePacket(Packet packet);
 }
