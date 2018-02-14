@@ -20,22 +20,19 @@ public class ZIC extends TradingAgent {
     }
 
     @Override
-    public Packet getPacket() {
-        Packet packet;
+    public Payload getPayload() {
         Payload payload = new Payload();
         if (buy) {
             payload.price = marketSimModel.generator.nextInt(limit + 1);
             payload.type = MessageType.BUYORDER;
-            packet = new Packet(marketSimModel, "BuyOrderEvent", true, this, primaryExchange, payload);
         } else {
             payload.price = limit + marketSimModel.generator.nextInt(MarketSimModel.MAX_PRICE - limit + 1);
             payload.type = MessageType.SELLORDER;
-            packet = new Packet(marketSimModel, "SellOrderEvent", true, this, primaryExchange, payload);
             //Sell for limit or more
 
         }
 
         payload.agent = this;
-        return packet;
+        return payload;
     }
 }

@@ -8,6 +8,6 @@ public class PacketSendEvent extends Event<Packet> {
 
     @Override
     public void eventRoutine(Packet packet) {
-        packet.send();
+        packet.scheduleArrival();
     }
 }

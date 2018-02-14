@@ -1,7 +1,5 @@
 import desmoj.core.simulator.*;
 
-import java.util.concurrent.TimeUnit;
-
 public class Packet extends Entity {
     private NetworkEntity source;
     private NetworkEntity dest;
@@ -24,7 +22,7 @@ public class Packet extends Entity {
         this(model, "Packet", false, source, dest, payload);
     }
 
-    public void send() {
+    public void scheduleArrival() {
         TimeSpan latency = marketSimModel.getLatency(source, dest);
 
         PacketArrivalEvent packetArrivalEvent = new PacketArrivalEvent(marketSimModel);

@@ -1,7 +1,6 @@
 import desmoj.core.simulator.*;
 
-import java.util.Comparator;
-import java.util.PriorityQueue;
+import java.util.*;
 
 public class Exchange extends NetworkEntity {
     MarketSimModel marketSimModel;
@@ -10,7 +9,7 @@ public class Exchange extends NetworkEntity {
     private PriorityQueue<Payload> sellQueue;
 
     //Entities that need to be notified of price changes
-    protected Queue<NetworkEntity> observers;
+    private List<NetworkEntity> observers;
 
     private boolean clearOrdersAfterTrade;
     /**
@@ -22,7 +21,7 @@ public class Exchange extends NetworkEntity {
         buyQueue = new PriorityQueue<>(10, Comparator.reverseOrder());
         sellQueue = new PriorityQueue<>(10);
 
-        observers = new Queue<>(marketSimModel, "Observers", true, true);
+        observers = new ArrayList<>();
 
         this.clearOrdersAfterTrade = clearOrdersAfterTrade;
     }
@@ -43,7 +42,7 @@ public class Exchange extends NetworkEntity {
         }
     }
 
-    public void handleBuyOrder(Payload payload) {
+    private void handleBuyOrder(Payload payload) {
         Payload b = payload;
 
         //Remove worse quotes (there should only ever be one worse)
@@ -62,7 +61,7 @@ public class Exchange extends NetworkEntity {
         handleOrder(true);
     }
 
-    public void handleSellOrder(Payload payload) {
+    private void handleSellOrder(Payload payload) {
         Payload s = payload;
 
         //Remove worse quotes (there should only ever be one worse)
@@ -117,7 +116,7 @@ public class Exchange extends NetworkEntity {
      */
     public void registerPrimary(TradingAgent agent) {
         agent.primaryExchange = this;
-        observers.insert(agent);
+        observers.add(agent);
     }
 
 

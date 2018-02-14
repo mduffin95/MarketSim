@@ -20,19 +20,16 @@ public class ZIU extends TradingAgent {
     }
 
     @Override
-    public Packet getPacket() {
-        Packet packet;
+    public Payload getPayload() {
         Payload payload = new Payload();
         if (buy) {
             payload.type = MessageType.BUYORDER;
-            packet = new Packet(marketSimModel, "BuyOrderEvent", true, this, primaryExchange, payload);
         } else {
             payload.type = MessageType.SELLORDER;
-            packet = new Packet(marketSimModel, "SellOrderEvent", true, this, primaryExchange, payload);
         }
 
         payload.price = marketSimModel.getRandomPrice();
         payload.agent = this;
-        return packet;
+        return payload;
     }
 }

@@ -13,7 +13,7 @@ public class TradingAgentDecisionEvent extends Event<TradingAgent> {
         if (tradingAgent.finished) {return;} //If it's finished trading then end
 
         //this sends a packet immediately
-        tradingAgent.sendPacket();
+        tradingAgent.primaryExchange.send(tradingAgent, tradingAgent.getPayload());
 
         //Reschedule
         schedule(tradingAgent, marketSimModel.getAgentArrivalTime());

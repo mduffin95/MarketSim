@@ -29,7 +29,7 @@ public class MarketSimModel extends Model {
     public static int MAX_PRICE = 200;
     //    public static int NUM_TRADERS = 10;
     public static int MEAN_TIME_BETWEEN_TRADES = 10;
-    public static int SIM_LENGTH = 1440;
+    public static int SIM_LENGTH = 250;
     public static int EQUILIBRIUM = 100;
     public static boolean CLEAR_AFTER_TRADE = false;
 
@@ -103,7 +103,7 @@ public class MarketSimModel extends Model {
 
     public TimeSpan getAgentArrivalTime() {
 //        return agentArrivalTime.sample();
-        return new TimeSpan(agentArrivalTimeUniform.sample(), TimeUnit.SECONDS);
+        return new TimeSpan(agentArrivalTime.sample(), TimeUnit.SECONDS);
     }
 
     public int getRandomPrice() {
@@ -114,7 +114,7 @@ public class MarketSimModel extends Model {
         return buyOrSell.sample();
     }
 
-    public TimeSpan getLatency(Entity a, Entity b) {
+    public TimeSpan getLatency(NetworkEntity a, NetworkEntity b) {
         //TODO: Implement adjacency matrix
         return new TimeSpan(0, TimeUnit.MICROSECONDS);
     }

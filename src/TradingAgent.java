@@ -17,16 +17,7 @@ public abstract class TradingAgent extends NetworkEntity {
         this.finished = false;
     }
 
-    public void sendPacket() { //(int numOrders, NumericalDist<Double> dist) {
-
-        //Get an order from the trading agent and send it to the exchange
-        Packet packet = getPacket();
-
-        PacketSendEvent sendEvent = new PacketSendEvent(marketSimModel, "PacketSendEvent", true);
-        sendEvent.schedule(packet, new TimeSpan(0)); //Send now
-    }
-
-    public abstract Packet getPacket();
+    public abstract Payload getPayload();
 
     public void handlePacket(Packet packet) {
         //TODO: At some point it needs to be able to handle price updates
