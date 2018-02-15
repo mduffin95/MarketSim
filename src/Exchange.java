@@ -2,7 +2,7 @@ import desmoj.core.simulator.*;
 
 import java.util.*;
 
-public class Exchange extends NetworkEntity {
+public class Exchange extends NetworkEntity implements PriceProvider {
     MarketSimModel marketSimModel;
 
     private PriorityQueue<Payload> buyQueue;
@@ -111,12 +111,10 @@ public class Exchange extends NetworkEntity {
     }
 
     /**
-     * Register a trading agent to this exchange. This means this exchange is now the primary exchange
-     * for that trading agent.
+     * Register a network entity to this exchange. This means the network entity will be sent price updates.
      */
-    public void registerPrimary(TradingAgent agent) {
-        agent.primaryExchange = this;
-        observers.add(agent);
+    public void registerPriceObserver(NetworkEntity networkEntity) {
+        observers.add(networkEntity);
     }
 
 

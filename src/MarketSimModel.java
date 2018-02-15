@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit;
 public class MarketSimModel extends Model {
 
     protected Random generator;
-    protected DistributionManager distributionManager;
+    private DistributionManager distributionManager;
 
     // define model components here
     //Random number stream used to draw an arrival time for the next trading agent
@@ -34,7 +34,9 @@ public class MarketSimModel extends Model {
     public static boolean CLEAR_AFTER_TRADE = false;
 
     //TODO: Extend this to a list of exchanges
-    public Exchange exchange;
+    private Exchange exchange;
+    private SecuritiesInformationProcessor sip;
+
 
     public MarketSimModel() {
         super(null, "ExchangeModel", true, true);
@@ -51,10 +53,8 @@ public class MarketSimModel extends Model {
 
         //Create the supply and demand curves
         for (int i = 0; i < 25; i++) {
-            TradingAgent agentBuy = new ZIU(this, 40 + i*5, true);
-            TradingAgent agentSell = new ZIU(this, 40 + i*5, false);
-            exchange.registerPrimary(agentBuy);
-            exchange.registerPrimary(agentSell);
+            TradingAgent agentBuy = new ZIC(this, 40 + i*5, exchange, sip, true);
+            TradingAgent agentSell = new ZIC(this, 40 + i*5, exchange, sip,false);
 
             TradingAgentDecisionEvent buy = new TradingAgentDecisionEvent(this, "BuyDecision", true);
             TradingAgentDecisionEvent sell = new TradingAgentDecisionEvent(this, "SellDecision", true);
@@ -90,6 +90,7 @@ public class MarketSimModel extends Model {
 
         //Entities
         exchange = new Exchange(this, "Exchange", true, CLEAR_AFTER_TRADE);
+        sip = new SecuritiesInformationProcessor(this, "Securities Information Processor", true);
 
 
         //Reporting

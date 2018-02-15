@@ -3,8 +3,8 @@ import desmoj.core.simulator.Model;
 public class ZIC extends TradingAgent {
     private boolean buy;
 
-    public ZIC(Model model, int limit, boolean buy) {
-        super(model, limit);
+    public ZIC(Model model, int limit, Exchange e, SecuritiesInformationProcessor sip, boolean buy) {
+        super(model, limit, e, sip);
         this.buy = buy;
 
         int theoretical;

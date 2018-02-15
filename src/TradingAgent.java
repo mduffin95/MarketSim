@@ -3,18 +3,25 @@ import desmoj.core.simulator.*;
 public abstract class TradingAgent extends NetworkEntity {
     protected boolean finished;
     protected int limit;
-    protected int utility;
+    private int utility;
 
     protected Exchange primaryExchange;
+    private SecuritiesInformationProcessor sip;
 
     protected MarketSimModel marketSimModel;
 
-    public TradingAgent(Model model, int limit) {
+    public TradingAgent(Model model, int limit, Exchange e, SecuritiesInformationProcessor sip) {
         super(model, "TradingAgent", true);
         utility = 0;
         marketSimModel = (MarketSimModel) model;
         this.limit = limit;
         this.finished = false;
+
+        this.primaryExchange = e;
+        this.primaryExchange.registerPriceObserver(this);
+
+        this.sip = sip;
+        this.sip.registerPriceObserver(this);
     }
 
     public abstract Payload getPayload();
