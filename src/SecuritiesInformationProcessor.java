@@ -1,9 +1,15 @@
 import desmoj.core.simulator.Model;
+import desmoj.core.simulator.TimeSpan;
 
+import java.awt.print.PrinterException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class SecuritiesInformationProcessor extends NetworkEntity implements PriceProvider {
+
+    private int bid;
+    private int offer;
+    private TimeSpan delta;
 
     private List<NetworkEntity> observers;
 
@@ -14,12 +20,11 @@ public class SecuritiesInformationProcessor extends NetworkEntity implements Pri
 
     @Override
     public void handlePacket(Packet packet) {
-        Payload payload = packet.getPayload();
-        if (payload.type != MessageType.PRICE) {
+        if (packet.getType() != MessageType.PRICE_QUOTE) {
             return;
         }
 
-
+        PriceQuote quote = (PriceQuote) packet.getPayload();
     }
 
     @Override

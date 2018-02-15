@@ -24,16 +24,19 @@ public abstract class TradingAgent extends NetworkEntity {
         this.sip.registerPriceObserver(this);
     }
 
-    public abstract Payload getPayload();
+    //Called by the reoccurring event
+    public abstract void doSomething();
+
+    public abstract Object getPayload();
 
     public void handlePacket(Packet packet) {
         //TODO: At some point it needs to be able to handle price updates
         throw new UnsupportedOperationException();
     }
 
-    protected void traded(int price, boolean buy) {
+    protected void traded(int price, Direction direction) {
         this.finished = true;
-        if (buy) {
+        if (direction == Direction.BUY) {
             utility = limit - price;
         } else {
             utility = price - limit;

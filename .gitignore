@@ -2,3 +2,4 @@
 *.class
 workspace.xml
 tasks.xml
+*.txt

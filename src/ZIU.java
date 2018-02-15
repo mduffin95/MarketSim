@@ -1,14 +1,14 @@
 import desmoj.core.simulator.Model;
 
 public class ZIU extends TradingAgent {
-    private boolean buy;
+    private Direction direction;
 
-    public ZIU(Model model, int limit, Exchange e, SecuritiesInformationProcessor sip, boolean buy) {
+    public ZIU(Model model, int limit, Exchange e, SecuritiesInformationProcessor sip, Direction direction) {
         super(model, limit, e, sip);
-        this.buy = buy;
+        this.direction = direction;
 
         int theoretical;
-        if (buy) {
+        if (direction == Direction.BUY) {
             theoretical = limit - MarketSimModel.EQUILIBRIUM;
         } else {
             theoretical = MarketSimModel.EQUILIBRIUM - limit;
@@ -20,16 +20,14 @@ public class ZIU extends TradingAgent {
     }
 
     @Override
-    public Payload getPayload() {
-        Payload payload = new Payload();
-        if (buy) {
-            payload.type = MessageType.BUYORDER;
-        } else {
-            payload.type = MessageType.SELLORDER;
-        }
+    public void doSomething() {
+        //this sends a packet immediately
+        primaryExchange.send(this, MessageType.LIMIT_ORDER, getPayload());
+    }
 
-        payload.price = marketSimModel.getRandomPrice();
-        payload.agent = this;
-        return payload;
+    @Override
+    public Object getPayload() {
+        int price = marketSimModel.getRandomPrice();
+        return new Order(this, primaryExchange, direction, price);
     }
 }

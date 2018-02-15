@@ -53,8 +53,8 @@ public class MarketSimModel extends Model {
 
         //Create the supply and demand curves
         for (int i = 0; i < 25; i++) {
-            TradingAgent agentBuy = new ZIC(this, 40 + i*5, exchange, sip, true);
-            TradingAgent agentSell = new ZIC(this, 40 + i*5, exchange, sip,false);
+            TradingAgent agentBuy = new ZIC(this, 40 + i * 5, exchange, sip, Direction.BUY);
+            TradingAgent agentSell = new ZIC(this, 40 + i * 5, exchange, sip, Direction.SELL);
 
             TradingAgentDecisionEvent buy = new TradingAgentDecisionEvent(this, "BuyDecision", true);
             TradingAgentDecisionEvent sell = new TradingAgentDecisionEvent(this, "SellDecision", true);
@@ -85,12 +85,13 @@ public class MarketSimModel extends Model {
         buyOrSell = new BoolDistBernoulli(this, "BuyOrSell", 0.5, true, false);
 
         distributionManager.register(agentArrivalTime);
+        distributionManager.register(agentArrivalTimeUniform);
         distributionManager.register(priceDist);
         distributionManager.register(buyOrSell);
 
         //Entities
-        exchange = new Exchange(this, "Exchange", true, CLEAR_AFTER_TRADE);
         sip = new SecuritiesInformationProcessor(this, "Securities Information Processor", true);
+        exchange = new Exchange(this, "Exchange", sip, true, CLEAR_AFTER_TRADE);
 
 
         //Reporting

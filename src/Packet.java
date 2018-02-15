@@ -4,22 +4,24 @@ public class Packet extends Entity {
     private NetworkEntity source;
     private NetworkEntity dest;
 
-    private Payload payload;
+    private MessageType type;
+    private Object payload;
 
     private MarketSimModel marketSimModel;
 
     public Packet(Model model, String name, boolean showInTrace, NetworkEntity source, NetworkEntity dest,
-                  Payload payload) {
+                  MessageType type, Object payload) {
         super(model, name, showInTrace);
         this.source = source;
         this.dest = dest;
+        this.type = type;
         this.payload = payload;
 
         marketSimModel = (MarketSimModel) model;
     }
 
-    public Packet(Model model, NetworkEntity source, NetworkEntity dest, Payload payload) {
-        this(model, "Packet", false, source, dest, payload);
+    public Packet(Model model, NetworkEntity source, NetworkEntity dest, MessageType type, Object payload) {
+        this(model, "Packet", false, source, dest, type, payload);
     }
 
     public void scheduleArrival() {
@@ -30,15 +32,19 @@ public class Packet extends Entity {
         packetArrivalEvent.schedule(this, latency);
     }
 
-    public NetworkEntity getDest() {
-        return dest;
+//    public NetworkEntity getDest() {
+//        return dest;
+//    }
+
+//    public NetworkEntity getSource() {
+//        return source;
+//    }
+
+    public MessageType getType() {
+        return type;
     }
 
-    public NetworkEntity getSource() {
-        return source;
-    }
-
-    public Payload getPayload() {
+    public Object getPayload() {
         return payload;
     }
 

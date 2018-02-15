@@ -12,8 +12,8 @@ public class TradingAgentDecisionEvent extends Event<TradingAgent> {
     public void eventRoutine(TradingAgent tradingAgent) {
         if (tradingAgent.finished) {return;} //If it's finished trading then end
 
-        //this sends a packet immediately
-        tradingAgent.primaryExchange.send(tradingAgent, tradingAgent.getPayload());
+        //Runs the trading agent's strategy
+        tradingAgent.doSomething();
 
         //Reschedule
         schedule(tradingAgent, marketSimModel.getAgentArrivalTime());
