@@ -21,13 +21,10 @@ public class ZIU extends TradingAgent {
 
     @Override
     public void doSomething() {
-        //this sends a packet immediately
-        primaryExchange.send(this, MessageType.LIMIT_ORDER, getPayload());
-    }
-
-    @Override
-    public Object getPayload() {
         int price = marketSimModel.getRandomPrice();
-        return new Order(this, primaryExchange, direction, price);
+        Order order = new Order(this, primaryExchange, direction, price);
+
+        //this sends a packet immediately
+        primaryExchange.send(this, MessageType.LIMIT_ORDER, order);
     }
 }

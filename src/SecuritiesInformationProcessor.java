@@ -25,6 +25,7 @@ public class SecuritiesInformationProcessor extends NetworkEntity implements Pri
         }
 
         PriceQuote quote = (PriceQuote) packet.getPayload();
+        sendTraceNote("SIP quote: BUY = " + quote.getBestBuyOrder().price + ", SELL = " + quote.getBestSellOrder().price);
     }
 
     @Override

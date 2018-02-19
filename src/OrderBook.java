@@ -14,6 +14,12 @@ public class OrderBook {
         sellQueue = new PriorityQueue<>(10);
     }
 
+    public void remove(Order order) {
+        if (order == null) {return;}
+        buyQueue.remove(order);
+        sellQueue.remove(order);
+    }
+
     public void add(Order order) {
         if (order == null) {return;}
         if (order.direction == Direction.BUY) {

@@ -12,27 +12,25 @@ public class Exchange extends NetworkEntity implements PriceProvider {
     //Entities that need to be notified of price changes
     private List<NetworkEntity> observers;
 
-    private boolean clearOrdersAfterTrade;
     /**
      * constructs a model...
      */
-    public Exchange(Model model, String name, SecuritiesInformationProcessor sip, boolean showInTrace, boolean clearOrdersAfterTrade) {
+    public Exchange(Model model, String name, SecuritiesInformationProcessor sip, boolean showInTrace) {
         super(model, name, showInTrace);
         marketSimModel = (MarketSimModel)getModel();
         this.sip = sip;
 
         observers = new ArrayList<>();
 
-        this.clearOrdersAfterTrade = clearOrdersAfterTrade;
-
         orderBook = new OrderBook();
     }
 
     @Override
     public void handlePacket(Packet packet) {
+        Order order;
         switch (packet.getType()) {
             case LIMIT_ORDER:
-                Order order = (Order)packet.getPayload();
+                order = (Order)packet.getPayload();
                 handleOrder(order);
                 break;
             case MARKET_ORDER:
@@ -40,6 +38,9 @@ public class Exchange extends NetworkEntity implements PriceProvider {
             case PRICE_QUOTE:
                 break;
             case CANCEL:
+                order = (Order)packet.getPayload();
+                orderBook.remove(order);
+                break;
         }
     }
 
@@ -62,15 +63,12 @@ public class Exchange extends NetworkEntity implements PriceProvider {
             b.agent.traded(price, Direction.BUY);
             s.agent.traded(price, Direction.SELL);
 
+            //Record the trade
             marketSimModel.tradePrices.update(price);
+            sendTraceNote("Trade at " + price);
 
             orderBook.pollBestBuyOrder();
             orderBook.pollBestSellOrder();
-
-            //Clear both queues after trade (Gode and Sunder)
-            if (clearOrdersAfterTrade) {
-                orderBook.clear();
-            }
 
             //Update the SIP with the new best bid and offer prices
             PriceQuote payload = orderBook.getPriceQuote(1);

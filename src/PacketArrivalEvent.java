@@ -9,6 +9,5 @@ public class PacketArrivalEvent extends Event<Packet> {
     @Override
     public void eventRoutine(Packet packet) {
         packet.arrived();
-        sendTraceNote("Packet arrived.");
     }
 }

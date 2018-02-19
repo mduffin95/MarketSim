@@ -2,6 +2,7 @@ import desmoj.core.simulator.Model;
 
 public class ZIC extends TradingAgent {
     private Direction direction;
+    private Order bestOrder;
 
     public ZIC(Model model, int limit, Exchange e, SecuritiesInformationProcessor sip, Direction direction) {
         super(model, limit, e, sip);
@@ -21,14 +22,19 @@ public class ZIC extends TradingAgent {
 
     @Override
     public void doSomething() {
-        //this sends a packet immediately
-        primaryExchange.send(this, MessageType.LIMIT_ORDER, getPayload());
+        Order newOrder = getOrder();
+
+        if (bestOrder == null ||
+                direction == Direction.BUY && newOrder.price > bestOrder.price ||
+                direction == Direction.SELL && newOrder.price < bestOrder.price) {
+            primaryExchange.send(this, MessageType.CANCEL, bestOrder);
+            primaryExchange.send(this, MessageType.LIMIT_ORDER, newOrder);
+            bestOrder = newOrder;
+        }
     }
 
-    @Override
-    public Object getPayload() {
+    private Order getOrder() {
         int price;
-        MessageType type;
         if (direction == Direction.BUY) {
             price = marketSimModel.generator.nextInt(limit + 1);
 

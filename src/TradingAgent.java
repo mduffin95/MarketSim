@@ -27,8 +27,6 @@ public abstract class TradingAgent extends NetworkEntity {
     //Called by the reoccurring event
     public abstract void doSomething();
 
-    public abstract Object getPayload();
-
     public void handlePacket(Packet packet) {
         //TODO: At some point it needs to be able to handle price updates
         throw new UnsupportedOperationException();

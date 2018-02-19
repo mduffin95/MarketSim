@@ -31,7 +31,6 @@ public class MarketSimModel extends Model {
     public static int MEAN_TIME_BETWEEN_TRADES = 10;
     public static int SIM_LENGTH = 250;
     public static int EQUILIBRIUM = 100;
-    public static boolean CLEAR_AFTER_TRADE = false;
 
     //TODO: Extend this to a list of exchanges
     private Exchange exchange;
@@ -91,7 +90,7 @@ public class MarketSimModel extends Model {
 
         //Entities
         sip = new SecuritiesInformationProcessor(this, "Securities Information Processor", true);
-        exchange = new Exchange(this, "Exchange", sip, true, CLEAR_AFTER_TRADE);
+        exchange = new Exchange(this, "Exchange", sip, true);
 
 
         //Reporting
@@ -152,5 +151,4 @@ public class MarketSimModel extends Model {
 
         model.exchange.printQueues();
     }
-
 }
