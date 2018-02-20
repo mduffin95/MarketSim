@@ -21,7 +21,9 @@ public class OrderBook {
     }
 
     public void add(Order order) {
-        if (order == null) {return;}
+        if (order == null) {
+            return;
+        }
         if (order.direction == Direction.BUY) {
             buyQueue.add(order);
         } else {
@@ -70,11 +72,11 @@ public class OrderBook {
     public void printOrderBook() {
         System.out.println("Buy Queue");
         while(!buyQueue.isEmpty()){
-            System.out.println(buyQueue.poll().price);
+            System.out.println(buyQueue.poll().getPrice());
         }
         System.out.println("Sell Queue");
         while(!sellQueue.isEmpty()){
-            System.out.println(sellQueue.poll().price);
+            System.out.println(sellQueue.poll().getPrice());
         }
     }
 }

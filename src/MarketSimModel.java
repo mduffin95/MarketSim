@@ -31,6 +31,9 @@ public class MarketSimModel extends Model {
     public static int MEAN_TIME_BETWEEN_TRADES = 10;
     public static int SIM_LENGTH = 250;
     public static int EQUILIBRIUM = 100;
+    public static boolean SHOW_ENTITIES_IN_TRACE = true;
+    public static boolean SHOW_EVENTS_IN_TRACE = false;
+
 
     //TODO: Extend this to a list of exchanges
     private Exchange exchange;
@@ -55,8 +58,8 @@ public class MarketSimModel extends Model {
             TradingAgent agentBuy = new ZIC(this, 40 + i * 5, exchange, sip, Direction.BUY);
             TradingAgent agentSell = new ZIC(this, 40 + i * 5, exchange, sip, Direction.SELL);
 
-            TradingAgentDecisionEvent buy = new TradingAgentDecisionEvent(this, "BuyDecision", true);
-            TradingAgentDecisionEvent sell = new TradingAgentDecisionEvent(this, "SellDecision", true);
+            TradingAgentDecisionEvent buy = new TradingAgentDecisionEvent(this, "BuyDecision", MarketSimModel.SHOW_EVENTS_IN_TRACE);
+            TradingAgentDecisionEvent sell = new TradingAgentDecisionEvent(this, "SellDecision", MarketSimModel.SHOW_EVENTS_IN_TRACE);
 
             buy.schedule(agentBuy, getAgentArrivalTime());
             sell.schedule(agentSell, getAgentArrivalTime());
@@ -89,8 +92,8 @@ public class MarketSimModel extends Model {
         distributionManager.register(buyOrSell);
 
         //Entities
-        sip = new SecuritiesInformationProcessor(this, "Securities Information Processor", true);
-        exchange = new Exchange(this, "Exchange", sip, true);
+        sip = new SecuritiesInformationProcessor(this, "Securities Information Processor", MarketSimModel.SHOW_ENTITIES_IN_TRACE);
+        exchange = new Exchange(this, "Exchange", sip, MarketSimModel.SHOW_ENTITIES_IN_TRACE);
 
 
         //Reporting

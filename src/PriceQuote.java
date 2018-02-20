@@ -1,3 +1,5 @@
+import com.google.common.base.Equivalence;
+
 public class PriceQuote {
     public int depth;
     public Order[] buyOrders;
@@ -16,4 +18,5 @@ public class PriceQuote {
     public Order getBestSellOrder() {
         return sellOrders[0];
     }
+
 }

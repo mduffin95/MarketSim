@@ -1,8 +1,8 @@
 import desmoj.core.simulator.*;
 
 public class PacketSendEvent extends Event<Packet> {
-    public PacketSendEvent(Model owner, String name, boolean showInTrace) {
-        super(owner, name, showInTrace);
+    public PacketSendEvent(Model owner) {
+        super(owner, "PacketSendEvent", MarketSimModel.SHOW_EVENTS_IN_TRACE);
 
     }
 

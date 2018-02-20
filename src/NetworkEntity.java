@@ -13,10 +13,14 @@ public abstract class NetworkEntity extends Entity {
 
     //Send a payload to this NetworkEntity from the source NetworkEntity
     public void send(NetworkEntity source, MessageType type, Object payload) {
+        send(source, type, payload, new TimeSpan(0));
+    }
+
+    public void send(NetworkEntity source, MessageType type, Object payload, TimeSpan delay) {
         String name = "PacketFrom" + source.getName() + "To" + this.getName();
         Packet packet = new Packet(marketSimModel, name, true, source, this, type, payload);
 
-        PacketSendEvent sendEvent = new PacketSendEvent(marketSimModel, "PacketSendEvent", true);
-        sendEvent.schedule(packet); //Send now
+        PacketSendEvent sendEvent = new PacketSendEvent(marketSimModel);
+        sendEvent.schedule(packet, delay);
     }
 }

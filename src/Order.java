@@ -5,7 +5,7 @@ public class Order implements Comparable<Order> {
     private Exchange exchange;
     public Direction direction;
     private TimeInstant timeStamp;
-    public int price;
+    private int price;
 
     public Order(TradingAgent agent, Exchange exchange, Direction direction, int price) {
         this.agent = agent;
@@ -21,5 +21,13 @@ public class Order implements Comparable<Order> {
 
     public void setTimeStamp(TimeInstant timeStamp) {
         this.timeStamp = timeStamp;
+    }
+
+    public Exchange getExchange() {
+        return exchange;
+    }
+
+    public int getPrice() {
+        return price;
     }
 }

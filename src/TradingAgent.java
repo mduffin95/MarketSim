@@ -11,7 +11,7 @@ public abstract class TradingAgent extends NetworkEntity {
     protected MarketSimModel marketSimModel;
 
     public TradingAgent(Model model, int limit, Exchange e, SecuritiesInformationProcessor sip) {
-        super(model, "TradingAgent", true);
+        super(model, "TradingAgent", MarketSimModel.SHOW_ENTITIES_IN_TRACE);
         utility = 0;
         marketSimModel = (MarketSimModel) model;
         this.limit = limit;

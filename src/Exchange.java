@@ -1,4 +1,3 @@
-import com.sun.org.apache.xpath.internal.operations.Or;
 import desmoj.core.simulator.*;
 
 import java.util.*;
@@ -45,6 +44,7 @@ public class Exchange extends NetworkEntity implements PriceProvider {
     }
 
     private void handleOrder(Order order) {
+        PriceQuote original = orderBook.getPriceQuote(1);
         orderBook.add(order);
 
         Order b = orderBook.getBestBuyOrder();
@@ -53,12 +53,12 @@ public class Exchange extends NetworkEntity implements PriceProvider {
         if (b == null) { return; }
         if (s == null) { return; }
 
-        if (b.price >= s.price) {
+        if (b.getPrice() >= s.getPrice()) {
             int price;
             if (order.direction == Direction.BUY) {
-                price = s.price;
+                price = s.getPrice();
             } else {
-                price = b.price;
+                price = b.getPrice();
             }
             b.agent.traded(price, Direction.BUY);
             s.agent.traded(price, Direction.SELL);
@@ -69,11 +69,15 @@ public class Exchange extends NetworkEntity implements PriceProvider {
 
             orderBook.pollBestBuyOrder();
             orderBook.pollBestSellOrder();
-
-            //Update the SIP with the new best bid and offer prices
-            PriceQuote payload = orderBook.getPriceQuote(1);
-            sip.send(this, MessageType.PRICE_QUOTE, payload);
         }
+
+        //The price quote has changed so this needs to be sent to the SIP
+        PriceQuote newQuote = orderBook.getPriceQuote(1);
+        if (newQuote.getBestBuyOrder() != original.getBestBuyOrder() ||
+                newQuote.getBestSellOrder() != original.getBestSellOrder()) {
+            sip.send(this, MessageType.PRICE_QUOTE, newQuote);
+        }
+
     }
 
     /**

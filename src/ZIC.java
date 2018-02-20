@@ -25,8 +25,8 @@ public class ZIC extends TradingAgent {
         Order newOrder = getOrder();
 
         if (bestOrder == null ||
-                direction == Direction.BUY && newOrder.price > bestOrder.price ||
-                direction == Direction.SELL && newOrder.price < bestOrder.price) {
+                direction == Direction.BUY && newOrder.getPrice() > bestOrder.getPrice() ||
+                direction == Direction.SELL && newOrder.getPrice() < bestOrder.getPrice()) {
             primaryExchange.send(this, MessageType.CANCEL, bestOrder);
             primaryExchange.send(this, MessageType.LIMIT_ORDER, newOrder);
             bestOrder = newOrder;
