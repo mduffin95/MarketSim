@@ -27,4 +27,9 @@ public class ZIU extends TradingAgent {
         //this sends a packet immediately
         primaryExchange.send(this, MessageType.LIMIT_ORDER, order);
     }
+
+    @Override
+    protected void respond(MarketUpdate update) {
+        return;
+    }
 }

@@ -10,7 +10,7 @@ public class TradingAgentDecisionEvent extends Event<TradingAgent> {
 
     @Override
     public void eventRoutine(TradingAgent tradingAgent) {
-        if (tradingAgent.finished) {return;} //If it's finished trading then end
+        if (!tradingAgent.active) {return;} //If it's finished trading then end
 
         //Runs the trading agent's strategy
         tradingAgent.doSomething();

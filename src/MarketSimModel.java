@@ -9,6 +9,7 @@ public class MarketSimModel extends Model {
 
     protected Random generator;
     private DistributionManager distributionManager;
+    protected SimClock clock;
 
     // define model components here
     //Random number stream used to draw an arrival time for the next trading agent
@@ -55,8 +56,8 @@ public class MarketSimModel extends Model {
 
         //Create the supply and demand curves
         for (int i = 0; i < 25; i++) {
-            TradingAgent agentBuy = new ZIC(this, 40 + i * 5, exchange, sip, Direction.BUY);
-            TradingAgent agentSell = new ZIC(this, 40 + i * 5, exchange, sip, Direction.SELL);
+            TradingAgent agentBuy = new ZIP(this, 40 + i * 5, exchange, sip, Direction.BUY);
+            TradingAgent agentSell = new ZIP(this, 40 + i * 5, exchange, sip, Direction.SELL);
 
             TradingAgentDecisionEvent buy = new TradingAgentDecisionEvent(this, "BuyDecision", MarketSimModel.SHOW_EVENTS_IN_TRACE);
             TradingAgentDecisionEvent sell = new TradingAgentDecisionEvent(this, "SellDecision", MarketSimModel.SHOW_EVENTS_IN_TRACE);
@@ -71,6 +72,7 @@ public class MarketSimModel extends Model {
 
         long seed = generator.nextLong();
         distributionManager = new DistributionManager("Distribution Manager", seed);
+        clock = new SimClock("Clock");
 
 
         //Distributions

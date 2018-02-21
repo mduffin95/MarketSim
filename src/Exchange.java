@@ -4,7 +4,6 @@ import java.util.*;
 
 public class Exchange extends NetworkEntity implements PriceProvider {
     private MarketSimModel marketSimModel;
-    private SecuritiesInformationProcessor sip;
 
     private OrderBook orderBook;
 
@@ -17,11 +16,10 @@ public class Exchange extends NetworkEntity implements PriceProvider {
     public Exchange(Model model, String name, SecuritiesInformationProcessor sip, boolean showInTrace) {
         super(model, name, showInTrace);
         marketSimModel = (MarketSimModel)getModel();
-        this.sip = sip;
-
         observers = new ArrayList<>();
-
         orderBook = new OrderBook();
+
+        registerPriceObserver(sip);
     }
 
     @Override
@@ -34,7 +32,7 @@ public class Exchange extends NetworkEntity implements PriceProvider {
                 break;
             case MARKET_ORDER:
                 break;
-            case PRICE_QUOTE:
+            case MARKET_UPDATE:
                 break;
             case CANCEL:
                 order = (Order)packet.getPayload();
@@ -44,7 +42,7 @@ public class Exchange extends NetworkEntity implements PriceProvider {
     }
 
     private void handleOrder(Order order) {
-        PriceQuote original = orderBook.getPriceQuote(1);
+        LOBSummary original = orderBook.getSummary(1);
         orderBook.add(order);
 
         Order b = orderBook.getBestBuyOrder();
@@ -53,6 +51,8 @@ public class Exchange extends NetworkEntity implements PriceProvider {
         if (b == null) { return; }
         if (s == null) { return; }
 
+        Trade newTrade = null;
+
         if (b.getPrice() >= s.getPrice()) {
             int price;
             if (order.direction == Direction.BUY) {
@@ -60,24 +60,31 @@ public class Exchange extends NetworkEntity implements PriceProvider {
             } else {
                 price = b.getPrice();
             }
-            b.agent.traded(price, Direction.BUY);
-            s.agent.traded(price, Direction.SELL);
+            newTrade = new Trade(marketSimModel.clock.getTime(), price, 1, b.agent, s.agent);
 
             //Record the trade
             marketSimModel.tradePrices.update(price);
             sendTraceNote("Trade at " + price);
 
+            //Remove from the order book
             orderBook.pollBestBuyOrder();
             orderBook.pollBestSellOrder();
         }
 
-        //The price quote has changed so this needs to be sent to the SIP
-        PriceQuote newQuote = orderBook.getPriceQuote(1);
-        if (newQuote.getBestBuyOrder() != original.getBestBuyOrder() ||
-                newQuote.getBestSellOrder() != original.getBestSellOrder()) {
-            sip.send(this, MessageType.PRICE_QUOTE, newQuote);
-        }
+        LOBSummary newSummary = orderBook.getSummary(1);
+        if (newSummary.getBestBuyOrder() != original.getBestBuyOrder() ||
+                newSummary.getBestSellOrder() != original.getBestSellOrder() ||
+                newTrade != null) {
+            MarketUpdate update = new MarketUpdate(newTrade, newSummary);
+            MessageType msg;
 
+            //The price quote has changed so this needs to be sent to all observers
+            msg = MessageType.MARKET_UPDATE;
+
+            for (NetworkEntity e: observers) {
+                e.send(this, msg, update, marketSimModel.getLatency(this, e));
+            }
+        }
     }
 
     /**

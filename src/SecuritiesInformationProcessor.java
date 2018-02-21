@@ -1,8 +1,6 @@
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeSpan;
 
-import java.awt.print.PrinterException;
-import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,15 +19,15 @@ public class SecuritiesInformationProcessor extends NetworkEntity implements Pri
 
     @Override
     public void handlePacket(Packet packet) {
-        if (packet.getType() != MessageType.PRICE_QUOTE) {
+        if (packet.getType() != MessageType.MARKET_UPDATE) {
             return;
         }
-
-        PriceQuote quote = (PriceQuote) packet.getPayload();
+        MarketUpdate update = (MarketUpdate) packet.getPayload();
+        LOBSummary summary = update.summary;
 //        sendTraceNote("SIP quote: BUY = " + quote.getBestBuyOrder().price + ", SELL = " + quote.getBestSellOrder().price);
 
-        Order bid = quote.getBestBuyOrder();
-        Order offer = quote.getBestSellOrder();
+        Order bid = summary.getBestBuyOrder();
+        Order offer = summary.getBestSellOrder();
         boolean changed = false;
 
         if (bestBid == null || bid.getPrice() > bestBid.getPrice() ||
@@ -53,13 +51,13 @@ public class SecuritiesInformationProcessor extends NetworkEntity implements Pri
 
         sendTraceNote("NBBO: BUY = " + bidString + ", SELL = " + offerString);
 
-        PriceQuote priceQuote = new PriceQuote(1);
-        priceQuote.buyOrders[0] = bestBid;
-        priceQuote.sellOrders[0] = bestOffer;
+        LOBSummary summary = new LOBSummary(1);
+        summary.buyOrders[0] = bestBid;
+        summary.sellOrders[0] = bestOffer;
 
         //Send updated prices to all observers
         for (NetworkEntity e: observers) {
-            e.send(this, MessageType.PRICE_QUOTE, priceQuote, delta);
+            e.send(this, MessageType.MARKET_UPDATE, summary, delta);
         }
     }
 

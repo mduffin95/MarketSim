@@ -1,9 +1,9 @@
 import desmoj.core.simulator.*;
 
 public abstract class TradingAgent extends NetworkEntity {
-    protected boolean finished;
+    protected boolean active;
     protected int limit;
-    private int utility;
+    protected int utility;
 
     protected Exchange primaryExchange;
     private SecuritiesInformationProcessor sip;
@@ -15,7 +15,7 @@ public abstract class TradingAgent extends NetworkEntity {
         utility = 0;
         marketSimModel = (MarketSimModel) model;
         this.limit = limit;
-        this.finished = false;
+        this.active = true;
 
         this.primaryExchange = e;
         this.primaryExchange.registerPriceObserver(this);
@@ -24,23 +24,23 @@ public abstract class TradingAgent extends NetworkEntity {
         this.sip.registerPriceObserver(this);
     }
 
-    //Called by the reoccurring event
+    //Called by the recurring event
     public abstract void doSomething();
 
+    protected abstract void respond(MarketUpdate update);
+
     public void handlePacket(Packet packet) {
-        //TODO: At some point it needs to be able to handle price updates
-        throw new UnsupportedOperationException();
-    }
-
-    protected void traded(int price, Direction direction) {
-        this.finished = true;
-        if (direction == Direction.BUY) {
-            utility = limit - price;
-        } else {
-            utility = price - limit;
+        MarketUpdate update;
+        switch (packet.getType()) {
+            case LIMIT_ORDER:
+                break;
+            case MARKET_ORDER:
+                break;
+            case MARKET_UPDATE:
+                update = (MarketUpdate)packet.getPayload();
+                respond(update);
+            case CANCEL:
+                break;
         }
-        marketSimModel.totalUtility += utility;
-
-        sendTraceNote(getName() + " utility = " + utility);
     }
 }
