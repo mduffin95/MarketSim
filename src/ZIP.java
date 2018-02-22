@@ -1,28 +1,47 @@
 import desmoj.core.simulator.Model;
 
 public class ZIP extends TradingAgent {
-    private double mu = 0.0;
+    private double margin;
     private double ca = 0.05;
     private double cr = 0.05;
+    private double momentum;
+    private double beta;
+    private double prev_change;
 
-    private double learning_rate;
+//    private double learning_rate;
     private LOBSummary currentSummary;
     private Direction direction;
+    private Order previousOrder = null;
 
 
     public ZIP(Model model, int limit, Exchange e, SecuritiesInformationProcessor sip, Direction direction) {
         super(model, limit, e, sip);
         this.direction = direction;
-        learning_rate = 0.25;
+//        learning_rate = 0.25;
+        momentum = 0.1 * marketSimModel.generator.nextDouble();
+        beta = 0.1 + 0.4 * marketSimModel.generator.nextDouble();
+
+        if (direction == Direction.BUY) {
+            margin = -1.0 * (0.05 + 0.3 * marketSimModel.generator.nextDouble());
+        } else {
+            margin = 0.05 + 0.3 * marketSimModel.generator.nextDouble();
+        }
     }
 
     @Override
     public void doSomething() {
-        return;
+        if (active) {
+            Order newOrder = new Order(this, primaryExchange, this.direction, getPrice());
+            primaryExchange.send(this, MessageType.CANCEL, previousOrder);
+            primaryExchange.send(this, MessageType.LIMIT_ORDER, newOrder);
+            previousOrder = newOrder;
+        }
     }
 
     @Override
     protected void respond(MarketUpdate update) {
+        handleTrade(update.trade);
+
         //Determine what has happened
         LOBSummary newSummary = update.summary;
         Trade trade = update.trade;
@@ -31,8 +50,10 @@ public class ZIP extends TradingAgent {
         Direction lastOrderDirection = null;
         int price;
 
+        Order currentBestBuy = (null == currentSummary) ? null : currentSummary.getBestBuyOrder();
+        Order currentBestSell = (null == currentSummary) ? null : currentSummary.getBestSellOrder();
 
-        if (currentSummary.getBestBuyOrder() != newSummary.getBestBuyOrder()) {
+        if (currentBestBuy != newSummary.getBestBuyOrder()) {
             //Either new buy order or trade occurred that cleared with the buy order
             if (deal) {
                 //Most recent order was a sell order
@@ -43,7 +64,7 @@ public class ZIP extends TradingAgent {
                 lastOrderDirection = Direction.BUY;
                 price = newSummary.getBestBuyOrder().getPrice();
             }
-        } else if (currentSummary.getBestSellOrder() != newSummary.getBestSellOrder()) {
+        } else if (currentBestSell != newSummary.getBestSellOrder()) {
             //Either new sell order or trade occurred that cleared with the sell order
             if (deal) {
                 //Most recent order was a buy order
@@ -98,6 +119,7 @@ public class ZIP extends TradingAgent {
                 updateMargin(target);
             }
         }
+        sendTraceNote("Limit = " + limit + ", Price = " + getPrice());
     }
 
     private int target_up(int price) {
@@ -118,15 +140,25 @@ public class ZIP extends TradingAgent {
 
     private void updateMargin(int target) {
         int price = getPrice();
-        int delta = getDelta(target, price);
-        mu = (price * delta) / limit - 1.0;
-    }
+        double delta = beta * (target - price);
+        double change = (momentum * prev_change) + (1.0 - momentum) * delta;
+        prev_change = change;
+        double newMargin = ((price + change) / limit) - 1;
 
-    private int getDelta(int target, int price) {
-        return (int)Math.round(learning_rate * (target - price));
+        if (direction == Direction.BUY) {
+            if (newMargin < 0.0) {
+                margin = newMargin;
+            }
+        } else {
+            if (newMargin > 0.0) {
+                margin = newMargin;
+            }
+        }
     }
 
     private int getPrice() {
-        return (int)Math.round(limit * (1 + mu));
+        int p = (int)Math.round(limit * (1 + margin));
+        assert (direction == Direction.BUY && p <= limit) || (direction == Direction.SELL && p >= limit);
+        return p;
     }
 }

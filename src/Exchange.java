@@ -48,12 +48,9 @@ public class Exchange extends NetworkEntity implements PriceProvider {
         Order b = orderBook.getBestBuyOrder();
         Order s = orderBook.getBestSellOrder();
 
-        if (b == null) { return; }
-        if (s == null) { return; }
-
         Trade newTrade = null;
 
-        if (b.getPrice() >= s.getPrice()) {
+        if (null != b && null != s && b.getPrice() >= s.getPrice()) {
             int price;
             if (order.direction == Direction.BUY) {
                 price = s.getPrice();

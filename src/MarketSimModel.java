@@ -30,7 +30,7 @@ public class MarketSimModel extends Model {
     public static int MAX_PRICE = 200;
     //    public static int NUM_TRADERS = 10;
     public static int MEAN_TIME_BETWEEN_TRADES = 10;
-    public static int SIM_LENGTH = 250;
+    public static int SIM_LENGTH = 100;
     public static int EQUILIBRIUM = 100;
     public static boolean SHOW_ENTITIES_IN_TRACE = true;
     public static boolean SHOW_EVENTS_IN_TRACE = false;

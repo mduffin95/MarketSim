@@ -35,25 +35,19 @@ public class ZIC extends TradingAgent {
 
     @Override
     protected void respond(MarketUpdate update) {
-        if (null == update.trade) {return;}
-
-        if (this == update.trade.buyer) {
-            assert direction == Direction.BUY;
+        if (isMyTrade(update.trade)) {
+            if (this == update.trade.buyer) {
+                assert direction == Direction.BUY;
+                utility = limit - update.trade.price;
+            } else if (this == update.trade.seller) {
+                assert direction == Direction.SELL;
+                utility = update.trade.price - limit;
+            }
+            //Was a buyer or a seller in this trade
             this.active = false;
-            utility = limit - update.trade.price;
-
-        } else if (this == update.trade.seller) {
-            assert direction == Direction.SELL;
-            this.active = false;
-            utility = update.trade.price - limit;
-
-        } else { //Neither buyer nor seller
-            return;
+            marketSimModel.totalUtility += utility;
+            sendTraceNote(getName() + " utility = " + utility);
         }
-
-        //Was a buyer or a seller in this trade
-        marketSimModel.totalUtility += utility;
-        sendTraceNote(getName() + " utility = " + utility);
     }
 
     private Order getOrder() {
