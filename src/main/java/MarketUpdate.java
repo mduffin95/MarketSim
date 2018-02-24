@@ -1,3 +1,5 @@
+
+
 public class MarketUpdate {
     public Trade trade;
     public LOBSummary summary;

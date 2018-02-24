@@ -1,3 +1,5 @@
+
+
 import desmoj.core.simulator.TimeInstant;
 
 public class Trade {

@@ -9,7 +9,7 @@ public class MarketSimModel extends Model {
 
     protected Random generator;
     private DistributionManager distributionManager;
-    protected SimClock clock;
+//    protected SimClock clock;
 
     // define model components here
     //Random number stream used to draw an arrival time for the next trading agent
@@ -23,7 +23,19 @@ public class MarketSimModel extends Model {
     private BoolDistBernoulli buyOrSell;
 
     protected TimeSeries tradePrices;
+
+    private Schedule schedule;
+
+    public long getTotalUtility() {
+        return totalUtility;
+    }
+
     protected long totalUtility;
+
+    public long getTheoreticalUtility() {
+        return theoreticalUtility;
+    }
+
     protected long theoreticalUtility;
 
     public static int MIN_PRICE = 1;
@@ -36,14 +48,19 @@ public class MarketSimModel extends Model {
     public static boolean SHOW_EVENTS_IN_TRACE = false;
 
 
+    public Exchange getExchange() {
+        return exchange;
+    }
+
     //TODO: Extend this to a list of exchanges
     private Exchange exchange;
     private SecuritiesInformationProcessor sip;
 
 
-    public MarketSimModel() {
+    public MarketSimModel(Schedule s) {
         super(null, "ExchangeModel", true, true);
         generator = new Random();
+        this.schedule = s;
     }
 
     @Override
@@ -53,18 +70,8 @@ public class MarketSimModel extends Model {
 
     @Override
     public void doInitialSchedules() {
-
-        //Create the supply and demand curves
-        for (int i = 0; i < 25; i++) {
-            TradingAgent agentBuy = new ZIP(this, 40 + i * 5, exchange, sip, Direction.BUY);
-            TradingAgent agentSell = new ZIP(this, 40 + i * 5, exchange, sip, Direction.SELL);
-
-            TradingAgentDecisionEvent buy = new TradingAgentDecisionEvent(this, "BuyDecision", MarketSimModel.SHOW_EVENTS_IN_TRACE);
-            TradingAgentDecisionEvent sell = new TradingAgentDecisionEvent(this, "SellDecision", MarketSimModel.SHOW_EVENTS_IN_TRACE);
-
-            buy.schedule(agentBuy, getAgentArrivalTime());
-            sell.schedule(agentSell, getAgentArrivalTime());
-        }
+        //Creates and schedules the trading agents
+        schedule.createAgents(this, exchange, sip);
     }
 
     @Override
@@ -72,8 +79,6 @@ public class MarketSimModel extends Model {
 
         long seed = generator.nextLong();
         distributionManager = new DistributionManager("Distribution Manager", seed);
-        clock = new SimClock("Clock");
-
 
         //Distributions
         agentArrivalTime = new ContDistExponential(this, "AgentArrivalTimeStream",
@@ -95,11 +100,11 @@ public class MarketSimModel extends Model {
 
         //Entities
         sip = new SecuritiesInformationProcessor(this, "Securities Information Processor", MarketSimModel.SHOW_ENTITIES_IN_TRACE);
-        exchange = new Exchange(this, "Exchange", sip, MarketSimModel.SHOW_ENTITIES_IN_TRACE);
+        exchange = new Exchange(this, "main.java.Exchange", sip, MarketSimModel.SHOW_ENTITIES_IN_TRACE);
 
 
         //Reporting
-        tradePrices = new TimeSeries(this, "Trade prices over time", "trade_prices.txt",
+        tradePrices = new TimeSeries(this, "main.java.Trade prices over time", "trade_prices.txt",
                 new TimeInstant(0.0), new TimeInstant(MarketSimModel.SIM_LENGTH), true, false);
 
 //        totalUtility = new Tally(this, "Utility Tally", true, false);
@@ -131,8 +136,9 @@ public class MarketSimModel extends Model {
     public static void main(String[] args) {
 
         // create model and experiment
-        MarketSimModel model = new MarketSimModel();
         Experiment exp = new Experiment("Exp1");
+        Schedule schedule = new ZIPSchedule(25, 0, 200);
+        MarketSimModel model = new MarketSimModel(schedule);
         // and connect them
         model.connectToExperiment(exp);
 

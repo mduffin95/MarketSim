@@ -1,3 +1,5 @@
+
+
 import desmoj.core.simulator.Model;
 
 public class ZIC extends TradingAgent {

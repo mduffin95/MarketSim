@@ -57,11 +57,12 @@ public class Exchange extends NetworkEntity implements PriceProvider {
             } else {
                 price = b.getPrice();
             }
-            newTrade = new Trade(marketSimModel.clock.getTime(), price, 1, b.agent, s.agent);
+            TimeInstant currentTime = marketSimModel.getExperiment().getSimClock().getTime();
+            newTrade = new Trade(currentTime, price, 1, b.agent, s.agent);
 
             //Record the trade
             marketSimModel.tradePrices.update(price);
-            sendTraceNote("Trade at " + price);
+            sendTraceNote("main.java.Trade at " + price);
 
             //Remove from the order book
             orderBook.pollBestBuyOrder();

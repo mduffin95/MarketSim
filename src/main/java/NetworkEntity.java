@@ -1,3 +1,5 @@
+
+
 import desmoj.core.simulator.*;
 
 public abstract class NetworkEntity extends Entity {
@@ -11,7 +13,7 @@ public abstract class NetworkEntity extends Entity {
     //Used to handle incoming packets
     public abstract void handlePacket(Packet packet);
 
-    //Send a payload to this NetworkEntity from the source NetworkEntity
+    //Send a payload to this main.java.NetworkEntity from the source main.java.NetworkEntity
     public void send(NetworkEntity source, MessageType type, Object payload) {
         send(source, type, payload, new TimeSpan(0));
     }

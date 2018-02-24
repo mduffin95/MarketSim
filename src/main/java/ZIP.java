@@ -1,3 +1,5 @@
+
+
 import desmoj.core.simulator.Model;
 
 public class ZIP extends TradingAgent {
@@ -85,7 +87,7 @@ public class ZIP extends TradingAgent {
         int target;
         if (direction == Direction.SELL) {
             if (deal)  {
-                //Trade has occurred.
+                //main.java.Trade has occurred.
                 if (getPrice() <= trade.price) {
                     //increase profit margin
                     target = target_up(price);
@@ -103,7 +105,7 @@ public class ZIP extends TradingAgent {
 
         } else {
             if (deal) {
-                //Trade has occurred.
+                //main.java.Trade has occurred.
                 if (getPrice() >= trade.price) {
                     //increase profit margin (lower bid price)
                     target = target_down(price);

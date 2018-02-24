@@ -1,3 +1,5 @@
+
+
 import desmoj.core.simulator.*;
 
 public class Packet extends Entity {
@@ -21,7 +23,7 @@ public class Packet extends Entity {
     }
 
     public Packet(Model model, NetworkEntity source, NetworkEntity dest, MessageType type, Object payload) {
-        this(model, "Packet", false, source, dest, type, payload);
+        this(model, "main.java.Packet", false, source, dest, type, payload);
     }
 
     public void scheduleArrival() {
@@ -32,11 +34,11 @@ public class Packet extends Entity {
         packetArrivalEvent.schedule(this, latency);
     }
 
-//    public NetworkEntity getDest() {
+//    public main.java.NetworkEntity getDest() {
 //        return dest;
 //    }
 
-//    public NetworkEntity getSource() {
+//    public main.java.NetworkEntity getSource() {
 //        return source;
 //    }
 
