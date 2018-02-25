@@ -26,15 +26,7 @@ public class MarketSimModel extends Model {
 
     private Schedule schedule;
 
-    public long getTotalUtility() {
-        return totalUtility;
-    }
-
     protected long totalUtility;
-
-    public long getTheoreticalUtility() {
-        return theoreticalUtility;
-    }
 
     protected long theoreticalUtility;
 
@@ -46,11 +38,6 @@ public class MarketSimModel extends Model {
     public static int EQUILIBRIUM = 100;
     public static boolean SHOW_ENTITIES_IN_TRACE = true;
     public static boolean SHOW_EVENTS_IN_TRACE = false;
-
-
-    public Exchange getExchange() {
-        return exchange;
-    }
 
     //TODO: Extend this to a list of exchanges
     private Exchange exchange;
@@ -129,6 +116,19 @@ public class MarketSimModel extends Model {
         //TODO: Implement adjacency matrix
         return new TimeSpan(0, TimeUnit.MICROSECONDS);
     }
+
+    public Exchange getExchange() {
+        return exchange;
+    }
+
+    public long getTotalUtility() {
+        return totalUtility;
+    }
+
+    public long getTheoreticalUtility() {
+        return theoreticalUtility;
+    }
+
 
     /**
      * runs the model

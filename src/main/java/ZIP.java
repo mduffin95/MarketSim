@@ -12,7 +12,7 @@ public class ZIP extends TradingAgent {
 
 //    private double learning_rate;
     private LOBSummary currentSummary;
-    private Direction direction;
+    public Direction direction;
     private Order previousOrder = null;
 
 
