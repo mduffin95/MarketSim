@@ -1,22 +1,22 @@
 package com.matt.marketsim.builders;
 
 import com.matt.marketsim.Direction;
-import com.matt.marketsim.entities.agents.TradingAgent;
-import com.matt.marketsim.entities.agents.ZIP;
 import com.matt.marketsim.entities.Exchange;
 import com.matt.marketsim.entities.NetworkEntity;
 import com.matt.marketsim.entities.SecuritiesInformationProcessor;
+import com.matt.marketsim.entities.agents.TradingAgent;
+import com.matt.marketsim.entities.agents.ZIP;
 import com.matt.marketsim.models.MarketSimModel;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleWeightedGraph;
 
-public class ZIPExperiment implements NetworkBuilder {
+public class DifferentDelay implements NetworkBuilder {
     private int num;
     private int min;
     private int step;
 
 
-    public ZIPExperiment(int num, int min, int max) {
+    public DifferentDelay(int num, int min, int max) {
         assert num > 0;
         assert max > min;
         this.num = num;
@@ -43,8 +43,10 @@ public class ZIPExperiment implements NetworkBuilder {
 
             //Add buy agent to graph
             graph.addVertex(agentBuy);
-            graph.addEdge(agentBuy, exchange);
+            DefaultWeightedEdge e = graph.addEdge(agentBuy, exchange);
             graph.addEdge(agentBuy, sip);
+
+            graph.setEdgeWeight(e, 10000);
 
             //Add sell agent to graph
             graph.addVertex(agentSell);

@@ -26,7 +26,7 @@ public class Packet extends Entity {
     }
 
     public Packet(Model model, NetworkEntity source, NetworkEntity dest, MessageType type, Object payload) {
-        this(model, "com.matt.marketsim.entities.Packet", false, source, dest, type, payload);
+        this(model, "Packet", false, source, dest, type, payload);
     }
 
     public void scheduleArrival() {

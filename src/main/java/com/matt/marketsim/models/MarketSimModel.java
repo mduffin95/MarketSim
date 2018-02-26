@@ -47,7 +47,9 @@ public class MarketSimModel extends Model {
     public static int SIM_LENGTH = 100;
     public static int EQUILIBRIUM = 100;
     public static boolean SHOW_ENTITIES_IN_TRACE = true;
-    public static boolean SHOW_EVENTS_IN_TRACE = false;
+    public static boolean SHOW_EVENTS_IN_TRACE = true;
+    public static boolean PACKET_SEND_IN_TRACE = true;
+    public static boolean PACKET_ARRIVAL_IN_TRACE = true;
 
     /*
      * Model com.matt.marketsim.entities
@@ -111,7 +113,7 @@ public class MarketSimModel extends Model {
         /*
          * Reporting
          */
-        tradePrices = new TimeSeries(this, "com.matt.marketsim.Trade prices over time", "trade_prices.txt",
+        tradePrices = new TimeSeries(this, "Trade prices over time", "trade_prices.txt",
                 new TimeInstant(0.0), new TimeInstant(MarketSimModel.SIM_LENGTH), true, false);
 
     }

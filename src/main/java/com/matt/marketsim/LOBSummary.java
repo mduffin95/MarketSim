@@ -18,5 +18,4 @@ public class LOBSummary {
     public Order getBestSellOrder() {
         return sellOrders[0];
     }
-
 }

@@ -4,12 +4,10 @@ import com.matt.marketsim.entities.Packet;
 import com.matt.marketsim.models.MarketSimModel;
 import desmoj.core.simulator.*;
 
+//TODO: Could do away with this class
 public class PacketSendEvent extends Event<Packet> {
-    MarketSimModel model;
     public PacketSendEvent(Model owner) {
-        super(owner, "com.matt.marketsim.events.PacketSendEvent", MarketSimModel.SHOW_EVENTS_IN_TRACE);
-        model = (MarketSimModel) owner;
-
+        super(owner, "PacketSendEvent", MarketSimModel.PACKET_SEND_IN_TRACE);
     }
 
     @Override

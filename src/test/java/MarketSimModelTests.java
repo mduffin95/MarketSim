@@ -1,3 +1,4 @@
+import com.matt.marketsim.builders.DifferentDelay;
 import com.matt.marketsim.builders.NetworkBuilder;
 import com.matt.marketsim.builders.ZIPExperiment;
 import desmoj.core.simulator.*;
@@ -17,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 public class MarketSimModelTests {
 
     @Test
-    void runSimulation() {
+    void deterministicTest() {
         NetworkBuilder builder = new ZIPExperiment(25, 40, 165);
         TestModel model = new TestModel(builder);
         Experiment exp = new Experiment("Exp1");
@@ -66,6 +67,33 @@ public class MarketSimModelTests {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Test
+    void differingDelay() {
+        NetworkBuilder builder = new DifferentDelay(25, 40, 165);
+        MarketSimModel model = new MarketSimModel(builder);
+        Experiment exp = new Experiment("Exp1");
+        // and connect them
+        model.connectToExperiment(exp);
+
+        // set experiment parameters
+        exp.setShowProgressBar(false);
+        TimeInstant stopTime = new TimeInstant(MarketSimModel.SIM_LENGTH, TimeUnit.SECONDS);
+        exp.tracePeriod(new TimeInstant(0), stopTime);
+        exp.stop(stopTime);
+        // start experiment
+        exp.start();
+
+        // generate report and shut everything off
+        exp.report();
+        exp.finish();
+
+        System.out.println("Total Utility = " + model.getTotalUtility());
+        System.out.println("Theoretical Total Utility = " + model.getTheoreticalUtility());
+        double allocative_efficiency = model.getTotalUtility() / (double) model.getTheoreticalUtility();
+
+        System.out.println("Allocative Efficiency = " + allocative_efficiency);
     }
 
 }
