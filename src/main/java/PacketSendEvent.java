@@ -3,8 +3,10 @@
 import desmoj.core.simulator.*;
 
 public class PacketSendEvent extends Event<Packet> {
+    MarketSimModel model;
     public PacketSendEvent(Model owner) {
-        super(owner, "main.java.PacketSendEvent", MarketSimModel.SHOW_EVENTS_IN_TRACE);
+        super(owner, "PacketSendEvent", MarketSimModel.SHOW_EVENTS_IN_TRACE);
+        model = (MarketSimModel) owner;
 
     }
 
@@ -12,4 +14,5 @@ public class PacketSendEvent extends Event<Packet> {
     public void eventRoutine(Packet packet) {
         packet.scheduleArrival();
     }
+
 }

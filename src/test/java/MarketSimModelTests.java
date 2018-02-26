@@ -10,8 +10,8 @@ public class MarketSimModelTests {
 
     @Test
     void runSimulation() {
-        Schedule schedule = new ZIPSchedule(25, 40, 165);
-        MarketSimModel model = new MarketSimModel(schedule);
+        NetworkBuilder builder = new ZIPExperiment(25, 40, 165);
+        MarketSimModel model = new MarketSimModel(builder);
         Experiment exp = new Experiment("Exp1");
         // and connect them
         model.connectToExperiment(exp);

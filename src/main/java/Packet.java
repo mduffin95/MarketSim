@@ -23,7 +23,7 @@ public class Packet extends Entity {
     }
 
     public Packet(Model model, NetworkEntity source, NetworkEntity dest, MessageType type, Object payload) {
-        this(model, "main.java.Packet", false, source, dest, type, payload);
+        this(model, "Packet", false, source, dest, type, payload);
     }
 
     public void scheduleArrival() {
@@ -34,11 +34,11 @@ public class Packet extends Entity {
         packetArrivalEvent.schedule(this, latency);
     }
 
-//    public main.java.NetworkEntity getDest() {
+//    public NetworkEntity getDest() {
 //        return dest;
 //    }
 
-//    public main.java.NetworkEntity getSource() {
+//    public NetworkEntity getSource() {
 //        return source;
 //    }
 

@@ -10,9 +10,9 @@ public class Exchange extends NetworkEntity implements PriceProvider {
     //Entities that need to be notified of price changes
     private List<NetworkEntity> observers;
 
-    /**
-     * constructs a model...
-     */
+    //For testing purposes
+    public Trade recentTrade;
+
     public Exchange(Model model, String name, SecuritiesInformationProcessor sip, boolean showInTrace) {
         super(model, name, showInTrace);
         marketSimModel = (MarketSimModel)getModel();
@@ -62,7 +62,7 @@ public class Exchange extends NetworkEntity implements PriceProvider {
 
             //Record the trade
             marketSimModel.tradePrices.update(price);
-            sendTraceNote("main.java.Trade at " + price);
+            sendTraceNote("Trade at " + price);
 
             //Remove from the order book
             orderBook.pollBestBuyOrder();
@@ -83,6 +83,7 @@ public class Exchange extends NetworkEntity implements PriceProvider {
                 e.send(this, msg, update, marketSimModel.getLatency(this, e));
             }
         }
+        recentTrade = newTrade;
     }
 
     /**
@@ -97,4 +98,7 @@ public class Exchange extends NetworkEntity implements PriceProvider {
         orderBook.printOrderBook();
     }
 
+    public OrderBook getOrderBook() {
+        return orderBook;
+    }
 } /* end of model class */

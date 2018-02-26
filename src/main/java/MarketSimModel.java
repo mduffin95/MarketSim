@@ -2,52 +2,67 @@ import desmoj.core.dist.*;
 import desmoj.core.simulator.*;
 import desmoj.core.statistic.TimeSeries;
 
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 public class MarketSimModel extends Model {
 
+    /*
+     * Distributions and number generators
+     */
     protected Random generator;
-    private DistributionManager distributionManager;
-//    protected SimClock clock;
-
-    // define model components here
-    //Random number stream used to draw an arrival time for the next trading agent
     private ContDistExponential agentArrivalTime;
     private ContDistUniform agentArrivalTimeUniform;
-
-    //Random number stream used to draw a limit price for the next trading agent
     private DiscreteDistUniform priceDist;
-
-    //Random boolean used to determine whether agent is buying or selling
     private BoolDistBernoulli buyOrSell;
+    private DistributionManager distributionManager;
 
+    /*
+     * Metrics for reporting
+     */
     protected TimeSeries tradePrices;
-
-    private Schedule schedule;
-
     protected long totalUtility;
-
     protected long theoreticalUtility;
+
+    private NetworkBuilder builder;
+
+
+    /*
+     * Model parameters
+     */
 
     public static int MIN_PRICE = 1;
     public static int MAX_PRICE = 200;
-    //    public static int NUM_TRADERS = 10;
     public static int MEAN_TIME_BETWEEN_TRADES = 10;
     public static int SIM_LENGTH = 100;
     public static int EQUILIBRIUM = 100;
     public static boolean SHOW_ENTITIES_IN_TRACE = true;
     public static boolean SHOW_EVENTS_IN_TRACE = false;
 
-    //TODO: Extend this to a list of exchanges
-    private Exchange exchange;
+    /*
+     * Model entities
+     */
     private SecuritiesInformationProcessor sip;
+    private ArrayList<TradingAgent> agents;
+    private ArrayList<Exchange> exchanges;
 
 
-    public MarketSimModel(Schedule s) {
+    /*
+     * For testing purposes
+     */
+//    public boolean testing = false;
+//    public ArrayList<Packet> packets = new ArrayList<>();
+
+    /*
+     * Methods
+     */
+
+
+    public MarketSimModel(NetworkBuilder builder) {
         super(null, "ExchangeModel", true, true);
         generator = new Random();
-        this.schedule = s;
+        this.builder = builder;
     }
 
     @Override
@@ -57,27 +72,27 @@ public class MarketSimModel extends Model {
 
     @Override
     public void doInitialSchedules() {
-        //Creates and schedules the trading agents
-        schedule.createAgents(this, exchange, sip);
+        for (TradingAgent a: agents) {
+            TradingAgentDecisionEvent event = new TradingAgentDecisionEvent(this, "MarketEntryDecision", MarketSimModel.SHOW_EVENTS_IN_TRACE);
+            event.schedule(a, getAgentArrivalTime());
+        }
     }
 
     @Override
     public void init() {
 
+        /*
+         * Distributions and number generators
+         */
         long seed = generator.nextLong();
         distributionManager = new DistributionManager("Distribution Manager", seed);
-
-        //Distributions
         agentArrivalTime = new ContDistExponential(this, "AgentArrivalTimeStream",
                 MEAN_TIME_BETWEEN_TRADES, true, false);
         agentArrivalTime.setNonNegative(true);
-
         agentArrivalTimeUniform = new ContDistUniform(this, "AgentArrivalTimeUniformStream",
                 0, 100, true, false);
-
         priceDist = new DiscreteDistUniform(this, "LimitPriceStream", MIN_PRICE, MAX_PRICE,
                 true, false);
-
         buyOrSell = new BoolDistBernoulli(this, "BuyOrSell", 0.5, true, false);
 
         distributionManager.register(agentArrivalTime);
@@ -85,17 +100,20 @@ public class MarketSimModel extends Model {
         distributionManager.register(priceDist);
         distributionManager.register(buyOrSell);
 
-        //Entities
-        sip = new SecuritiesInformationProcessor(this, "Securities Information Processor", MarketSimModel.SHOW_ENTITIES_IN_TRACE);
-        exchange = new Exchange(this, "main.java.Exchange", sip, MarketSimModel.SHOW_ENTITIES_IN_TRACE);
+        /*
+         * Entities
+         */
+        agents = new ArrayList<>();
+        exchanges = new ArrayList<>();
+        builder.createNetworkEntities(this, agents, exchanges, sip);
 
 
-        //Reporting
-        tradePrices = new TimeSeries(this, "main.java.Trade prices over time", "trade_prices.txt",
+        /*
+         * Reporting
+         */
+        tradePrices = new TimeSeries(this, "Trade prices over time", "trade_prices.txt",
                 new TimeInstant(0.0), new TimeInstant(MarketSimModel.SIM_LENGTH), true, false);
 
-//        totalUtility = new Tally(this, "Utility Tally", true, false);
-//        theoreticalUtility = new Tally(this, "Theoretical Utility Tally", false, false);
     }
 
 
@@ -118,7 +136,7 @@ public class MarketSimModel extends Model {
     }
 
     public Exchange getExchange() {
-        return exchange;
+        return exchanges.get(0);
     }
 
     public long getTotalUtility() {
@@ -137,8 +155,8 @@ public class MarketSimModel extends Model {
 
         // create model and experiment
         Experiment exp = new Experiment("Exp1");
-        Schedule schedule = new ZIPSchedule(25, 0, 200);
-        MarketSimModel model = new MarketSimModel(schedule);
+        NetworkBuilder builder = new ZIPExperiment(25, 0, 200);
+        MarketSimModel model = new MarketSimModel(builder);
         // and connect them
         model.connectToExperiment(exp);
 
@@ -160,6 +178,6 @@ public class MarketSimModel extends Model {
 
         System.out.println("Allocative Efficiency = " + allocative_efficiency);
 
-        model.exchange.printQueues();
+        model.getExchange().printQueues();
     }
 }
