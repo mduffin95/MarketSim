@@ -1,6 +1,9 @@
+package com.matt.marketsim.entities;
 
-
+import com.matt.marketsim.MessageType;
+import com.matt.marketsim.models.MarketSimModel;
 import desmoj.core.simulator.*;
+import com.matt.marketsim.events.PacketSendEvent;
 
 public abstract class NetworkEntity extends Entity {
     MarketSimModel marketSimModel;
@@ -13,7 +16,7 @@ public abstract class NetworkEntity extends Entity {
     //Used to handle incoming packets
     public abstract void handlePacket(Packet packet);
 
-    //Send a payload to this NetworkEntity from the source NetworkEntity
+    //Send a payload to this com.matt.marketsim.entities.NetworkEntity from the source com.matt.marketsim.entities.NetworkEntity
     public void send(NetworkEntity source, MessageType type, Object payload) {
         send(source, type, payload, new TimeSpan(0));
     }

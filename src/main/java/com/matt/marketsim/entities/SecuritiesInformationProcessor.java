@@ -1,3 +1,6 @@
+package com.matt.marketsim.entities;
+
+import com.matt.marketsim.*;
 
 
 import desmoj.core.simulator.Model;

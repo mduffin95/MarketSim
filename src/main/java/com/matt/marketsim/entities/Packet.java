@@ -1,6 +1,9 @@
+package com.matt.marketsim.entities;
 
-
+import com.matt.marketsim.MessageType;
+import com.matt.marketsim.models.MarketSimModel;
 import desmoj.core.simulator.*;
+import com.matt.marketsim.events.PacketArrivalEvent;
 
 public class Packet extends Entity {
     private NetworkEntity source;
@@ -23,7 +26,7 @@ public class Packet extends Entity {
     }
 
     public Packet(Model model, NetworkEntity source, NetworkEntity dest, MessageType type, Object payload) {
-        this(model, "Packet", false, source, dest, type, payload);
+        this(model, "com.matt.marketsim.entities.Packet", false, source, dest, type, payload);
     }
 
     public void scheduleArrival() {
@@ -34,11 +37,11 @@ public class Packet extends Entity {
         packetArrivalEvent.schedule(this, latency);
     }
 
-//    public NetworkEntity getDest() {
+//    public com.matt.marketsim.entities.NetworkEntity getDest() {
 //        return dest;
 //    }
 
-//    public NetworkEntity getSource() {
+//    public com.matt.marketsim.entities.NetworkEntity getSource() {
 //        return source;
 //    }
 

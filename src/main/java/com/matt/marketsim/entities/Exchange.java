@@ -1,4 +1,9 @@
+package com.matt.marketsim.entities;
+
+import com.matt.marketsim.*;
+import com.matt.marketsim.models.MarketSimModel;
 import desmoj.core.simulator.*;
+import com.matt.marketsim.MessageType;
 
 import java.util.*;
 
@@ -66,7 +71,7 @@ public class Exchange extends NetworkEntity implements PriceProvider {
 
             //Record the trade
             marketSimModel.tradePrices.update(price);
-            sendTraceNote("Trade at " + price);
+            sendTraceNote("com.matt.marketsim.Trade at " + price);
 
             //Remove from the order book
             orderBook.pollBestBuyOrder();
