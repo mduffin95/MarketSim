@@ -17,3 +17,5 @@ Adding unit testing so that we can be sure the simulator is behaving properly.
 
 Adding an interface that allows trading agents to be generated. This way we can create a number of different pre-defined 
 experiments with different compositions of trading agents.
+
+Looking at using GraphML to represent the graph. 

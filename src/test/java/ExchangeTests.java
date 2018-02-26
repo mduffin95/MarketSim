@@ -1,4 +1,7 @@
 import desmoj.core.simulator.Experiment;
+import desmoj.core.simulator.TimeSpan;
+import org.jgrapht.graph.DefaultWeightedEdge;
+import org.jgrapht.graph.SimpleWeightedGraph;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -17,11 +20,23 @@ public class ExchangeTests {
     SecuritiesInformationProcessor sip;
     Experiment exp;
 
+    class DummyModel extends MarketSimModel {
+
+        public DummyModel(NetworkBuilder builder) {
+            super(builder);
+        }
+
+        @Override
+        public TimeSpan getLatency(NetworkEntity a, NetworkEntity b) {
+            return new TimeSpan(0);
+        }
+    }
+
     class DummyBuilder implements NetworkBuilder {
 
         @Override
-        public void createNetworkEntities(MarketSimModel model, ArrayList<TradingAgent> tradingAgents, ArrayList<Exchange> exchanges, SecuritiesInformationProcessor sip) {
-            return;
+        public SimpleWeightedGraph<NetworkEntity, DefaultWeightedEdge> createNetwork(MarketSimModel model) {
+            return null;
         }
     }
 
@@ -29,7 +44,7 @@ public class ExchangeTests {
     @BeforeEach
     void init() {
         NetworkBuilder builder = new DummyBuilder();
-        model = new MarketSimModel(builder);
+        model = new DummyModel(builder);
         exp = new Experiment("Exp1");
         model.connectToExperiment(exp);
 

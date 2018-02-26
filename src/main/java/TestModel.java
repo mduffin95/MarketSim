@@ -45,7 +45,7 @@ class TestModel extends MarketSimModel {
 
         System.out.println("Allocative Efficiency = " + allocative_efficiency);
 
-        model.getExchange().printQueues();
+//        model.getExchange().printQueues();
     }
 
 }

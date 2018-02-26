@@ -16,6 +16,7 @@ public abstract class TradingAgent extends NetworkEntity {
         super(model, "TradingAgent", MarketSimModel.SHOW_ENTITIES_IN_TRACE);
         utility = 0;
         marketSimModel = (MarketSimModel) model;
+        marketSimModel.registerForInitialSchedule(this); //Register so that it is scheduled
         this.limit = limit;
         this.active = true;
 
@@ -23,7 +24,7 @@ public abstract class TradingAgent extends NetworkEntity {
         this.primaryExchange.registerPriceObserver(this);
 
         this.sip = sip;
-        this.sip.registerPriceObserver(this);
+        this.sip.registerPriceObserver(this); //Will get price updates from SIP
     }
 
     //Called by the recurring event

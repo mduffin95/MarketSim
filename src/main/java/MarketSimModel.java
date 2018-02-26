@@ -1,6 +1,8 @@
 import desmoj.core.dist.*;
 import desmoj.core.simulator.*;
 import desmoj.core.statistic.TimeSeries;
+import org.jgrapht.graph.DefaultWeightedEdge;
+import org.jgrapht.graph.SimpleWeightedGraph;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -43,16 +45,8 @@ public class MarketSimModel extends Model {
     /*
      * Model entities
      */
-    private SecuritiesInformationProcessor sip;
     private ArrayList<TradingAgent> agents;
-    private ArrayList<Exchange> exchanges;
-
-
-    /*
-     * For testing purposes
-     */
-//    public boolean testing = false;
-//    public ArrayList<Packet> packets = new ArrayList<>();
+    SimpleWeightedGraph<NetworkEntity, DefaultWeightedEdge> network;
 
     /*
      * Methods
@@ -104,8 +98,7 @@ public class MarketSimModel extends Model {
          * Entities
          */
         agents = new ArrayList<>();
-        exchanges = new ArrayList<>();
-        builder.createNetworkEntities(this, agents, exchanges, sip);
+        network = builder.createNetwork(this);
 
 
         /*
@@ -132,12 +125,13 @@ public class MarketSimModel extends Model {
 
     public TimeSpan getLatency(NetworkEntity a, NetworkEntity b) {
         //TODO: Implement adjacency matrix
-        return new TimeSpan(0, TimeUnit.MICROSECONDS);
+        DefaultWeightedEdge edge = network.getEdge(a, b);
+        return new TimeSpan(network.getEdgeWeight(edge), TimeUnit.MICROSECONDS);
     }
 
-    public Exchange getExchange() {
-        return exchanges.get(0);
-    }
+//    public Exchange getExchange() {
+//        return exchanges.get(0);
+//    }
 
     public long getTotalUtility() {
         return totalUtility;
@@ -149,6 +143,10 @@ public class MarketSimModel extends Model {
 
     public void setSeed(long s) {
         generator.setSeed(s);
+    }
+
+    public void registerForInitialSchedule(TradingAgent agent) {
+        agents.add(agent);
     }
 
     /**
@@ -181,6 +179,6 @@ public class MarketSimModel extends Model {
 
         System.out.println("Allocative Efficiency = " + allocative_efficiency);
 
-        model.getExchange().printQueues();
+//        model.getExchange().printQueues();
     }
 }

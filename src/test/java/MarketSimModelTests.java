@@ -37,7 +37,7 @@ public class MarketSimModelTests {
 
         System.out.println("Allocative Efficiency = " + allocative_efficiency);
 
-        model.getExchange().printQueues();
+//        model.getExchange().printQueues();
 
         final File actualTrades = new File("trade_prices.txt");
         final File expectedTrades = new File("src/test/resources/trade_prices_1.txt");
