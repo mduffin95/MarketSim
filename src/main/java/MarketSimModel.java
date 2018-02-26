@@ -15,7 +15,7 @@ public class MarketSimModel extends Model {
     private ContDistExponential agentArrivalTime;
     private ContDistUniform agentArrivalTimeUniform;
     private DiscreteDistUniform priceDist;
-    private BoolDistBernoulli buyOrSell;
+//    private BoolDistBernoulli buyOrSell;
     private DistributionManager distributionManager;
 
     /*
@@ -93,12 +93,12 @@ public class MarketSimModel extends Model {
                 0, 100, true, false);
         priceDist = new DiscreteDistUniform(this, "LimitPriceStream", MIN_PRICE, MAX_PRICE,
                 true, false);
-        buyOrSell = new BoolDistBernoulli(this, "BuyOrSell", 0.5, true, false);
+//        buyOrSell = new BoolDistBernoulli(this, "BuyOrSell", 0.5, true, false);
 
         distributionManager.register(agentArrivalTime);
         distributionManager.register(agentArrivalTimeUniform);
         distributionManager.register(priceDist);
-        distributionManager.register(buyOrSell);
+//        distributionManager.register(buyOrSell);
 
         /*
          * Entities
@@ -125,10 +125,10 @@ public class MarketSimModel extends Model {
     public int getRandomPrice() {
         return priceDist.sample().intValue();
     }
-
-    public boolean getBuyOrSell() {
-        return buyOrSell.sample();
-    }
+//
+//    public boolean getBuyOrSell() {
+//        return buyOrSell.sample();
+//    }
 
     public TimeSpan getLatency(NetworkEntity a, NetworkEntity b) {
         //TODO: Implement adjacency matrix
@@ -147,6 +147,9 @@ public class MarketSimModel extends Model {
         return theoreticalUtility;
     }
 
+    public void setSeed(long s) {
+        generator.setSeed(s);
+    }
 
     /**
      * runs the model

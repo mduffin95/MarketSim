@@ -36,12 +36,16 @@ public class Exchange extends NetworkEntity implements PriceProvider {
                 break;
             case CANCEL:
                 order = (Order)packet.getPayload();
+                if (null != order) sendTraceNote("Cancelling order: " + order.toString());
                 orderBook.remove(order);
                 break;
         }
     }
 
     private void handleOrder(Order order) {
+        String note = "Handling order: " + order.toString();
+        sendTraceNote(note);
+
         LOBSummary original = orderBook.getSummary(1);
         orderBook.add(order);
 

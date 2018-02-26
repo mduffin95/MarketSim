@@ -121,7 +121,7 @@ public class ZIP extends TradingAgent {
                 updateMargin(target);
             }
         }
-        sendTraceNote("Limit = " + limit + ", Price = " + getPrice());
+//        sendTraceNote("Limit = " + limit + ", Price = " + getPrice());
     }
 
     private int target_up(int price) {

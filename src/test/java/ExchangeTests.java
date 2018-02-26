@@ -1,8 +1,6 @@
 import desmoj.core.simulator.Experiment;
-import desmoj.core.simulator.Model;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import sun.security.krb5.internal.PAData;
 
 import java.util.ArrayList;
 
@@ -57,11 +55,6 @@ public class ExchangeTests {
     }
 
     @Test
-    void repeatedPacketTest() {
-        //When two packets arrive with the same order, it should only be inserted once.
-    }
-
-    @Test
     void cancelOrderTest() {
         //When an order is cancelled it should be removed from the order book
         ZIP agent1 = new ZIP(model, 50, exchange, sip, Direction.BUY);
@@ -77,7 +70,8 @@ public class ExchangeTests {
 
     @Test
     void orderMatchedTest() {
-        //When an order arrives that matches with an order in the orderbook the trade should take place.
+        //When an order arrives that matches with an order in the order book the trade should take place. Also tests
+        //that the trade takes place at the price of the order sitting on the order book.
 
         int buyLimit = 50;
         int buyPrice = 45;
@@ -93,11 +87,18 @@ public class ExchangeTests {
         exchange.handlePacket(packetBuy);
         exchange.handlePacket(packetSell);
 
-        Trade t = exchange.recentTrade;
 
-        assertEquals(t.price, buyPrice);
+        assertEquals(exchange.recentTrade.price, buyPrice);
         assertNull(exchange.getOrderBook().getBestBuyOrder());
         assertNull(exchange.getOrderBook().getBestSellOrder());
+
+        exchange.handlePacket(packetSell);
+        exchange.handlePacket(packetBuy);
+
+        assertEquals(exchange.recentTrade.price, sellPrice);
+        assertNull(exchange.getOrderBook().getBestBuyOrder());
+        assertNull(exchange.getOrderBook().getBestSellOrder());
+
     }
 
     @Test

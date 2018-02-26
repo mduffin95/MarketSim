@@ -33,14 +33,14 @@ public class SecuritiesInformationProcessor extends NetworkEntity implements Pri
         boolean changed = false;
 
         //TODO: Refactor
-        if (null == bestBid ||
+        if ((null == bestBid ^ null == bid) ||
                 null != bid &&
                         (bid.getPrice() > bestBid.getPrice() ||
                         (bid.getExchange() == bestBid.getExchange() && bid != bestBid))) {
             bestBid = bid;
             changed = true;
         }
-        if (null == bestOffer ||
+        if ((null == bestOffer ^ null == offer) ||
                 null != offer &&
                         (offer.getPrice() < bestOffer.getPrice() ||
                         (offer.getExchange() == bestOffer.getExchange() && offer != bestOffer))) {

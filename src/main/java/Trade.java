@@ -4,7 +4,7 @@ import desmoj.core.simulator.TimeInstant;
 
 public class Trade {
     public TimeInstant time;
-    public Exchange exchange;
+//    public Exchange exchange;
     public int price;
     public int quantity;
     public TradingAgent buyer;

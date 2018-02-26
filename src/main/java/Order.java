@@ -32,4 +32,9 @@ public class Order implements Comparable<Order> {
     public int getPrice() {
         return price;
     }
+
+    @Override
+    public String toString() {
+        return "[Order - Agent: " + agent.getName() + ", Direction: " + direction + ", Price: " + price + "]";
+    }
 }
