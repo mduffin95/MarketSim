@@ -1,10 +1,14 @@
+package com.matt.marketsim.models;
+
+import com.matt.marketsim.builders.NetworkBuilder;
+import com.matt.marketsim.builders.ZIPExperiment;
 import desmoj.core.simulator.Experiment;
 import desmoj.core.simulator.TimeInstant;
 import desmoj.core.simulator.TimeSpan;
 
 import java.util.concurrent.TimeUnit;
 
-class TestModel extends MarketSimModel {
+public class TestModel extends MarketSimModel {
     int arrival = 0;
 
     public TestModel(NetworkBuilder builder) {

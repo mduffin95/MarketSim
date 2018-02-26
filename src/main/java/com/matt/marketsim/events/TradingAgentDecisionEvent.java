@@ -1,5 +1,7 @@
+package com.matt.marketsim.events;
 
-
+import com.matt.marketsim.entities.agents.TradingAgent;
+import com.matt.marketsim.models.MarketSimModel;
 import desmoj.core.simulator.*;
 
 public class TradingAgentDecisionEvent extends Event<TradingAgent> {

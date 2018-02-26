@@ -1,6 +1,8 @@
+package com.matt.marketsim;
 
-
+import com.matt.marketsim.entities.agents.TradingAgent;
 import desmoj.core.simulator.TimeInstant;
+import com.matt.marketsim.entities.Exchange;
 
 public class Order implements Comparable<Order> {
     public TradingAgent agent;
@@ -35,6 +37,6 @@ public class Order implements Comparable<Order> {
 
     @Override
     public String toString() {
-        return "[Order - Agent: " + agent.getName() + ", Direction: " + direction + ", Price: " + price + "]";
+        return "[com.matt.marketsim.Order - Agent: " + agent.getName() + ", com.matt.marketsim.Direction: " + direction + ", Price: " + price + "]";
     }
 }

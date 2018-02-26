@@ -1,7 +1,12 @@
+import com.matt.marketsim.builders.NetworkBuilder;
+import com.matt.marketsim.builders.ZIPExperiment;
 import desmoj.core.simulator.*;
 
 import java.io.*;
 import java.util.concurrent.TimeUnit;
+
+import com.matt.marketsim.models.MarketSimModel;
+import com.matt.marketsim.models.TestModel;
 import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;

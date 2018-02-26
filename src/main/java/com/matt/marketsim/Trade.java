@@ -1,10 +1,11 @@
+package com.matt.marketsim;
 
-
+import com.matt.marketsim.entities.agents.TradingAgent;
 import desmoj.core.simulator.TimeInstant;
 
 public class Trade {
     public TimeInstant time;
-//    public Exchange exchange;
+//    public com.matt.marketsim.entities.Exchange exchange;
     public int price;
     public int quantity;
     public TradingAgent buyer;

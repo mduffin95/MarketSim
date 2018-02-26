@@ -1,6 +1,13 @@
+package com.matt.marketsim.models;
+
+import com.matt.marketsim.builders.NetworkBuilder;
+import com.matt.marketsim.builders.ZIPExperiment;
+import com.matt.marketsim.entities.agents.TradingAgent;
 import desmoj.core.dist.*;
 import desmoj.core.simulator.*;
 import desmoj.core.statistic.TimeSeries;
+import com.matt.marketsim.entities.NetworkEntity;
+import com.matt.marketsim.events.TradingAgentDecisionEvent;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleWeightedGraph;
 
@@ -13,7 +20,7 @@ public class MarketSimModel extends Model {
     /*
      * Distributions and number generators
      */
-    protected Random generator;
+    public Random generator;
     private ContDistExponential agentArrivalTime;
     private ContDistUniform agentArrivalTimeUniform;
     private DiscreteDistUniform priceDist;
@@ -23,9 +30,9 @@ public class MarketSimModel extends Model {
     /*
      * Metrics for reporting
      */
-    protected TimeSeries tradePrices;
-    protected long totalUtility;
-    protected long theoreticalUtility;
+    public TimeSeries tradePrices;
+    public long totalUtility;
+    public long theoreticalUtility;
 
     private NetworkBuilder builder;
 
@@ -43,7 +50,7 @@ public class MarketSimModel extends Model {
     public static boolean SHOW_EVENTS_IN_TRACE = false;
 
     /*
-     * Model entities
+     * Model com.matt.marketsim.entities
      */
     private ArrayList<TradingAgent> agents;
     SimpleWeightedGraph<NetworkEntity, DefaultWeightedEdge> network;
@@ -104,7 +111,7 @@ public class MarketSimModel extends Model {
         /*
          * Reporting
          */
-        tradePrices = new TimeSeries(this, "Trade prices over time", "trade_prices.txt",
+        tradePrices = new TimeSeries(this, "com.matt.marketsim.Trade prices over time", "trade_prices.txt",
                 new TimeInstant(0.0), new TimeInstant(MarketSimModel.SIM_LENGTH), true, false);
 
     }
@@ -129,7 +136,7 @@ public class MarketSimModel extends Model {
         return new TimeSpan(network.getEdgeWeight(edge), TimeUnit.MICROSECONDS);
     }
 
-//    public Exchange getExchange() {
+//    public com.matt.marketsim.entities.Exchange getExchange() {
 //        return exchanges.get(0);
 //    }
 
