@@ -9,7 +9,7 @@ import desmoj.core.simulator.*;
 public abstract class TradingAgent extends NetworkEntity {
 
 
-    private int group;
+    public Direction direction;
     public boolean active;
     public int limit;
 //    protected int utility;
@@ -32,33 +32,30 @@ public abstract class TradingAgent extends NetworkEntity {
         this.sip = sip;
         this.sip.registerPriceObserver(this); //Will get price updates from SIP
 
-        this.group = -1;
-    }
-
-    public abstract int getTheoreticalUtility(int equilibrium);
-
-    public void setGroup(int group) {
-        this.group = group;
-    }
-    public int getGroup() {
-        return group;
     }
     //Called by the recurring event
     public abstract void doSomething();
 
     protected abstract void respond(MarketUpdate update);
+    protected abstract void cancelSuccess(Order order);
 
     public void handlePacket(Packet packet) {
-        MarketUpdate update;
         switch (packet.getType()) {
             case LIMIT_ORDER:
                 break;
             case MARKET_ORDER:
                 break;
             case MARKET_UPDATE:
-                update = (MarketUpdate)packet.getPayload();
+                MarketUpdate update = (MarketUpdate)packet.getPayload();
                 respond(update);
             case CANCEL:
+                break;
+            case CANCEL_SUCCESS:
+                Order order = (Order) packet.getPayload();
+                cancelSuccess(order);
+                break;
+            case CANCEL_FAILURE:
+                active = false;
                 break;
         }
     }
@@ -75,5 +72,12 @@ public abstract class TradingAgent extends NetworkEntity {
             //Was a buyer or a seller in this trade
             this.active = false;
         }
+    }
+
+    public int getTheoreticalUtility(int equilibrium) {
+        if (direction == Direction.BUY)
+            return limit - equilibrium;
+        else
+            return equilibrium - limit;
     }
 }

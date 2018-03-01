@@ -14,7 +14,7 @@ public class ZIP extends TradingAgent {
 
 //    private double learning_rate;
     private LOBSummary currentSummary;
-    public Direction direction;
+
     private Order previousOrder = null;
 
 
@@ -35,11 +35,23 @@ public class ZIP extends TradingAgent {
     @Override
     public void doSomething() {
         if (active) {
-            Order newOrder = new Order(this, primaryExchange, this.direction, getPrice());
-            primaryExchange.send(this, MessageType.CANCEL, previousOrder);
-            primaryExchange.send(this, MessageType.LIMIT_ORDER, newOrder);
-            previousOrder = newOrder;
+            if (null == previousOrder)
+                placeOrder();
+            else
+                primaryExchange.send(this, MessageType.CANCEL, previousOrder);
         }
+    }
+
+    @Override
+    public void cancelSuccess(Order order) {
+        assert previousOrder == order;
+        placeOrder();
+    }
+
+    private void placeOrder() {
+        Order newOrder = new Order(this, primaryExchange, this.direction, getPrice());
+        primaryExchange.send(this, MessageType.LIMIT_ORDER, newOrder);
+        previousOrder = newOrder;
     }
 
     @Override
@@ -164,13 +176,5 @@ public class ZIP extends TradingAgent {
         int p = (int)Math.round(limit * (1 + margin));
         assert (direction == Direction.BUY && p <= limit) || (direction == Direction.SELL && p >= limit);
         return p;
-    }
-
-    @Override
-    public int getTheoreticalUtility(int equilibrium) {
-        if (direction == Direction.BUY)
-            return limit - equilibrium;
-        else
-            return equilibrium - limit;
     }
 }

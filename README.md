@@ -18,4 +18,7 @@ Adding unit testing so that we can be sure the simulator is behaving properly.
 Adding an interface that allows trading com.matt.marketsim.entities.agents to be generated. This way we can create a number of different pre-defined 
 experiments with different compositions of trading com.matt.marketsim.entities.agents.
 
-Looking at using GraphML to represent the graph. 
+Looking at using GraphML to represent the graph.
+
+###Week 4 - March 1st - March 6th
+Decided to assume that each trading agent is only trading one unit. This simplifies the design.  

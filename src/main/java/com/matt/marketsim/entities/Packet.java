@@ -37,13 +37,13 @@ public class Packet extends Entity {
         packetArrivalEvent.schedule(this, latency);
     }
 
-//    public com.matt.marketsim.entities.NetworkEntity getDest() {
-//        return dest;
-//    }
+    public com.matt.marketsim.entities.NetworkEntity getDest() {
+        return dest;
+    }
 
-//    public com.matt.marketsim.entities.NetworkEntity getSource() {
-//        return source;
-//    }
+    public com.matt.marketsim.entities.NetworkEntity getSource() {
+        return source;
+    }
 
     public MessageType getType() {
         return type;

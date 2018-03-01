@@ -15,14 +15,6 @@ public class ZIC extends TradingAgent {
     }
 
     @Override
-    public int getTheoreticalUtility(int equilibrium) {
-        if (direction == Direction.BUY)
-            return limit - equilibrium;
-        else
-            return equilibrium - limit;
-    }
-
-    @Override
     public void doSomething() {
         Order newOrder = getOrder();
 
@@ -41,6 +33,11 @@ public class ZIC extends TradingAgent {
             //Was a buyer or a seller in this trade
             this.active = false;
         }
+    }
+
+    @Override
+    protected void cancelSuccess(Order order) {
+        throw new UnsupportedOperationException();
     }
 
     private Order getOrder() {

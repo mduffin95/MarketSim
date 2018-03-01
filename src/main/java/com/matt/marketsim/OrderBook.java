@@ -13,10 +13,11 @@ public class OrderBook {
         sellQueue = new PriorityQueue<>(10);
     }
 
-    public void remove(Order order) {
-        if (order == null) {return;}
-        buyQueue.remove(order);
-        sellQueue.remove(order);
+    public boolean remove(Order order) {
+        if (order == null) {return false;}
+        boolean b = buyQueue.remove(order);
+        boolean s = sellQueue.remove(order);
+        return (b || s);
     }
 
     public void add(Order order) {
