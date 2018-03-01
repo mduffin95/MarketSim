@@ -8,8 +8,8 @@ import desmoj.core.simulator.*;
 
 public abstract class TradingAgent extends NetworkEntity {
     public boolean active;
-    protected int limit;
-    protected int utility;
+    public int limit;
+//    protected int utility;
 
     protected Exchange primaryExchange;
     private SecuritiesInformationProcessor sip;
@@ -18,7 +18,6 @@ public abstract class TradingAgent extends NetworkEntity {
 
     public TradingAgent(Model model, int limit, Exchange e, SecuritiesInformationProcessor sip) {
         super(model, "TradingAgent", MarketSimModel.SHOW_ENTITIES_IN_TRACE);
-        utility = 0;
         marketSimModel = (MarketSimModel) model;
         marketSimModel.registerForInitialSchedule(this); //Register so that it is scheduled
         this.limit = limit;
@@ -60,15 +59,8 @@ public abstract class TradingAgent extends NetworkEntity {
      */
     void handleTrade(Trade trade) {
         if (isMyTrade(trade)) {
-            if (this == trade.buyer) {
-                utility = limit - trade.price;
-            } else if (this == trade.seller) {
-                utility = trade.price - limit;
-            }
             //Was a buyer or a seller in this trade
             this.active = false;
-            marketSimModel.totalUtility += utility;
-            sendTraceNote(getName() + " utility = " + utility);
         }
     }
 }

@@ -4,6 +4,7 @@ import com.matt.marketsim.*;
 import com.matt.marketsim.models.MarketSimModel;
 import desmoj.core.simulator.*;
 import com.matt.marketsim.MessageType;
+import desmoj.core.statistic.ValueSupplier;
 
 import java.util.*;
 
@@ -15,6 +16,8 @@ public class Exchange extends NetworkEntity implements PriceProvider {
     //Entities that need to be notified of price changes
     private List<NetworkEntity> observers;
 
+    public LastTradeSupplier lastTradeSupplier;
+
     //For testing purposes
     public Trade recentTrade;
 
@@ -25,6 +28,7 @@ public class Exchange extends NetworkEntity implements PriceProvider {
         orderBook = new OrderBook();
 
         registerPriceObserver(sip);
+        lastTradeSupplier = new LastTradeSupplier("LastTradeSupplier");
     }
 
     @Override
@@ -69,9 +73,10 @@ public class Exchange extends NetworkEntity implements PriceProvider {
             TimeInstant currentTime = marketSimModel.getExperiment().getSimClock().getTime();
             newTrade = new Trade(currentTime, price, 1, b.agent, s.agent);
 
-            //Record the trade
-            marketSimModel.tradePrices.update(price);
-            sendTraceNote("Trade at " + price);
+            //Update utility and record on time series
+//            marketSimModel.recordTrade(newTrade);
+            lastTradeSupplier.notifyStatistics(newTrade);
+            sendTraceNote("Trade at " + newTrade.price);
 
             //Remove from the order book
             orderBook.pollBestBuyOrder();

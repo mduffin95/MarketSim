@@ -12,16 +12,6 @@ public class ZIU extends TradingAgent {
         super(model, limit, e, sip);
         this.direction = direction;
 
-        int theoretical;
-        if (direction == Direction.BUY) {
-            theoretical = limit - MarketSimModel.EQUILIBRIUM;
-        } else {
-            theoretical = MarketSimModel.EQUILIBRIUM - limit;
-        }
-        if(theoretical > 0) {
-            marketSimModel.theoreticalUtility += theoretical;
-        }
-        sendTraceNote(getName() + " theoretical utility = " + theoretical);
     }
 
     @Override

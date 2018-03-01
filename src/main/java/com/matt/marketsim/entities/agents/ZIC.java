@@ -12,17 +12,6 @@ public class ZIC extends TradingAgent {
     public ZIC(Model model, int limit, Exchange e, SecuritiesInformationProcessor sip, Direction direction) {
         super(model, limit, e, sip);
         this.direction = direction;
-
-        int theoretical;
-        if (direction == Direction.BUY) {
-            theoretical = limit - MarketSimModel.EQUILIBRIUM;
-        } else {
-            theoretical = MarketSimModel.EQUILIBRIUM - limit;
-        }
-        if(theoretical > 0) {
-            marketSimModel.theoreticalUtility += theoretical;
-        }
-        sendTraceNote(getName() + " theoretical utility = " + theoretical);
     }
 
     @Override
@@ -41,17 +30,8 @@ public class ZIC extends TradingAgent {
     @Override
     protected void respond(MarketUpdate update) {
         if (isMyTrade(update.trade)) {
-            if (this == update.trade.buyer) {
-                assert direction == Direction.BUY;
-                utility = limit - update.trade.price;
-            } else if (this == update.trade.seller) {
-                assert direction == Direction.SELL;
-                utility = update.trade.price - limit;
-            }
             //Was a buyer or a seller in this trade
             this.active = false;
-            marketSimModel.totalUtility += utility;
-            sendTraceNote(getName() + " utility = " + utility);
         }
     }
 

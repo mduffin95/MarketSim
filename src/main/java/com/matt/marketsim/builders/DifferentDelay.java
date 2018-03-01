@@ -1,20 +1,29 @@
 package com.matt.marketsim.builders;
 
 import com.matt.marketsim.Direction;
+import com.matt.marketsim.TradeStatisticCalculator;
+import com.matt.marketsim.TradeTimeSeries;
 import com.matt.marketsim.entities.Exchange;
 import com.matt.marketsim.entities.NetworkEntity;
 import com.matt.marketsim.entities.SecuritiesInformationProcessor;
 import com.matt.marketsim.entities.agents.TradingAgent;
 import com.matt.marketsim.entities.agents.ZIP;
 import com.matt.marketsim.models.MarketSimModel;
+import desmoj.core.simulator.TimeInstant;
+import desmoj.core.statistic.StatisticObject;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleWeightedGraph;
+
+import javax.xml.validation.SchemaFactoryConfigurationError;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Observer;
 
 public class DifferentDelay implements NetworkBuilder {
     private int num;
     private int min;
     private int step;
-
+    private Schedule schedule;
 
     public DifferentDelay(int num, int min, int max) {
         assert num > 0;
@@ -22,7 +31,8 @@ public class DifferentDelay implements NetworkBuilder {
         this.num = num;
         this.min = min;
         int diff = max - min;
-        step = diff / num;
+        step = diff / (num-1);
+        schedule = new Schedule(min, step, num, min, step, num);
     }
 
     @Override
@@ -30,29 +40,56 @@ public class DifferentDelay implements NetworkBuilder {
         SecuritiesInformationProcessor sip = new SecuritiesInformationProcessor(model, "Securities Information Processor", MarketSimModel.SHOW_ENTITIES_IN_TRACE);
         Exchange exchange = new Exchange(model, "Exchange", sip, MarketSimModel.SHOW_ENTITIES_IN_TRACE);
 
+        TradeTimeSeries tradePrices = new TradeTimeSeries(model, "Trade prices over time", "trade_prices.txt",
+                new TimeInstant(0.0), new TimeInstant(MarketSimModel.SIM_LENGTH), true, false);
+
+        TradeStatisticCalculator tradeStat = new TradeStatisticCalculator(model, "Trade statistics", 0, getEquilibriumPrice(), getTheoreticalUtility(), true, false);
+
+        exchange.lastTradeSupplier.addObserver(tradePrices);
+        exchange.lastTradeSupplier.addObserver(tradeStat);
+
 
         SimpleWeightedGraph<NetworkEntity, DefaultWeightedEdge> graph = new SimpleWeightedGraph<>(DefaultWeightedEdge.class);
         graph.addVertex(sip);
         graph.addVertex(exchange);
         graph.addEdge(exchange, sip);
 
+
+        int[] buySchedule = schedule.getBuySchedule();
+        int[] sellSchedule = schedule.getSellSchedule();
+        int equilibrium = schedule.getEquilibriumPrice();
+        System.out.println("Equilibrium = " + equilibrium);
+
         //Create the supply and demand curves
         for (int i = 0; i < num; i++) {
-            TradingAgent agentBuy = new ZIP(model, min + i * step, exchange, sip, Direction.BUY);
-            TradingAgent agentSell = new ZIP(model, min + i * step, exchange, sip, Direction.SELL);
+            TradingAgent agentBuy = new ZIP(model, buySchedule[i], exchange, sip, Direction.BUY);
+            TradingAgent agentSell = new ZIP(model, sellSchedule[i], exchange, sip, Direction.SELL);
 
             //Add buy agent to graph
             graph.addVertex(agentBuy);
-            DefaultWeightedEdge e = graph.addEdge(agentBuy, exchange);
+            DefaultWeightedEdge e1 = graph.addEdge(agentBuy, exchange);
             graph.addEdge(agentBuy, sip);
-
-            graph.setEdgeWeight(e, 10000);
 
             //Add sell agent to graph
             graph.addVertex(agentSell);
-            graph.addEdge(agentSell, exchange);
+            DefaultWeightedEdge e2 = graph.addEdge(agentSell, exchange);
             graph.addEdge(agentSell, sip);
+
+            if ((i % 2) == 0)
+                graph.setEdgeWeight(e1, 10000);
+            else
+                graph.setEdgeWeight(e2, 10000);
         }
         return graph;
+    }
+
+    @Override
+    public int getEquilibriumPrice() {
+        return schedule.getEquilibriumPrice();
+    }
+
+    @Override
+    public int getTheoreticalUtility() {
+        return schedule.getTheoreticalUtility();
     }
 }

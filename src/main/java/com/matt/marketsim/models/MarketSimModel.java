@@ -1,10 +1,15 @@
 package com.matt.marketsim.models;
 
+import com.matt.marketsim.Trade;
+import com.matt.marketsim.TradeStatisticCalculator;
+import com.matt.marketsim.TradeTimeSeries;
+import com.matt.marketsim.builders.DifferentDelay;
 import com.matt.marketsim.builders.NetworkBuilder;
 import com.matt.marketsim.builders.ZIPExperiment;
 import com.matt.marketsim.entities.agents.TradingAgent;
 import desmoj.core.dist.*;
 import desmoj.core.simulator.*;
+import desmoj.core.statistic.StatisticObject;
 import desmoj.core.statistic.TimeSeries;
 import com.matt.marketsim.entities.NetworkEntity;
 import com.matt.marketsim.events.TradingAgentDecisionEvent;
@@ -30,9 +35,11 @@ public class MarketSimModel extends Model {
     /*
      * Metrics for reporting
      */
-    public TimeSeries tradePrices;
-    public long totalUtility;
-    public long theoreticalUtility;
+    public TradeTimeSeries tradePrices;
+    public TradeStatisticCalculator tradeStat;
+    private int totalUtility;
+    public int theoreticalUtility;
+    public int equilibrium;
 
     private NetworkBuilder builder;
 
@@ -45,14 +52,13 @@ public class MarketSimModel extends Model {
     public static int MAX_PRICE = 200;
     public static int MEAN_TIME_BETWEEN_TRADES = 10;
     public static int SIM_LENGTH = 100;
-    public static int EQUILIBRIUM = 100;
     public static boolean SHOW_ENTITIES_IN_TRACE = true;
     public static boolean SHOW_EVENTS_IN_TRACE = true;
     public static boolean PACKET_SEND_IN_TRACE = true;
     public static boolean PACKET_ARRIVAL_IN_TRACE = true;
 
     /*
-     * Model com.matt.marketsim.entities
+     * Model entities
      */
     private ArrayList<TradingAgent> agents;
     SimpleWeightedGraph<NetworkEntity, DefaultWeightedEdge> network;
@@ -66,6 +72,13 @@ public class MarketSimModel extends Model {
         super(null, "ExchangeModel", true, true);
         generator = new Random();
         this.builder = builder;
+
+
+
+        /*
+         * Reporting
+         */
+
     }
 
     @Override
@@ -107,14 +120,10 @@ public class MarketSimModel extends Model {
          * Entities
          */
         agents = new ArrayList<>();
+
+
+        //Also calculates theoretical equilibrium price
         network = builder.createNetwork(this);
-
-
-        /*
-         * Reporting
-         */
-        tradePrices = new TimeSeries(this, "Trade prices over time", "trade_prices.txt",
-                new TimeInstant(0.0), new TimeInstant(MarketSimModel.SIM_LENGTH), true, false);
 
     }
 
@@ -138,16 +147,12 @@ public class MarketSimModel extends Model {
         return new TimeSpan(network.getEdgeWeight(edge), TimeUnit.MICROSECONDS);
     }
 
-//    public com.matt.marketsim.entities.Exchange getExchange() {
-//        return exchanges.get(0);
-//    }
-
-    public long getTotalUtility() {
-        return totalUtility;
+    public int getEquilibriumPrice() {
+        return builder.getEquilibriumPrice();
     }
 
-    public long getTheoreticalUtility() {
-        return theoreticalUtility;
+    public int getTheoreticalUtility() {
+        return builder.getTheoreticalUtility();
     }
 
     public void setSeed(long s) {
@@ -165,7 +170,7 @@ public class MarketSimModel extends Model {
 
         // create model and experiment
         Experiment exp = new Experiment("Exp1");
-        NetworkBuilder builder = new ZIPExperiment(25, 0, 200);
+        NetworkBuilder builder = new DifferentDelay(25, 40, 165);
         MarketSimModel model = new MarketSimModel(builder);
         // and connect them
         model.connectToExperiment(exp);
@@ -182,11 +187,9 @@ public class MarketSimModel extends Model {
         exp.report();
         exp.finish();
 
-        System.out.println("Total Utility = " + model.totalUtility);
-        System.out.println("Theoretical Total Utility = " + model.theoreticalUtility);
-        double allocative_efficiency = model.totalUtility / (double) model.theoreticalUtility;
+        System.out.println("Theoretical Total Utility = " + model.getTheoreticalUtility());
 
-        System.out.println("Allocative Efficiency = " + allocative_efficiency);
+//        System.out.println("Allocative Efficiency = " + model.tradeStat.getAllocEfficiency());
 
 //        model.getExchange().printQueues();
     }

@@ -10,10 +10,13 @@ import com.matt.marketsim.entities.NetworkEntity;
 import com.matt.marketsim.entities.Packet;
 import com.matt.marketsim.entities.SecuritiesInformationProcessor;
 import com.matt.marketsim.models.MarketSimModel;
+import desmoj.core.statistic.StatisticObject;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleWeightedGraph;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -45,6 +48,16 @@ public class ExchangeTests {
         @Override
         public SimpleWeightedGraph<NetworkEntity, DefaultWeightedEdge> createNetwork(MarketSimModel model) {
             return null;
+        }
+
+        @Override
+        public int getEquilibriumPrice() {
+            return 0;
+        }
+
+        @Override
+        public int getTheoreticalUtility() {
+            return 0;
         }
     }
 

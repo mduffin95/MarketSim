@@ -37,11 +37,9 @@ public class MarketSimModelTests {
         exp.report();
         exp.finish();
 
-        System.out.println("Total Utility = " + model.getTotalUtility());
         System.out.println("Theoretical Total Utility = " + model.getTheoreticalUtility());
-        double allocative_efficiency = model.getTotalUtility() / (double) model.getTheoreticalUtility();
 
-        System.out.println("Allocative Efficiency = " + allocative_efficiency);
+        System.out.println("Allocative Efficiency = " + model.tradeStat.getAllocEfficiency());
 
 //        model.getExchange().printQueues();
 
@@ -89,11 +87,9 @@ public class MarketSimModelTests {
         exp.report();
         exp.finish();
 
-        System.out.println("Total Utility = " + model.getTotalUtility());
         System.out.println("Theoretical Total Utility = " + model.getTheoreticalUtility());
-        double allocative_efficiency = model.getTotalUtility() / (double) model.getTheoreticalUtility();
 
-        System.out.println("Allocative Efficiency = " + allocative_efficiency);
+        System.out.println("Allocative Efficiency = " + model.tradeStat.getAllocEfficiency());
     }
 
 }

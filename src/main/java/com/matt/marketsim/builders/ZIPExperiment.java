@@ -7,8 +7,12 @@ import com.matt.marketsim.entities.Exchange;
 import com.matt.marketsim.entities.NetworkEntity;
 import com.matt.marketsim.entities.SecuritiesInformationProcessor;
 import com.matt.marketsim.models.MarketSimModel;
+import desmoj.core.statistic.StatisticObject;
+import desmoj.extensions.visualization2d.engine.model.Statistic;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleWeightedGraph;
+
+import java.util.List;
 
 public class ZIPExperiment implements NetworkBuilder {
     private int num;
@@ -52,5 +56,15 @@ public class ZIPExperiment implements NetworkBuilder {
             graph.addEdge(agentSell, sip);
         }
         return graph;
+    }
+
+    @Override
+    public int getEquilibriumPrice() {
+        return 0; //TODO
+    }
+
+    @Override
+    public int getTheoreticalUtility() {
+        return 0; //TODO
     }
 }
