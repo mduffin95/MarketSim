@@ -15,6 +15,14 @@ public class ZIC extends TradingAgent {
     }
 
     @Override
+    public int getTheoreticalUtility(int equilibrium) {
+        if (direction == Direction.BUY)
+            return limit - equilibrium;
+        else
+            return equilibrium - limit;
+    }
+
+    @Override
     public void doSomething() {
         Order newOrder = getOrder();
 

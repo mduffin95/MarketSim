@@ -27,4 +27,12 @@ public class ZIU extends TradingAgent {
     protected void respond(MarketUpdate update) {
         return;
     }
+
+    @Override
+    public int getTheoreticalUtility(int equilibrium) {
+        if (direction == Direction.BUY)
+            return limit - equilibrium;
+        else
+            return equilibrium - limit;
+    }
 }

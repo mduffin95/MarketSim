@@ -7,6 +7,9 @@ import desmoj.core.simulator.*;
 
 
 public abstract class TradingAgent extends NetworkEntity {
+
+
+    private int group;
     public boolean active;
     public int limit;
 //    protected int utility;
@@ -28,8 +31,18 @@ public abstract class TradingAgent extends NetworkEntity {
 
         this.sip = sip;
         this.sip.registerPriceObserver(this); //Will get price updates from SIP
+
+        this.group = -1;
     }
 
+    public abstract int getTheoreticalUtility(int equilibrium);
+
+    public void setGroup(int group) {
+        this.group = group;
+    }
+    public int getGroup() {
+        return group;
+    }
     //Called by the recurring event
     public abstract void doSomething();
 

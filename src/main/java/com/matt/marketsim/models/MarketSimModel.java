@@ -144,12 +144,12 @@ public class MarketSimModel extends Model {
     public TimeSpan getLatency(NetworkEntity a, NetworkEntity b) {
         //TODO: Implement adjacency matrix
         DefaultWeightedEdge edge = network.getEdge(a, b);
-        return new TimeSpan(network.getEdgeWeight(edge), TimeUnit.MICROSECONDS);
+        return new TimeSpan(network.getEdgeWeight(edge), TimeUnit.MILLISECONDS);
     }
 
-    public int getEquilibriumPrice() {
-        return builder.getEquilibriumPrice();
-    }
+//    public int getEquilibriumPrice() {
+//        return builder.getEquilibriumPrice();
+//    }
 
     public int getTheoreticalUtility() {
         return builder.getTheoreticalUtility();

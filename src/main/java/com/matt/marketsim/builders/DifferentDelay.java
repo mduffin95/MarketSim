@@ -3,6 +3,7 @@ package com.matt.marketsim.builders;
 import com.matt.marketsim.Direction;
 import com.matt.marketsim.TradeStatisticCalculator;
 import com.matt.marketsim.TradeTimeSeries;
+import com.matt.marketsim.TradingAgentGroup;
 import com.matt.marketsim.entities.Exchange;
 import com.matt.marketsim.entities.NetworkEntity;
 import com.matt.marketsim.entities.SecuritiesInformationProcessor;
@@ -43,10 +44,6 @@ public class DifferentDelay implements NetworkBuilder {
         TradeTimeSeries tradePrices = new TradeTimeSeries(model, "Trade prices over time", "trade_prices.txt",
                 new TimeInstant(0.0), new TimeInstant(MarketSimModel.SIM_LENGTH), true, false);
 
-        TradeStatisticCalculator tradeStat = new TradeStatisticCalculator(model, "Trade statistics", 0, getEquilibriumPrice(), getTheoreticalUtility(), true, false);
-
-        exchange.lastTradeSupplier.addObserver(tradePrices);
-        exchange.lastTradeSupplier.addObserver(tradeStat);
 
 
         SimpleWeightedGraph<NetworkEntity, DefaultWeightedEdge> graph = new SimpleWeightedGraph<>(DefaultWeightedEdge.class);
@@ -59,6 +56,16 @@ public class DifferentDelay implements NetworkBuilder {
         int[] sellSchedule = schedule.getSellSchedule();
         int equilibrium = schedule.getEquilibriumPrice();
         System.out.println("Equilibrium = " + equilibrium);
+
+        TradingAgentGroup shortDelay = new TradingAgentGroup(equilibrium);
+        TradingAgentGroup longDelay = new TradingAgentGroup(equilibrium);
+
+        TradeStatisticCalculator tradeStatShort = new TradeStatisticCalculator(model, "Stats (short delay)", shortDelay, equilibrium, true, false);
+        TradeStatisticCalculator tradeStatLong = new TradeStatisticCalculator(model, "Stats (long delay)", longDelay, equilibrium, true, false);
+
+        exchange.lastTradeSupplier.addObserver(tradePrices);
+        exchange.lastTradeSupplier.addObserver(tradeStatShort);
+        exchange.lastTradeSupplier.addObserver(tradeStatLong);
 
         //Create the supply and demand curves
         for (int i = 0; i < num; i++) {
@@ -75,10 +82,21 @@ public class DifferentDelay implements NetworkBuilder {
             DefaultWeightedEdge e2 = graph.addEdge(agentSell, exchange);
             graph.addEdge(agentSell, sip);
 
-            if ((i % 2) == 0)
+            if ((i % 2) == 0) {
                 graph.setEdgeWeight(e1, 10000);
-            else
+                graph.setEdgeWeight(e2, 1);
+
+                shortDelay.addMember(agentSell);
+                longDelay.addMember(agentBuy);
+            }
+            else {
+                graph.setEdgeWeight(e1, 1);
                 graph.setEdgeWeight(e2, 10000);
+
+                shortDelay.addMember(agentBuy);
+                longDelay.addMember(agentSell);
+            }
+
         }
         return graph;
     }

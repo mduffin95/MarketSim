@@ -165,4 +165,12 @@ public class ZIP extends TradingAgent {
         assert (direction == Direction.BUY && p <= limit) || (direction == Direction.SELL && p >= limit);
         return p;
     }
+
+    @Override
+    public int getTheoreticalUtility(int equilibrium) {
+        if (direction == Direction.BUY)
+            return limit - equilibrium;
+        else
+            return equilibrium - limit;
+    }
 }

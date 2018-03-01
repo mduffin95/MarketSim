@@ -8,15 +8,16 @@ import java.util.Observable;
 
 public class TradeStatisticCalculator extends StatisticObject {
     private int totalUtility = 0;
-    private int theoreticalUtility;
     private int equilibrium;
     private long sumOfSquares = 0;
     private int count = 0;
+    private TradingAgentGroup group;
 
-    public TradeStatisticCalculator(Model model, String name, int tag, int equilibrium, int theoreticalUtility, boolean showInReport, boolean showInTrace) {
+
+    public TradeStatisticCalculator(Model model, String name, TradingAgentGroup group, int equilibrium, boolean showInReport, boolean showInTrace) {
         super(model, name, showInReport, showInTrace);
-        this.theoreticalUtility = theoreticalUtility;
         this.equilibrium = equilibrium;
+        this.group = group;
     }
 
     @Override
@@ -24,10 +25,16 @@ public class TradeStatisticCalculator extends StatisticObject {
 
         if (arg instanceof Trade) {
             Trade trade = (Trade) arg;
-            count++;
-
-            totalUtility += trade.buyer.limit - trade.seller.limit;
-            sumOfSquares += Math.pow(trade.price - equilibrium, 2);
+            if (group.contains(trade.buyer)) {
+                count++;
+                totalUtility += trade.buyer.limit - trade.price;
+                sumOfSquares += Math.pow(trade.price - equilibrium, 2);
+            }
+            if (group.contains(trade.seller)) {
+                count++;
+                totalUtility += trade.price - trade.seller.limit;
+                sumOfSquares += Math.pow(trade.price - equilibrium, 2);
+            }
         }
     }
 
@@ -37,11 +44,17 @@ public class TradeStatisticCalculator extends StatisticObject {
     }
 
     public double getAllocEfficiency() {
-        return totalUtility / (double) theoreticalUtility;
+        return totalUtility / (double) group.getTheoreticalUtility();
     }
 
     @Override
     public Reporter createDefaultReporter() {
         return new TradeStatisticReporter(this);
     }
+
+
+//    public void setEquilibrium(int equilibrium) {
+//        this.equilibrium = equilibrium;
+//        equilibriumSet = true;
+//    }
 }
