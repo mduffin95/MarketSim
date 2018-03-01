@@ -1,12 +1,14 @@
 package com.matt.marketsim.builders;
 
 import com.matt.marketsim.Direction;
+import com.matt.marketsim.TradeTimeSeries;
 import com.matt.marketsim.entities.agents.TradingAgent;
 import com.matt.marketsim.entities.agents.ZIP;
 import com.matt.marketsim.entities.Exchange;
 import com.matt.marketsim.entities.NetworkEntity;
 import com.matt.marketsim.entities.SecuritiesInformationProcessor;
 import com.matt.marketsim.models.MarketSimModel;
+import desmoj.core.simulator.TimeInstant;
 import desmoj.core.statistic.StatisticObject;
 import desmoj.extensions.visualization2d.engine.model.Statistic;
 import org.jgrapht.graph.DefaultWeightedEdge;
@@ -34,11 +36,15 @@ public class ZIPExperiment implements NetworkBuilder {
         SecuritiesInformationProcessor sip = new SecuritiesInformationProcessor(model, "Securities Information Processor", MarketSimModel.SHOW_ENTITIES_IN_TRACE);
         Exchange exchange = new Exchange(model, "Exchange", sip, MarketSimModel.SHOW_ENTITIES_IN_TRACE);
 
+        TradeTimeSeries tradePrices = new TradeTimeSeries(model, "Trade prices over time", "trade_prices.txt",
+                new TimeInstant(0.0), new TimeInstant(MarketSimModel.SIM_LENGTH), true, false);
+
+        exchange.lastTradeSupplier.addObserver(tradePrices);
 
         SimpleWeightedGraph<NetworkEntity, DefaultWeightedEdge> graph = new SimpleWeightedGraph<>(DefaultWeightedEdge.class);
         graph.addVertex(sip);
         graph.addVertex(exchange);
-        graph.addEdge(exchange, sip);
+        graph.setEdgeWeight(graph.addEdge(exchange, sip), 0);
 
         //Create the supply and demand curves
         for (int i = 0; i < num; i++) {
@@ -47,13 +53,13 @@ public class ZIPExperiment implements NetworkBuilder {
 
             //Add buy agent to graph
             graph.addVertex(agentBuy);
-            graph.addEdge(agentBuy, exchange);
-            graph.addEdge(agentBuy, sip);
+            graph.setEdgeWeight(graph.addEdge(agentBuy, exchange), 0);
+            graph.setEdgeWeight(graph.addEdge(agentBuy, sip), 0);
 
             //Add sell agent to graph
             graph.addVertex(agentSell);
-            graph.addEdge(agentSell, exchange);
-            graph.addEdge(agentSell, sip);
+            graph.setEdgeWeight(graph.addEdge(agentSell, exchange), 0);
+            graph.setEdgeWeight(graph.addEdge(agentSell, sip),0);
         }
         return graph;
     }

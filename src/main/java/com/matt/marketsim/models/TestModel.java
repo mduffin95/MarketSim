@@ -44,10 +44,6 @@ public class TestModel extends MarketSimModel {
         exp.finish();
 
         System.out.println("Theoretical Total Utility = " + model.getTheoreticalUtility());
-
-        System.out.println("Allocative Efficiency = " + model.tradeStat.getAllocEfficiency());
-
-//        model.getExchange().printQueues();
     }
 
 }

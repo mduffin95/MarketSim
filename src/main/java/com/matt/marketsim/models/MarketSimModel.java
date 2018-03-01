@@ -33,14 +33,8 @@ public class MarketSimModel extends Model {
     private DistributionManager distributionManager;
 
     /*
-     * Metrics for reporting
+     * Network Builder
      */
-    public TradeTimeSeries tradePrices;
-    public TradeStatisticCalculator tradeStat;
-    private int totalUtility;
-    public int theoreticalUtility;
-    public int equilibrium;
-
     private NetworkBuilder builder;
 
 
@@ -188,9 +182,5 @@ public class MarketSimModel extends Model {
         exp.finish();
 
         System.out.println("Theoretical Total Utility = " + model.getTheoreticalUtility());
-
-//        System.out.println("Allocative Efficiency = " + model.tradeStat.getAllocEfficiency());
-
-//        model.getExchange().printQueues();
     }
 }

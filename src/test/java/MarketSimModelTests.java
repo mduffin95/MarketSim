@@ -39,8 +39,6 @@ public class MarketSimModelTests {
 
         System.out.println("Theoretical Total Utility = " + model.getTheoreticalUtility());
 
-        System.out.println("Allocative Efficiency = " + model.tradeStat.getAllocEfficiency());
-
 //        model.getExchange().printQueues();
 
         final File actualTrades = new File("trade_prices.txt");
@@ -67,29 +65,29 @@ public class MarketSimModelTests {
         }
     }
 
-    @Test
-    void differingDelay() {
-        NetworkBuilder builder = new DifferentDelay(25, 40, 165);
-        MarketSimModel model = new MarketSimModel(builder);
-        Experiment exp = new Experiment("Exp1");
-        // and connect them
-        model.connectToExperiment(exp);
-
-        // set experiment parameters
-        exp.setShowProgressBar(false);
-        TimeInstant stopTime = new TimeInstant(MarketSimModel.SIM_LENGTH, TimeUnit.SECONDS);
-        exp.tracePeriod(new TimeInstant(0), stopTime);
-        exp.stop(stopTime);
-        // start experiment
-        exp.start();
-
-        // generate report and shut everything off
-        exp.report();
-        exp.finish();
-
-        System.out.println("Theoretical Total Utility = " + model.getTheoreticalUtility());
-
-        System.out.println("Allocative Efficiency = " + model.tradeStat.getAllocEfficiency());
-    }
+//    @Test
+//    void differingDelay() {
+//        NetworkBuilder builder = new DifferentDelay(25, 40, 165);
+//        MarketSimModel model = new MarketSimModel(builder);
+//        Experiment exp = new Experiment("Exp1");
+//        // and connect them
+//        model.connectToExperiment(exp);
+//
+//        // set experiment parameters
+//        exp.setShowProgressBar(false);
+//        TimeInstant stopTime = new TimeInstant(MarketSimModel.SIM_LENGTH, TimeUnit.SECONDS);
+//        exp.tracePeriod(new TimeInstant(0), stopTime);
+//        exp.stop(stopTime);
+//        // start experiment
+//        exp.start();
+//
+//        // generate report and shut everything off
+//        exp.report();
+//        exp.finish();
+//
+//        System.out.println("Theoretical Total Utility = " + model.getTheoreticalUtility());
+//
+//        System.out.println("Allocative Efficiency = " + model.tradeStat.getAllocEfficiency());
+//    }
 
 }
