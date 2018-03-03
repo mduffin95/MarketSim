@@ -37,8 +37,6 @@ public class MarketSimModelTests {
         exp.report();
         exp.finish();
 
-        System.out.println("Theoretical Total Utility = " + model.getTheoreticalUtility());
-
 //        model.getExchange().printQueues();
 
         final File actualTrades = new File("trade_prices.txt");

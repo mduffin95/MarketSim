@@ -1,5 +1,6 @@
 package com.matt.marketsim.entities.agents;
 import com.matt.marketsim.*;
+import com.matt.marketsim.builders.LimitProvider;
 import com.matt.marketsim.models.MarketSimModel;
 import com.matt.marketsim.entities.*;
 
@@ -11,7 +12,7 @@ public abstract class TradingAgent extends NetworkEntity {
 
     public Direction direction;
     public boolean active;
-    public int limit;
+    public LimitProvider limit;
 //    protected int utility;
 
     protected Exchange primaryExchange;
@@ -19,7 +20,7 @@ public abstract class TradingAgent extends NetworkEntity {
 
     protected MarketSimModel marketSimModel;
 
-    public TradingAgent(Model model, int limit, Exchange e, SecuritiesInformationProcessor sip) {
+    public TradingAgent(Model model, LimitProvider limit, Exchange e, SecuritiesInformationProcessor sip) {
         super(model, "TradingAgent", MarketSimModel.SHOW_ENTITIES_IN_TRACE);
         marketSimModel = (MarketSimModel) model;
         marketSimModel.registerForInitialSchedule(this); //Register so that it is scheduled
@@ -34,6 +35,7 @@ public abstract class TradingAgent extends NetworkEntity {
 
     }
     //Called by the recurring event
+    //TODO: What happens if this method is called while we are waiting for a cancel acknowledgement? State machine?
     public abstract void doSomething();
 
     protected abstract void respond(MarketUpdate update);
@@ -76,8 +78,8 @@ public abstract class TradingAgent extends NetworkEntity {
 
     public int getTheoreticalUtility(int equilibrium) {
         if (direction == Direction.BUY)
-            return limit - equilibrium;
+            return limit.getLimitPrice() - equilibrium;
         else
-            return equilibrium - limit;
+            return equilibrium - limit.getLimitPrice();
     }
 }

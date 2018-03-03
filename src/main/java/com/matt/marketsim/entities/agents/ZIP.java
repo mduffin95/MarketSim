@@ -1,6 +1,7 @@
 package com.matt.marketsim.entities.agents;
 
 import com.matt.marketsim.*;
+import com.matt.marketsim.builders.LimitProvider;
 import com.matt.marketsim.entities.*;
 import desmoj.core.simulator.Model;
 
@@ -18,7 +19,7 @@ public class ZIP extends TradingAgent {
     private Order previousOrder = null;
 
 
-    public ZIP(Model model, int limit, Exchange e, SecuritiesInformationProcessor sip, Direction direction) {
+    public ZIP(Model model, LimitProvider limit, Exchange e, SecuritiesInformationProcessor sip, Direction direction) {
         super(model, limit, e, sip);
         this.direction = direction;
 //        learning_rate = 0.25;
@@ -159,7 +160,7 @@ public class ZIP extends TradingAgent {
         double delta = beta * (target - price);
         double change = (momentum * prev_change) + (1.0 - momentum) * delta;
         prev_change = change;
-        double newMargin = ((price + change) / limit) - 1;
+        double newMargin = ((price + change) / limit.getLimitPrice()) - 1;
 
         if (direction == Direction.BUY) {
             if (newMargin < 0.0) {
@@ -173,8 +174,8 @@ public class ZIP extends TradingAgent {
     }
 
     private int getPrice() {
-        int p = (int)Math.round(limit * (1 + margin));
-        assert (direction == Direction.BUY && p <= limit) || (direction == Direction.SELL && p >= limit);
+        int p = (int)Math.round(limit.getLimitPrice() * (1 + margin));
+        assert (direction == Direction.BUY && p <= limit.getLimitPrice()) || (direction == Direction.SELL && p >= limit.getLimitPrice());
         return p;
     }
 }

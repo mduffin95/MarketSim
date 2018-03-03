@@ -21,4 +21,6 @@ experiments with different compositions of trading com.matt.marketsim.entities.a
 Looking at using GraphML to represent the graph.
 
 ###Week 4 - March 1st - March 6th
-Decided to assume that each trading agent is only trading one unit. This simplifies the design.  
+Decided to assume that each trading agent is only trading one unit. This simplifies the design. 
+
+Currently not seeing any difference in allocative efficiency between agents with long and short delays. 

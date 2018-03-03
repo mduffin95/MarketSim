@@ -41,25 +41,23 @@ public class DifferentDelay implements NetworkBuilder {
         SecuritiesInformationProcessor sip = new SecuritiesInformationProcessor(model, "Securities Information Processor", MarketSimModel.SHOW_ENTITIES_IN_TRACE);
         Exchange exchange = new Exchange(model, "Exchange", sip, MarketSimModel.SHOW_ENTITIES_IN_TRACE);
 
-        TradeTimeSeries tradePrices = new TradeTimeSeries(model, "Trade prices over time", "trade_prices.txt",
-                new TimeInstant(0.0), new TimeInstant(MarketSimModel.SIM_LENGTH), true, false);
-
-
-
         SimpleWeightedGraph<NetworkEntity, DefaultWeightedEdge> graph = new SimpleWeightedGraph<>(DefaultWeightedEdge.class);
         graph.addVertex(sip);
         graph.addVertex(exchange);
         graph.addEdge(exchange, sip);
 
 
-        int[] buySchedule = schedule.getBuySchedule();
-        int[] sellSchedule = schedule.getSellSchedule();
+        FixedLimit[] buySchedule = schedule.getBuySchedule();
+        FixedLimit[] sellSchedule = schedule.getSellSchedule();
         int equilibrium = schedule.getEquilibriumPrice();
         System.out.println("Equilibrium = " + equilibrium);
 
         TradingAgentGroup shortDelay = new TradingAgentGroup(equilibrium);
         TradingAgentGroup longDelay = new TradingAgentGroup(equilibrium);
+        TradingAgentGroup all = new TradingAgentGroup();
 
+        TradeTimeSeries tradePrices = new TradeTimeSeries(model, "Trade prices over time", all, "trade_prices.txt",
+                new TimeInstant(0.0), new TimeInstant(MarketSimModel.SIM_LENGTH), true, false);
         TradeStatisticCalculator tradeStatShort = new TradeStatisticCalculator(model, "Stats (short delay)", shortDelay, equilibrium, true, false);
         TradeStatisticCalculator tradeStatLong = new TradeStatisticCalculator(model, "Stats (long delay)", longDelay, equilibrium, true, false);
 
@@ -96,18 +94,10 @@ public class DifferentDelay implements NetworkBuilder {
                 shortDelay.addMember(agentBuy);
                 longDelay.addMember(agentSell);
             }
+            all.addMember(agentBuy);
+            all.addMember(agentSell);
 
         }
         return graph;
-    }
-
-    @Override
-    public int getEquilibriumPrice() {
-        return schedule.getEquilibriumPrice();
-    }
-
-    @Override
-    public int getTheoreticalUtility() {
-        return schedule.getTheoreticalUtility();
     }
 }

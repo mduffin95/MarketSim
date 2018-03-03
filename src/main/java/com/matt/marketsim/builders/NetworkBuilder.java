@@ -15,6 +15,4 @@ public interface NetworkBuilder {
     //to exchanges that are created.
     SimpleWeightedGraph<NetworkEntity, DefaultWeightedEdge> createNetwork(MarketSimModel model);
 
-    int getEquilibriumPrice();
-    int getTheoreticalUtility();
 }

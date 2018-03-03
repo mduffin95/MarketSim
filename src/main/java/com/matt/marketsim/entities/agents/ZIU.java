@@ -1,6 +1,7 @@
 package com.matt.marketsim.entities.agents;
 
 import com.matt.marketsim.*;
+import com.matt.marketsim.builders.LimitProvider;
 import com.matt.marketsim.entities.*;
 import com.matt.marketsim.models.MarketSimModel;
 import desmoj.core.simulator.Model;
@@ -8,7 +9,7 @@ import desmoj.core.simulator.Model;
 public class ZIU extends TradingAgent {
     private Direction direction;
 
-    public ZIU(Model model, int limit, Exchange e, SecuritiesInformationProcessor sip, Direction direction) {
+    public ZIU(Model model, LimitProvider limit, Exchange e, SecuritiesInformationProcessor sip, Direction direction) {
         super(model, limit, e, sip);
         this.direction = direction;
 

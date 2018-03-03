@@ -5,6 +5,7 @@ import com.matt.marketsim.TradeStatisticCalculator;
 import com.matt.marketsim.TradeTimeSeries;
 import com.matt.marketsim.builders.DifferentDelay;
 import com.matt.marketsim.builders.NetworkBuilder;
+import com.matt.marketsim.builders.Wellman;
 import com.matt.marketsim.builders.ZIPExperiment;
 import com.matt.marketsim.entities.agents.TradingAgent;
 import desmoj.core.dist.*;
@@ -30,7 +31,7 @@ public class MarketSimModel extends Model {
     private ContDistUniform agentArrivalTimeUniform;
     private DiscreteDistUniform priceDist;
 //    private BoolDistBernoulli buyOrSell;
-    private DistributionManager distributionManager;
+    public DistributionManager distributionManager;
 
     /*
      * Network Builder
@@ -141,14 +142,6 @@ public class MarketSimModel extends Model {
         return new TimeSpan(network.getEdgeWeight(edge), TimeUnit.MILLISECONDS);
     }
 
-//    public int getEquilibriumPrice() {
-//        return builder.getEquilibriumPrice();
-//    }
-
-    public int getTheoreticalUtility() {
-        return builder.getTheoreticalUtility();
-    }
-
     public void setSeed(long s) {
         generator.setSeed(s);
     }
@@ -164,7 +157,7 @@ public class MarketSimModel extends Model {
 
         // create model and experiment
         Experiment exp = new Experiment("Exp1");
-        NetworkBuilder builder = new DifferentDelay(25, 40, 165);
+        NetworkBuilder builder = new Wellman();
         MarketSimModel model = new MarketSimModel(builder);
         // and connect them
         model.connectToExperiment(exp);
@@ -180,7 +173,5 @@ public class MarketSimModel extends Model {
         // generate report and shut everything off
         exp.report();
         exp.finish();
-
-        System.out.println("Theoretical Total Utility = " + model.getTheoreticalUtility());
     }
 }

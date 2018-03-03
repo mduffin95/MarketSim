@@ -42,8 +42,6 @@ public class TestModel extends MarketSimModel {
         // generate report and shut everything off
         exp.report();
         exp.finish();
-
-        System.out.println("Theoretical Total Utility = " + model.getTheoreticalUtility());
     }
 
 }

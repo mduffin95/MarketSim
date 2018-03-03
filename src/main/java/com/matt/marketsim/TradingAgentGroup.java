@@ -7,9 +7,15 @@ import java.util.ArrayList;
 public class TradingAgentGroup {
     private ArrayList<TradingAgent> members = new ArrayList<>();
     private int equilibrium;
+    private boolean equilibriumSet = false;
+
+    public TradingAgentGroup() {
+
+    }
 
     public TradingAgentGroup(int equilibrium) {
         this.equilibrium = equilibrium;
+        equilibriumSet = true;
     }
 
     public void addMember(TradingAgent ta) {
@@ -21,6 +27,9 @@ public class TradingAgentGroup {
     }
 
     public int getTheoreticalUtility() {
+        if (!equilibriumSet) {
+            throw new UnsupportedOperationException("Equilibrium price not set.");
+        }
         int theoreticalUtility = 0;
         for (TradingAgent ta: members) {
             int tmp = ta.getTheoreticalUtility(equilibrium);

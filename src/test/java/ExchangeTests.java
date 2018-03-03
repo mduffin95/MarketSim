@@ -1,6 +1,7 @@
 import com.matt.marketsim.Direction;
 import com.matt.marketsim.MessageType;
 import com.matt.marketsim.Order;
+import com.matt.marketsim.builders.FixedLimit;
 import com.matt.marketsim.builders.NetworkBuilder;
 import com.matt.marketsim.entities.agents.ZIP;
 import desmoj.core.simulator.Experiment;
@@ -49,16 +50,6 @@ public class ExchangeTests {
         public SimpleWeightedGraph<NetworkEntity, DefaultWeightedEdge> createNetwork(MarketSimModel model) {
             return null;
         }
-
-        @Override
-        public int getEquilibriumPrice() {
-            return 0;
-        }
-
-        @Override
-        public int getTheoreticalUtility() {
-            return 0;
-        }
     }
 
 
@@ -75,8 +66,8 @@ public class ExchangeTests {
 
     @Test
     void packetArrivalTest() {
-        ZIP agent1 = new ZIP(model, 50, exchange, sip, Direction.BUY);
-        ZIP agent2 = new ZIP(model, 40, exchange, sip, Direction.SELL);
+        ZIP agent1 = new ZIP(model, new FixedLimit(50), exchange, sip, Direction.BUY);
+        ZIP agent2 = new ZIP(model, new FixedLimit(40), exchange, sip, Direction.SELL);
 
         Order orderBuy = new Order(agent1, exchange, agent1.direction, 40);
         Order orderSell = new Order(agent2, exchange, agent2.direction, 50);
@@ -93,7 +84,7 @@ public class ExchangeTests {
     @Test
     void cancelOrderTest() {
         //When an order is cancelled it should be removed from the order book
-        ZIP agent1 = new ZIP(model, 50, exchange, sip, Direction.BUY);
+        ZIP agent1 = new ZIP(model, new FixedLimit(50), exchange, sip, Direction.BUY);
         Order orderBuy = new Order(agent1, exchange, agent1.direction, 40);
         Packet packet1 = new Packet(model, "TestPacket", false, null, null, MessageType.LIMIT_ORDER, orderBuy);
         exchange.handlePacket(packet1);
@@ -109,9 +100,9 @@ public class ExchangeTests {
         //When an order arrives that matches with an order in the order book the trade should take place. Also tests
         //that the trade takes place at the price of the order sitting on the order book.
 
-        int buyLimit = 50;
+        FixedLimit buyLimit = new FixedLimit(50);
         int buyPrice = 45;
-        int sellLimit = 30;
+        FixedLimit sellLimit = new FixedLimit(30);
         int sellPrice = 35;
 
         ZIP agent1 = new ZIP(model, buyLimit, exchange, sip, Direction.BUY);
@@ -141,9 +132,9 @@ public class ExchangeTests {
     void cancelOrderTooLateTest() {
         //If a cancel order arrives after the order that it is supposed to cancel is matched.
         //What happens if another limit order is sent behind the cancel?
-        int buyLimit = 50;
+        FixedLimit buyLimit = new FixedLimit(50);
         int buyPrice = 45;
-        int sellLimit = 30;
+        FixedLimit sellLimit = new FixedLimit(30);
         int sellPrice = 35;
 
         ZIP agent1 = new ZIP(model, buyLimit, exchange, sip, Direction.BUY);

@@ -2,6 +2,7 @@ package com.matt.marketsim.builders;
 
 import com.matt.marketsim.Direction;
 import com.matt.marketsim.TradeTimeSeries;
+import com.matt.marketsim.TradingAgentGroup;
 import com.matt.marketsim.entities.agents.TradingAgent;
 import com.matt.marketsim.entities.agents.ZIP;
 import com.matt.marketsim.entities.Exchange;
@@ -36,7 +37,8 @@ public class ZIPExperiment implements NetworkBuilder {
         SecuritiesInformationProcessor sip = new SecuritiesInformationProcessor(model, "Securities Information Processor", MarketSimModel.SHOW_ENTITIES_IN_TRACE);
         Exchange exchange = new Exchange(model, "Exchange", sip, MarketSimModel.SHOW_ENTITIES_IN_TRACE);
 
-        TradeTimeSeries tradePrices = new TradeTimeSeries(model, "Trade prices over time", "trade_prices.txt",
+        TradingAgentGroup all = new TradingAgentGroup();
+        TradeTimeSeries tradePrices = new TradeTimeSeries(model, "Trade prices over time", all,"trade_prices.txt",
                 new TimeInstant(0.0), new TimeInstant(MarketSimModel.SIM_LENGTH), true, false);
 
         exchange.lastTradeSupplier.addObserver(tradePrices);
@@ -48,8 +50,12 @@ public class ZIPExperiment implements NetworkBuilder {
 
         //Create the supply and demand curves
         for (int i = 0; i < num; i++) {
-            TradingAgent agentBuy = new ZIP(model, min + i * step, exchange, sip, Direction.BUY);
-            TradingAgent agentSell = new ZIP(model, min + i * step, exchange, sip, Direction.SELL);
+            TradingAgent agentBuy = new ZIP(model, new FixedLimit(min + i * step), exchange, sip, Direction.BUY);
+            TradingAgent agentSell = new ZIP(model, new FixedLimit(min + i * step), exchange, sip, Direction.SELL);
+
+            //Add to reporting groups
+            all.addMember(agentBuy);
+            all.addMember(agentSell);
 
             //Add buy agent to graph
             graph.addVertex(agentBuy);
@@ -62,15 +68,5 @@ public class ZIPExperiment implements NetworkBuilder {
             graph.setEdgeWeight(graph.addEdge(agentSell, sip),0);
         }
         return graph;
-    }
-
-    @Override
-    public int getEquilibriumPrice() {
-        return 0; //TODO
-    }
-
-    @Override
-    public int getTheoreticalUtility() {
-        return 0; //TODO
     }
 }

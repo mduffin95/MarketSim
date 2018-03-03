@@ -1,40 +1,42 @@
 package com.matt.marketsim.builders;
 
+import com.matt.marketsim.entities.agents.TradingAgent;
+
 import static java.lang.Math.min;
 
 public class Schedule {
     int lowestBuy;
     int buyStep;
     int buyQuantity;
-    int[] buySchedule;
+    FixedLimit[] buySchedule;
 
     int lowestSell;
     int sellStep;
     int sellQuantity;
-    int[] sellSchedule;
+    FixedLimit[] sellSchedule;
 
 
 
     public Schedule(int lowestBuy, int buyStep, int buyQuantity, int lowestSell, int sellStep, int sellQuantity) {
         this.buyQuantity = buyQuantity;
         this.sellQuantity = sellQuantity;
-        buySchedule = new int[buyQuantity];
-        sellSchedule = new int[sellQuantity];
+        buySchedule = new FixedLimit[buyQuantity];
+        sellSchedule = new FixedLimit[sellQuantity];
         for (int i=0; i<buyQuantity; i++) {
             int j = buyQuantity-i-1;
-            buySchedule[i] = lowestBuy + j*buyStep;
+            buySchedule[i] = new FixedLimit(lowestBuy + j*buyStep);
         }
 
         for (int i=0; i<sellQuantity; i++) {
-            sellSchedule[i] = lowestSell + i*sellStep;
+            sellSchedule[i] = new FixedLimit(lowestSell + i*sellStep);
         }
     }
 
-    public int[] getBuySchedule() {
+    public FixedLimit[] getBuySchedule() {
         return buySchedule;
     }
 
-    public int[] getSellSchedule() {
+    public FixedLimit[] getSellSchedule() {
         return sellSchedule;
     }
 
@@ -42,34 +44,30 @@ public class Schedule {
         int minQuantity = min(buyQuantity, sellQuantity);
 
         for (int i=0; i<minQuantity; i++) {
-            int b = buySchedule[i];
-            int s = sellSchedule[i];
+            int b = buySchedule[i].getLimitPrice();
+            int s = sellSchedule[i].getLimitPrice();
             if (b > s) {
                 return (b+s) / 2;
             }
         }
-        return -1;
+        throw new RuntimeException("No equilibrium price found.");
     }
 
-    public int getTheoreticalUtility() {
-        int equilibrium = getEquilibriumPrice();
-        int theoreticalMaxUtility = 0;
-        int utility;
-
-        for (int i=0; i<buyQuantity; i++) {
-            int j = buyQuantity-i-1;
-            utility = buySchedule[i] - equilibrium;
-            if (utility > 0) theoreticalMaxUtility += utility;
-        }
-
-        for (int i=0; i<sellQuantity; i++) {
-            utility = equilibrium - sellSchedule[i];
-            if (utility > 0) theoreticalMaxUtility += utility;
-        }
-        return theoreticalMaxUtility;
-    }
+//    public int getTheoreticalUtility() {
+//        int equilibrium = getEquilibriumPrice();
+//        int theoreticalMaxUtility = 0;
+//        int utility;
 //
-//    public int getEquilibriumQuantity() {
+//        for (int i=0; i<buyQuantity; i++) {
+//            int j = buyQuantity-i-1;
+//            utility = buySchedule[i] - equilibrium;
+//            if (utility > 0) theoreticalMaxUtility += utility;
+//        }
 //
+//        for (int i=0; i<sellQuantity; i++) {
+//            utility = equilibrium - sellSchedule[i];
+//            if (utility > 0) theoreticalMaxUtility += utility;
+//        }
+//        return theoreticalMaxUtility;
 //    }
 }
