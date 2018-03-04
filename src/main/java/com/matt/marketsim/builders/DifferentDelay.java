@@ -1,9 +1,6 @@
 package com.matt.marketsim.builders;
 
-import com.matt.marketsim.Direction;
-import com.matt.marketsim.TradeStatisticCalculator;
-import com.matt.marketsim.TradeTimeSeries;
-import com.matt.marketsim.TradingAgentGroup;
+import com.matt.marketsim.*;
 import com.matt.marketsim.entities.Exchange;
 import com.matt.marketsim.entities.NetworkEntity;
 import com.matt.marketsim.entities.SecuritiesInformationProcessor;
@@ -67,8 +64,8 @@ public class DifferentDelay implements NetworkBuilder {
 
         //Create the supply and demand curves
         for (int i = 0; i < num; i++) {
-            TradingAgent agentBuy = new ZIP(model, buySchedule[i], exchange, sip, Direction.BUY);
-            TradingAgent agentSell = new ZIP(model, sellSchedule[i], exchange, sip, Direction.SELL);
+            TradingAgent agentBuy = new ZIP(model, buySchedule[i], exchange, sip, new FixedOrderRouter(exchange), Direction.BUY);
+            TradingAgent agentSell = new ZIP(model, sellSchedule[i], exchange, sip, new FixedOrderRouter(exchange), Direction.SELL);
 
             //Add buy agent to graph
             graph.addVertex(agentBuy);

@@ -9,8 +9,8 @@ import desmoj.core.simulator.Model;
 public class ZIU extends TradingAgent {
     private Direction direction;
 
-    public ZIU(Model model, LimitProvider limit, Exchange e, SecuritiesInformationProcessor sip, Direction direction) {
-        super(model, limit, e, sip);
+    public ZIU(Model model, LimitProvider limit, Exchange e, SecuritiesInformationProcessor sip, OrderRouter router, Direction direction) {
+        super(model, limit, e, sip, router);
         this.direction = direction;
 
     }
@@ -18,10 +18,8 @@ public class ZIU extends TradingAgent {
     @Override
     public void doSomething() {
         int price = marketSimModel.getRandomPrice();
-        Order order = new Order(this, primaryExchange, direction, price);
 
-        //this sends a packet immediately
-        primaryExchange.send(this, MessageType.LIMIT_ORDER, order);
+        router.routeOrder(this, MessageType.LIMIT_ORDER, direction, price);
     }
 
     @Override

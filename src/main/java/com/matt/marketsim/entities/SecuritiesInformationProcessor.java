@@ -65,9 +65,11 @@ public class SecuritiesInformationProcessor extends NetworkEntity implements Pri
         summary.buyOrders[0] = bestBid;
         summary.sellOrders[0] = bestOffer;
 
-        //Send updated prices to all observers
+        MarketUpdate m = new MarketUpdate(null, summary);
+
+        //Send updated prices to all observers, adding delta delay before sending
         for (NetworkEntity e: observers) {
-            e.send(this, MessageType.MARKET_UPDATE, summary, delta);
+            e.send(this, MessageType.MARKET_UPDATE, m, delta);
         }
     }
 

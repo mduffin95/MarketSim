@@ -101,7 +101,7 @@ public class Exchange extends NetworkEntity implements PriceProvider {
             msg = MessageType.MARKET_UPDATE;
 
             for (NetworkEntity e: observers) {
-                e.send(this, msg, update, marketSimModel.getLatency(this, e));
+                e.send(this, msg, update);
             }
         }
         recentTrade = newTrade;

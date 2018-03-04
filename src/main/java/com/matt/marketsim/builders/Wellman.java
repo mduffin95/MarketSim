@@ -1,9 +1,6 @@
 package com.matt.marketsim.builders;
 
-import com.matt.marketsim.Direction;
-import com.matt.marketsim.TradeStatisticCalculator;
-import com.matt.marketsim.TradeTimeSeries;
-import com.matt.marketsim.TradingAgentGroup;
+import com.matt.marketsim.*;
 import com.matt.marketsim.entities.Exchange;
 import com.matt.marketsim.entities.NetworkEntity;
 import com.matt.marketsim.entities.SecuritiesInformationProcessor;
@@ -64,8 +61,8 @@ public class Wellman implements NetworkBuilder {
                 e = exchange2;
                 g = ex2;
             }
-            TradingAgent agent1 = new ZIC(model, new VariableLimit(), e, sip, Direction.BUY);
-            TradingAgent agent2 = new ZIC(model, new VariableLimit(), e, sip, Direction.SELL);
+            TradingAgent agent1 = new ZIC(model, new VariableLimit(), e, sip, new BestPriceOrderRouter(e), Direction.BUY);
+            TradingAgent agent2 = new ZIC(model, new VariableLimit(), e, sip, new BestPriceOrderRouter(e), Direction.SELL);
 
             //Add to reporting groups
             g.addMember(agent1);

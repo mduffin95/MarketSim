@@ -1,6 +1,7 @@
 package com.matt.marketsim.builders;
 
 import com.matt.marketsim.Direction;
+import com.matt.marketsim.FixedOrderRouter;
 import com.matt.marketsim.TradeTimeSeries;
 import com.matt.marketsim.TradingAgentGroup;
 import com.matt.marketsim.entities.agents.TradingAgent;
@@ -50,8 +51,8 @@ public class ZIPExperiment implements NetworkBuilder {
 
         //Create the supply and demand curves
         for (int i = 0; i < num; i++) {
-            TradingAgent agentBuy = new ZIP(model, new FixedLimit(min + i * step), exchange, sip, Direction.BUY);
-            TradingAgent agentSell = new ZIP(model, new FixedLimit(min + i * step), exchange, sip, Direction.SELL);
+            TradingAgent agentBuy = new ZIP(model, new FixedLimit(min + i * step), exchange, sip, new FixedOrderRouter(exchange), Direction.BUY);
+            TradingAgent agentSell = new ZIP(model, new FixedLimit(min + i * step), exchange, sip, new FixedOrderRouter(exchange), Direction.SELL);
 
             //Add to reporting groups
             all.addMember(agentBuy);

@@ -7,6 +7,7 @@ import com.matt.marketsim.builders.DifferentDelay;
 import com.matt.marketsim.builders.NetworkBuilder;
 import com.matt.marketsim.builders.Wellman;
 import com.matt.marketsim.builders.ZIPExperiment;
+import com.matt.marketsim.entities.Exchange;
 import com.matt.marketsim.entities.agents.TradingAgent;
 import desmoj.core.dist.*;
 import desmoj.core.simulator.*;
@@ -18,7 +19,9 @@ import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleWeightedGraph;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public class MarketSimModel extends Model {
@@ -148,6 +151,21 @@ public class MarketSimModel extends Model {
 
     public void registerForInitialSchedule(TradingAgent agent) {
         agents.add(agent);
+    }
+
+    public Set<NetworkEntity> getConnectedVertices(NetworkEntity entity) {
+        Set<DefaultWeightedEdge> edges = network.edgesOf(entity);
+        Set<NetworkEntity> connected = new HashSet<>();
+        for (DefaultWeightedEdge e: edges) {
+            NetworkEntity source = network.getEdgeSource(e);
+            NetworkEntity dest = network.getEdgeTarget(e);
+            if (source != entity) {
+                connected.add(source);
+            } else {
+                connected.add(dest);
+            }
+        }
+        return connected;
     }
 
     /**

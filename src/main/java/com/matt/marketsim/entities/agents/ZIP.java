@@ -19,8 +19,8 @@ public class ZIP extends TradingAgent {
     private Order previousOrder = null;
 
 
-    public ZIP(Model model, LimitProvider limit, Exchange e, SecuritiesInformationProcessor sip, Direction direction) {
-        super(model, limit, e, sip);
+    public ZIP(Model model, LimitProvider limit, Exchange e, SecuritiesInformationProcessor sip, OrderRouter router, Direction direction) {
+        super(model, limit, e, sip, router);
         this.direction = direction;
 //        learning_rate = 0.25;
         momentum = 0.1 * marketSimModel.generator.nextDouble();
@@ -39,7 +39,7 @@ public class ZIP extends TradingAgent {
             if (null == previousOrder)
                 placeOrder();
             else
-                primaryExchange.send(this, MessageType.CANCEL, previousOrder);
+                previousOrder.getExchange().send(this, MessageType.CANCEL, previousOrder);
         }
     }
 
@@ -50,9 +50,7 @@ public class ZIP extends TradingAgent {
     }
 
     private void placeOrder() {
-        Order newOrder = new Order(this, primaryExchange, this.direction, getPrice());
-        primaryExchange.send(this, MessageType.LIMIT_ORDER, newOrder);
-        previousOrder = newOrder;
+        previousOrder = router.routeOrder(this, MessageType.LIMIT_ORDER, direction, getPrice());
     }
 
     @Override

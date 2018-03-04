@@ -15,24 +15,22 @@ public abstract class TradingAgent extends NetworkEntity {
     public LimitProvider limit;
 //    protected int utility;
 
-    protected Exchange primaryExchange;
-    private SecuritiesInformationProcessor sip;
+    OrderRouter router;
+    MarketSimModel marketSimModel;
 
-    protected MarketSimModel marketSimModel;
-
-    public TradingAgent(Model model, LimitProvider limit, Exchange e, SecuritiesInformationProcessor sip) {
+    public TradingAgent(Model model, LimitProvider limit, Exchange primary, SecuritiesInformationProcessor sip, OrderRouter router) {
         super(model, "TradingAgent", MarketSimModel.SHOW_ENTITIES_IN_TRACE);
         marketSimModel = (MarketSimModel) model;
         marketSimModel.registerForInitialSchedule(this); //Register so that it is scheduled
         this.limit = limit;
         this.active = true;
 
-        this.primaryExchange = e;
-        this.primaryExchange.registerPriceObserver(this);
+        //Will only receive price updates from the primary and the SIP
+        //TODO: Remove this because it is overly restrictive. Some may want to observe more prices. Register in the builder instead.
+        primary.registerPriceObserver(this);
+        sip.registerPriceObserver(this);
 
-        this.sip = sip;
-        this.sip.registerPriceObserver(this); //Will get price updates from SIP
-
+        this.router = router;
     }
     //Called by the recurring event
     //TODO: What happens if this method is called while we are waiting for a cancel acknowledgement? State machine?
@@ -49,6 +47,7 @@ public abstract class TradingAgent extends NetworkEntity {
                 break;
             case MARKET_UPDATE:
                 MarketUpdate update = (MarketUpdate)packet.getPayload();
+                router.respond(update); //Call router first, in case the trading agent responds by sending an order.
                 respond(update);
             case CANCEL:
                 break;

@@ -8,24 +8,24 @@ import desmoj.core.simulator.Model;
 
 public class ZIC extends TradingAgent {
     private Direction direction;
-    private Order previousOrder;
+    private Order currentOrder;
 
-    public ZIC(Model model, LimitProvider limit, Exchange e, SecuritiesInformationProcessor sip, Direction direction) {
-        super(model, limit, e, sip);
+    public ZIC(Model model, LimitProvider limit, Exchange e, SecuritiesInformationProcessor sip, OrderRouter router, Direction direction) {
+        super(model, limit, e, sip, router);
         this.direction = direction;
     }
 
-    private Order newOrder;
+    private int newPrice;
     @Override
     public void doSomething() {
-        newOrder = getOrder();
+        newPrice = getNewPrice();
         if (active) {
-            if (null == previousOrder) {
+            if (null == currentOrder) {
                 placeOrder();
             } else {
-                if (direction == Direction.BUY && newOrder.getPrice() > previousOrder.getPrice() ||
-                        direction == Direction.SELL && newOrder.getPrice() < previousOrder.getPrice()) {
-                    primaryExchange.send(this, MessageType.CANCEL, previousOrder);
+                if (direction == Direction.BUY && newPrice > currentOrder.getPrice() ||
+                        direction == Direction.SELL && newPrice < currentOrder.getPrice()) {
+                    currentOrder.getExchange().send(this, MessageType.CANCEL, currentOrder);
 
                 }
             }
@@ -45,16 +45,15 @@ public class ZIC extends TradingAgent {
 
     @Override
     protected void cancelSuccess(Order order) {
-        assert previousOrder == order;
+        assert currentOrder == order;
         placeOrder();
     }
 
     private void placeOrder() {
-        primaryExchange.send(this, MessageType.LIMIT_ORDER, newOrder);
-        previousOrder = newOrder;
+        currentOrder = router.routeOrder(this, MessageType.LIMIT_ORDER, direction, newPrice);
     }
 
-    private Order getOrder() {
+    private int getNewPrice() {
         int price;
         if (direction == Direction.BUY) {
             price = marketSimModel.generator.nextInt(limit.getLimitPrice() + 1);
@@ -62,6 +61,6 @@ public class ZIC extends TradingAgent {
         } else {
             price = limit.getLimitPrice() + marketSimModel.generator.nextInt(MarketSimModel.MAX_PRICE - limit.getLimitPrice() + 1);
         }
-        return new Order(this, primaryExchange, direction, price);
+        return price;
     }
 }
