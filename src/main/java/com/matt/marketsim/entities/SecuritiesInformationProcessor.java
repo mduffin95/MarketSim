@@ -5,6 +5,7 @@ import com.matt.marketsim.*;
 
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeSpan;
+import desmoj.core.statistic.TimeSeries;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,10 +19,16 @@ public class SecuritiesInformationProcessor extends NetworkEntity implements Pri
     private List<NetworkEntity> observers;
 
     public SecuritiesInformationProcessor(Model model, String name, boolean showInTrace) {
-        super(model, name, showInTrace);
-        observers = new ArrayList<>();
+        this(model, name, showInTrace, new TimeSpan(0));
     }
 
+    public SecuritiesInformationProcessor(Model model, String name, boolean showInTrace, TimeSpan delta) {
+        super(model, name, showInTrace);
+        observers = new ArrayList<>();
+        this.delta = delta;
+    }
+
+    //TODO: could this be the same as a 'respond' method?
     @Override
     public void handlePacket(Packet packet) {
         if (packet.getType() != MessageType.MARKET_UPDATE) {

@@ -64,8 +64,14 @@ public class DifferentDelay implements NetworkBuilder {
 
         //Create the supply and demand curves
         for (int i = 0; i < num; i++) {
-            TradingAgent agentBuy = new ZIP(model, buySchedule[i], exchange, sip, new FixedOrderRouter(exchange), Direction.BUY);
-            TradingAgent agentSell = new ZIP(model, sellSchedule[i], exchange, sip, new FixedOrderRouter(exchange), Direction.SELL);
+            TradingAgent agentBuy = new ZIP(model, buySchedule[i], new FixedOrderRouter(exchange), Direction.BUY);
+            TradingAgent agentSell = new ZIP(model, sellSchedule[i], new FixedOrderRouter(exchange), Direction.SELL);
+
+            //So that they receive price updates
+            exchange.registerPriceObserver(agentBuy);
+            exchange.registerPriceObserver(agentSell);
+            sip.registerPriceObserver(agentBuy);
+            sip.registerPriceObserver(agentSell);
 
             //Add buy agent to graph
             graph.addVertex(agentBuy);

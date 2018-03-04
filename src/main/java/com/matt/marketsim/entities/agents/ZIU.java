@@ -9,8 +9,8 @@ import desmoj.core.simulator.Model;
 public class ZIU extends TradingAgent {
     private Direction direction;
 
-    public ZIU(Model model, LimitProvider limit, Exchange e, SecuritiesInformationProcessor sip, OrderRouter router, Direction direction) {
-        super(model, limit, e, sip, router);
+    public ZIU(Model model, LimitProvider limit, OrderRouter router, Direction direction) {
+        super(model, limit, router);
         this.direction = direction;
 
     }

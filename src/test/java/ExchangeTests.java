@@ -67,8 +67,8 @@ public class ExchangeTests {
 
     @Test
     void packetArrivalTest() {
-        ZIP agent1 = new ZIP(model, new FixedLimit(50), exchange, sip, new FixedOrderRouter(exchange), Direction.BUY);
-        ZIP agent2 = new ZIP(model, new FixedLimit(40), exchange, sip, new FixedOrderRouter(exchange), Direction.SELL);
+        ZIP agent1 = new ZIP(model, new FixedLimit(50), new FixedOrderRouter(exchange), Direction.BUY);
+        ZIP agent2 = new ZIP(model, new FixedLimit(40), new FixedOrderRouter(exchange), Direction.SELL);
 
         Order orderBuy = new Order(agent1, exchange, agent1.direction, 40);
         Order orderSell = new Order(agent2, exchange, agent2.direction, 50);
@@ -85,7 +85,7 @@ public class ExchangeTests {
     @Test
     void cancelOrderTest() {
         //When an order is cancelled it should be removed from the order book
-        ZIP agent1 = new ZIP(model, new FixedLimit(50), exchange, sip, new FixedOrderRouter(exchange), Direction.BUY);
+        ZIP agent1 = new ZIP(model, new FixedLimit(50), new FixedOrderRouter(exchange), Direction.BUY);
         Order orderBuy = new Order(agent1, exchange, agent1.direction, 40);
         Packet packet1 = new Packet(model, "TestPacket", false, null, null, MessageType.LIMIT_ORDER, orderBuy);
         exchange.handlePacket(packet1);
@@ -106,8 +106,8 @@ public class ExchangeTests {
         FixedLimit sellLimit = new FixedLimit(30);
         int sellPrice = 35;
 
-        ZIP agent1 = new ZIP(model, buyLimit, exchange, sip, new FixedOrderRouter(exchange), Direction.BUY);
-        ZIP agent2 = new ZIP(model, sellLimit, exchange, sip, new FixedOrderRouter(exchange), Direction.SELL);
+        ZIP agent1 = new ZIP(model, buyLimit, new FixedOrderRouter(exchange), Direction.BUY);
+        ZIP agent2 = new ZIP(model, sellLimit, new FixedOrderRouter(exchange), Direction.SELL);
         Order orderBuy = new Order(agent1, exchange, agent1.direction, buyPrice);
         Order orderSell = new Order(agent2, exchange, agent2.direction, sellPrice);
         Packet packetBuy = new Packet(model, null, null, MessageType.LIMIT_ORDER, orderBuy);
@@ -138,8 +138,8 @@ public class ExchangeTests {
         FixedLimit sellLimit = new FixedLimit(30);
         int sellPrice = 35;
 
-        ZIP agent1 = new ZIP(model, buyLimit, exchange, sip, new FixedOrderRouter(exchange), Direction.BUY);
-        ZIP agent2 = new ZIP(model, sellLimit, exchange, sip, new FixedOrderRouter(exchange), Direction.SELL);
+        ZIP agent1 = new ZIP(model, buyLimit, new FixedOrderRouter(exchange), Direction.BUY);
+        ZIP agent2 = new ZIP(model, sellLimit, new FixedOrderRouter(exchange), Direction.SELL);
         Order orderBuy = new Order(agent1, exchange, agent1.direction, buyPrice);
         Order orderSell = new Order(agent2, exchange, agent2.direction, sellPrice);
         Packet packetBuy = new Packet(model, null, null, MessageType.LIMIT_ORDER, orderBuy);

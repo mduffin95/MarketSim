@@ -19,8 +19,8 @@ public class ZIP extends TradingAgent {
     private Order previousOrder = null;
 
 
-    public ZIP(Model model, LimitProvider limit, Exchange e, SecuritiesInformationProcessor sip, OrderRouter router, Direction direction) {
-        super(model, limit, e, sip, router);
+    public ZIP(Model model, LimitProvider limit, OrderRouter router, Direction direction) {
+        super(model, limit, router);
         this.direction = direction;
 //        learning_rate = 0.25;
         momentum = 0.1 * marketSimModel.generator.nextDouble();
@@ -55,6 +55,7 @@ public class ZIP extends TradingAgent {
 
     @Override
     protected void respond(MarketUpdate update) {
+        //TODO: Make sure it only responds to price changes once (not duplicates from SIP).
         handleTrade(update.trade);
 
         //Determine what has happened

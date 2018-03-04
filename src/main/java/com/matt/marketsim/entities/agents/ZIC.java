@@ -10,8 +10,8 @@ public class ZIC extends TradingAgent {
     private Direction direction;
     private Order currentOrder;
 
-    public ZIC(Model model, LimitProvider limit, Exchange e, SecuritiesInformationProcessor sip, OrderRouter router, Direction direction) {
-        super(model, limit, e, sip, router);
+    public ZIC(Model model, LimitProvider limit, OrderRouter router, Direction direction) {
+        super(model, limit, router);
         this.direction = direction;
     }
 

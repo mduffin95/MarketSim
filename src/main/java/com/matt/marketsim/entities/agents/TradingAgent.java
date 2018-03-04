@@ -18,18 +18,12 @@ public abstract class TradingAgent extends NetworkEntity {
     OrderRouter router;
     MarketSimModel marketSimModel;
 
-    public TradingAgent(Model model, LimitProvider limit, Exchange primary, SecuritiesInformationProcessor sip, OrderRouter router) {
+    public TradingAgent(Model model, LimitProvider limit, OrderRouter router) {
         super(model, "TradingAgent", MarketSimModel.SHOW_ENTITIES_IN_TRACE);
         marketSimModel = (MarketSimModel) model;
         marketSimModel.registerForInitialSchedule(this); //Register so that it is scheduled
         this.limit = limit;
         this.active = true;
-
-        //Will only receive price updates from the primary and the SIP
-        //TODO: Remove this because it is overly restrictive. Some may want to observe more prices. Register in the builder instead.
-        primary.registerPriceObserver(this);
-        sip.registerPriceObserver(this);
-
         this.router = router;
     }
     //Called by the recurring event
@@ -47,7 +41,9 @@ public abstract class TradingAgent extends NetworkEntity {
                 break;
             case MARKET_UPDATE:
                 MarketUpdate update = (MarketUpdate)packet.getPayload();
-                router.respond(update); //Call router first, in case the trading agent responds by sending an order.
+                if (null != router) {
+                    router.respond(update); //Call router first, in case the trading agent responds by sending an order.
+                }
                 respond(update);
             case CANCEL:
                 break;
@@ -76,6 +72,10 @@ public abstract class TradingAgent extends NetworkEntity {
     }
 
     public int getTheoreticalUtility(int equilibrium) {
+        if (null == limit) {
+            throw new RuntimeException("Tried to get theoretical utility of agent with no limit price.");
+        }
+
         if (direction == Direction.BUY)
             return limit.getLimitPrice() - equilibrium;
         else
