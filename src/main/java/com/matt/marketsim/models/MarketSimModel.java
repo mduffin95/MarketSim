@@ -32,6 +32,7 @@ public class MarketSimModel extends Model {
     public Random generator;
     private ContDistExponential agentArrivalTime;
     private ContDistUniform agentArrivalTimeUniform;
+    public ContDistUniform offsetRange;
     private DiscreteDistUniform priceDist;
 //    private BoolDistBernoulli buyOrSell;
     public DistributionManager distributionManager;
@@ -48,8 +49,9 @@ public class MarketSimModel extends Model {
 
     public static int MIN_PRICE = 1;
     public static int MAX_PRICE = 200;
+    public static int OFFSET_RANGE = 40;
     public static int MEAN_TIME_BETWEEN_TRADES = 10;
-    public static int SIM_LENGTH = 100;
+    public static int SIM_LENGTH = 500;
     public static boolean SHOW_ENTITIES_IN_TRACE = true;
     public static boolean SHOW_EVENTS_IN_TRACE = true;
     public static boolean PACKET_SEND_IN_TRACE = true;
@@ -105,6 +107,8 @@ public class MarketSimModel extends Model {
         agentArrivalTime.setNonNegative(true);
         agentArrivalTimeUniform = new ContDistUniform(this, "AgentArrivalTimeUniformStream",
                 0, 100, true, false);
+        offsetRange = new ContDistUniform(this, "OffsetRangeUniformStream",
+                0, OFFSET_RANGE, true, false);
         priceDist = new DiscreteDistUniform(this, "LimitPriceStream", MIN_PRICE, MAX_PRICE,
                 true, false);
 //        buyOrSell = new BoolDistBernoulli(this, "BuyOrSell", 0.5, true, false);

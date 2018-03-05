@@ -55,10 +55,10 @@ public class ZIC extends TradingAgent {
     private int getNewPrice() {
         int price;
         if (direction == Direction.BUY) {
-            price = marketSimModel.generator.nextInt(getLimitPrice(null) + 1);
+            price = Math.max(0, getLimitPrice(null) - (int)Math.round(marketSimModel.offsetRange.sample()));
 
         } else {
-            price = getLimitPrice(null) + marketSimModel.generator.nextInt(MarketSimModel.MAX_PRICE - getLimitPrice(null) + 1);
+            price = getLimitPrice(null) + (int)Math.round(marketSimModel.offsetRange.sample());
         }
         return price;
     }

@@ -20,7 +20,7 @@ public class Wellman implements NetworkBuilder {
     @Override
     public SimpleWeightedGraph<NetworkEntity, DefaultWeightedEdge> createNetwork(MarketSimModel model) {
         SecuritiesInformationProcessor sip = new SecuritiesInformationProcessor(model, "Securities Information Processor",
-                MarketSimModel.SHOW_ENTITIES_IN_TRACE, new TimeSpan(10000, TimeUnit.MILLISECONDS));
+                MarketSimModel.SHOW_ENTITIES_IN_TRACE, new TimeSpan(0, TimeUnit.SECONDS));
         Exchange exchange1 = new Exchange(model, "Exchange1", sip, MarketSimModel.SHOW_ENTITIES_IN_TRACE);
         Exchange exchange2 = new Exchange(model, "Exchange2", sip, MarketSimModel.SHOW_ENTITIES_IN_TRACE);
 
@@ -52,6 +52,7 @@ public class Wellman implements NetworkBuilder {
         exchange2.lastTradeSupplier.addObserver(tradeStats);
         exchange2.lastTradeSupplier.addObserver(e2TradePrices);
 
+        //TODO: Use a factory and dependency injection
         VariableLimit.init(model, 6, 2.5, 0.4, 100);
 
         //Arbitrageur
