@@ -1,6 +1,5 @@
-package com.matt.marketsim.builders;
+package com.matt.marketsim;
 
-import co.paralleluniverse.strands.dataflow.Var;
 import com.matt.marketsim.models.MarketSimModel;
 import desmoj.core.dist.ContDistNormal;
 import desmoj.core.simulator.TimeInstant;
@@ -51,7 +50,7 @@ public class VariableLimit implements LimitProvider {
 
 
     @Override
-    public int getLimitPrice() {
+    public int getLimitPrice(Order order) {
         TimeInstant currentTime = model.getExperiment().getSimClock().getTime();
         if (lastTime != currentTime) {
             price_valuation = (int)Math.round(Math.max(0.0, getFundamental() + normal_pv.sample()));

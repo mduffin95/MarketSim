@@ -1,9 +1,6 @@
 package com.matt.marketsim.builders;
 
-import com.matt.marketsim.Direction;
-import com.matt.marketsim.FixedOrderRouter;
-import com.matt.marketsim.TradeTimeSeries;
-import com.matt.marketsim.TradingAgentGroup;
+import com.matt.marketsim.*;
 import com.matt.marketsim.entities.agents.TradingAgent;
 import com.matt.marketsim.entities.agents.ZIP;
 import com.matt.marketsim.entities.Exchange;
@@ -11,12 +8,8 @@ import com.matt.marketsim.entities.NetworkEntity;
 import com.matt.marketsim.entities.SecuritiesInformationProcessor;
 import com.matt.marketsim.models.MarketSimModel;
 import desmoj.core.simulator.TimeInstant;
-import desmoj.core.statistic.StatisticObject;
-import desmoj.extensions.visualization2d.engine.model.Statistic;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleWeightedGraph;
-
-import java.util.List;
 
 public class ZIPExperiment implements NetworkBuilder {
     private int num;

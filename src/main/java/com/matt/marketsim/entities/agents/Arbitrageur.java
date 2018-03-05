@@ -1,9 +1,6 @@
 package com.matt.marketsim.entities.agents;
 
 import com.matt.marketsim.*;
-import com.matt.marketsim.builders.LimitProvider;
-import com.matt.marketsim.entities.Exchange;
-import com.matt.marketsim.entities.SecuritiesInformationProcessor;
 import desmoj.core.simulator.Model;
 
 /*
@@ -14,7 +11,7 @@ public class Arbitrageur extends TradingAgent {
     private Order bestOffer;
 
     public Arbitrageur(Model model) {
-        super(model, null, null);
+        super(model, new StoredLimit(), null);
     }
 
     @Override
@@ -24,20 +21,28 @@ public class Arbitrageur extends TradingAgent {
 
     @Override
     protected void respond(MarketUpdate update) {
-        Order buy = update.summary.getBestBuyOrder();
-        Order sell = update.summary.getBestSellOrder();
+        Order bid = update.summary.getBestBuyOrder();
+        Order offer = update.summary.getBestSellOrder();
 
-        if (null == bestBid || buy.getPrice() > bestBid.getPrice()) {
-            bestBid = buy;
+        if ((null == bestBid ^ null == bid) ||
+                null != bid &&
+                        (bid.getPrice() > bestBid.getPrice() ||
+                                (bid.getExchange() == bestBid.getExchange() && bid != bestBid))) {
+            bestBid = bid;
         }
-        if (null == bestOffer || sell.getPrice() < bestOffer.getPrice()) {
-            bestOffer = sell;
+        if ((null == bestOffer ^ null == offer) ||
+                null != offer &&
+                        (offer.getPrice() < bestOffer.getPrice() ||
+                                (offer.getExchange() == bestOffer.getExchange() && offer != bestOffer))) {
+            bestOffer = offer;
         }
 
         if(checkArbitrage()) {
             int midpoint = (int)Math.floor((bestBid.getPrice() + bestOffer.getPrice()) / 2.0);
             Order b = new Order(this, bestOffer.getExchange(), Direction.BUY, midpoint);
             Order s = new Order(this, bestBid.getExchange(), Direction.SELL, midpoint);
+            ((StoredLimit) limit).setLimitPrice(b, midpoint);
+            ((StoredLimit) limit).setLimitPrice(s, midpoint);
             bestBid.getExchange().send(this, MessageType.LIMIT_ORDER, s);
             bestOffer.getExchange().send(this, MessageType.LIMIT_ORDER, b);
         }

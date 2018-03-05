@@ -1,6 +1,6 @@
 package com.matt.marketsim.entities.agents;
 import com.matt.marketsim.*;
-import com.matt.marketsim.builders.LimitProvider;
+import com.matt.marketsim.LimitProvider;
 import com.matt.marketsim.models.MarketSimModel;
 import com.matt.marketsim.entities.*;
 
@@ -12,7 +12,7 @@ public abstract class TradingAgent extends NetworkEntity {
 
     public Direction direction;
     public boolean active;
-    public LimitProvider limit;
+    protected LimitProvider limit;
 //    protected int utility;
 
     OrderRouter router;
@@ -77,8 +77,12 @@ public abstract class TradingAgent extends NetworkEntity {
         }
 
         if (direction == Direction.BUY)
-            return limit.getLimitPrice() - equilibrium;
+            return limit.getLimitPrice(null) - equilibrium;
         else
-            return equilibrium - limit.getLimitPrice();
+            return equilibrium - limit.getLimitPrice(null);
+    }
+
+    public int getLimitPrice(Order order) {
+        return limit.getLimitPrice(order);
     }
 }

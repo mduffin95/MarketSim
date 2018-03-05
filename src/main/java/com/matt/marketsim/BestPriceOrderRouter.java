@@ -49,14 +49,20 @@ public class BestPriceOrderRouter implements OrderRouter {
 
     @Override
     public void respond(MarketUpdate update) {
-        Order buy = update.summary.getBestBuyOrder();
-        Order sell = update.summary.getBestSellOrder();
+        Order bid = update.summary.getBestBuyOrder();
+        Order offer = update.summary.getBestSellOrder();
 
-        if (null == bestBid || buy.getPrice() > bestBid.getPrice()) {
-            bestBid = buy;
+        if ((null == bestBid ^ null == bid) ||
+                null != bid &&
+                        (bid.getPrice() > bestBid.getPrice() ||
+                                (bid.getExchange() == bestBid.getExchange() && bid != bestBid))) {
+            bestBid = bid;
         }
-        if (null == bestOffer || sell.getPrice() < bestOffer.getPrice()) {
-            bestOffer = sell;
+        if ((null == bestOffer ^ null == offer) ||
+                null != offer &&
+                        (offer.getPrice() < bestOffer.getPrice() ||
+                                (offer.getExchange() == bestOffer.getExchange() && offer != bestOffer))) {
+            bestOffer = offer;
         }
     }
 }

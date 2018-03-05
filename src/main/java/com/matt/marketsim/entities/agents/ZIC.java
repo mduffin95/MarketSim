@@ -1,8 +1,7 @@
 package com.matt.marketsim.entities.agents;
 
 import com.matt.marketsim.*;
-import com.matt.marketsim.builders.LimitProvider;
-import com.matt.marketsim.entities.*;
+import com.matt.marketsim.LimitProvider;
 import com.matt.marketsim.models.MarketSimModel;
 import desmoj.core.simulator.Model;
 
@@ -56,10 +55,10 @@ public class ZIC extends TradingAgent {
     private int getNewPrice() {
         int price;
         if (direction == Direction.BUY) {
-            price = marketSimModel.generator.nextInt(limit.getLimitPrice() + 1);
+            price = marketSimModel.generator.nextInt(getLimitPrice(null) + 1);
 
         } else {
-            price = limit.getLimitPrice() + marketSimModel.generator.nextInt(MarketSimModel.MAX_PRICE - limit.getLimitPrice() + 1);
+            price = getLimitPrice(null) + marketSimModel.generator.nextInt(MarketSimModel.MAX_PRICE - getLimitPrice(null) + 1);
         }
         return price;
     }

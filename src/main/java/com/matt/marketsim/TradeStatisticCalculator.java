@@ -33,12 +33,12 @@ public class TradeStatisticCalculator extends StatisticObject {
             Trade trade = (Trade) arg;
             if (group.contains(trade.buyer)) {
                 count++;
-                totalUtility += trade.buyer.limit.getLimitPrice() - trade.price;
+                totalUtility += trade.buyer.getLimitPrice(trade.buyOrder) - trade.price;
                 sumOfSquares += Math.pow(trade.price - equilibrium, 2);
             }
             if (group.contains(trade.seller)) {
                 count++;
-                totalUtility += trade.price - trade.seller.limit.getLimitPrice();
+                totalUtility += trade.price - trade.seller.getLimitPrice(trade.sellOrder);
                 sumOfSquares += Math.pow(trade.price - equilibrium, 2);
             }
         }

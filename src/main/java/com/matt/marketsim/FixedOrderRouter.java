@@ -11,7 +11,9 @@ public class FixedOrderRouter implements OrderRouter {
 
     @Override
     public Order routeOrder(TradingAgent agent, MessageType type, Direction direction, int price) {
-        return new Order(agent, primary, direction, price);
+        Order order = new Order(agent, primary, direction, price);
+        primary.send(agent, MessageType.LIMIT_ORDER, order);
+        return order;
     }
 
     @Override

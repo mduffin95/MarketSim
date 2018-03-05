@@ -1,4 +1,4 @@
-package com.matt.marketsim.builders;
+package com.matt.marketsim;
 
 public class FixedLimit implements LimitProvider {
     private int limit;
@@ -7,7 +7,7 @@ public class FixedLimit implements LimitProvider {
     }
 
     @Override
-    public int getLimitPrice() {
+    public int getLimitPrice(Order order) {
         return limit;
     }
 }

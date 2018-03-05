@@ -177,6 +177,7 @@ public class MarketSimModel extends Model {
         Experiment exp = new Experiment("Exp1");
         NetworkBuilder builder = new Wellman();
         MarketSimModel model = new MarketSimModel(builder);
+        model.setSeed(1);
         // and connect them
         model.connectToExperiment(exp);
 

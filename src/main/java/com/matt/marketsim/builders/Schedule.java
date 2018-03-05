@@ -1,6 +1,6 @@
 package com.matt.marketsim.builders;
 
-import com.matt.marketsim.entities.agents.TradingAgent;
+import com.matt.marketsim.FixedLimit;
 
 import static java.lang.Math.min;
 
@@ -44,8 +44,8 @@ public class Schedule {
         int minQuantity = min(buyQuantity, sellQuantity);
 
         for (int i=0; i<minQuantity; i++) {
-            int b = buySchedule[i].getLimitPrice();
-            int s = sellSchedule[i].getLimitPrice();
+            int b = buySchedule[i].getLimitPrice(null);
+            int s = sellSchedule[i].getLimitPrice(null);
             if (b > s) {
                 return (b+s) / 2;
             }

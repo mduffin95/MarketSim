@@ -8,14 +8,8 @@ import com.matt.marketsim.entities.agents.TradingAgent;
 import com.matt.marketsim.entities.agents.ZIP;
 import com.matt.marketsim.models.MarketSimModel;
 import desmoj.core.simulator.TimeInstant;
-import desmoj.core.statistic.StatisticObject;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleWeightedGraph;
-
-import javax.xml.validation.SchemaFactoryConfigurationError;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Observer;
 
 public class DifferentDelay implements NetworkBuilder {
     private int num;

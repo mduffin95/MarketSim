@@ -1,9 +1,7 @@
 package com.matt.marketsim.entities.agents;
 
 import com.matt.marketsim.*;
-import com.matt.marketsim.builders.LimitProvider;
-import com.matt.marketsim.entities.*;
-import com.matt.marketsim.models.MarketSimModel;
+import com.matt.marketsim.LimitProvider;
 import desmoj.core.simulator.Model;
 
 public class ZIU extends TradingAgent {

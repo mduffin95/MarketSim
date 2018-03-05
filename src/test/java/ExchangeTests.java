@@ -2,7 +2,7 @@ import com.matt.marketsim.Direction;
 import com.matt.marketsim.FixedOrderRouter;
 import com.matt.marketsim.MessageType;
 import com.matt.marketsim.Order;
-import com.matt.marketsim.builders.FixedLimit;
+import com.matt.marketsim.FixedLimit;
 import com.matt.marketsim.builders.NetworkBuilder;
 import com.matt.marketsim.entities.agents.ZIP;
 import desmoj.core.simulator.Experiment;
@@ -12,13 +12,10 @@ import com.matt.marketsim.entities.NetworkEntity;
 import com.matt.marketsim.entities.Packet;
 import com.matt.marketsim.entities.SecuritiesInformationProcessor;
 import com.matt.marketsim.models.MarketSimModel;
-import desmoj.core.statistic.StatisticObject;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleWeightedGraph;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
