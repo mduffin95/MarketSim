@@ -27,7 +27,7 @@ public class MarketSimModelTests {
 
         // set experiment parameters
         exp.setShowProgressBar(false);
-        TimeInstant stopTime = new TimeInstant(MarketSimModel.SIM_LENGTH, TimeUnit.SECONDS);
+        TimeInstant stopTime = new TimeInstant(MarketSimModel.SIM_LENGTH, MarketSimModel.timeUnit);
         exp.tracePeriod(new TimeInstant(0), stopTime);
         exp.stop(stopTime);
         // start experiment

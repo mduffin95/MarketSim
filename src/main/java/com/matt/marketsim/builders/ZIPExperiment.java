@@ -7,6 +7,7 @@ import com.matt.marketsim.entities.Exchange;
 import com.matt.marketsim.entities.NetworkEntity;
 import com.matt.marketsim.entities.SecuritiesInformationProcessor;
 import com.matt.marketsim.models.MarketSimModel;
+import desmoj.core.simulator.SimClock;
 import desmoj.core.simulator.TimeInstant;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleWeightedGraph;
@@ -42,10 +43,11 @@ public class ZIPExperiment implements NetworkBuilder {
         graph.addVertex(exchange);
         graph.setEdgeWeight(graph.addEdge(exchange, sip), 0);
 
+        SimClock clock = model.getExperiment().getSimClock();
         //Create the supply and demand curves
         for (int i = 0; i < num; i++) {
-            TradingAgent agentBuy = new ZIP(model, new FixedLimit(min + i * step), new FixedOrderRouter(exchange), Direction.BUY);
-            TradingAgent agentSell = new ZIP(model, new FixedLimit(min + i * step), new FixedOrderRouter(exchange), Direction.SELL);
+            TradingAgent agentBuy = new ZIP(model, new FixedLimit(min + i * step), new FixedOrderRouter(clock, exchange), Direction.BUY);
+            TradingAgent agentSell = new ZIP(model, new FixedLimit(min + i * step), new FixedOrderRouter(clock, exchange), Direction.SELL);
 
             //Add to reporting groups
             all.addMember(agentBuy);

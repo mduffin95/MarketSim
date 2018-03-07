@@ -18,7 +18,7 @@ public class TestModel extends MarketSimModel {
 
     @Override
     public TimeSpan getAgentArrivalTime() {
-        TimeSpan t = new TimeSpan(arrival, TimeUnit.SECONDS);
+        TimeSpan t = new TimeSpan(arrival, MarketSimModel.timeUnit);
         arrival++;
         return t;
     }
@@ -33,7 +33,7 @@ public class TestModel extends MarketSimModel {
 
         // set experiment parameters
         exp.setShowProgressBar(false);
-        TimeInstant stopTime = new TimeInstant(MarketSimModel.SIM_LENGTH, TimeUnit.SECONDS);
+        TimeInstant stopTime = new TimeInstant(MarketSimModel.SIM_LENGTH, MarketSimModel.timeUnit);
         exp.tracePeriod(new TimeInstant(0), stopTime);
         exp.stop(stopTime);
         // start experiment

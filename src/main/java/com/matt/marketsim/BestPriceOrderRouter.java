@@ -3,6 +3,7 @@ package com.matt.marketsim;
 import com.matt.marketsim.entities.Exchange;
 import com.matt.marketsim.entities.agents.TradingAgent;
 import com.matt.marketsim.models.MarketSimModel;
+import desmoj.core.simulator.SimClock;
 
 /*
  * Route orders to the best exchange. Needs to use the graph to find connected entities.
@@ -12,9 +13,11 @@ public class BestPriceOrderRouter implements OrderRouter {
     private Order bestBid;
     private Order bestOffer;
     private Exchange primary; //Used when we don't yet have a best bid or offer
+    private SimClock clock;
 
-    public BestPriceOrderRouter(Exchange exchange) {
+    public BestPriceOrderRouter(SimClock clock, Exchange exchange) {
 //        this.model = model;
+        this.clock = clock;
         primary = exchange;
     }
 
@@ -31,7 +34,7 @@ public class BestPriceOrderRouter implements OrderRouter {
         } else {
             e = primary;
         }
-        Order newOrder = new Order(agent, e, direction, price);
+        Order newOrder = new Order(agent, e, direction, price, clock.getTime());
         e.send(agent, type, newOrder);
         return newOrder;
     }

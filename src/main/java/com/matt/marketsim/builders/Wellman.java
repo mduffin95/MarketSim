@@ -8,6 +8,7 @@ import com.matt.marketsim.entities.agents.Arbitrageur;
 import com.matt.marketsim.entities.agents.TradingAgent;
 import com.matt.marketsim.entities.agents.ZIC;
 import com.matt.marketsim.models.MarketSimModel;
+import desmoj.core.simulator.SimClock;
 import desmoj.core.simulator.TimeInstant;
 import desmoj.core.simulator.TimeSpan;
 import org.jgrapht.graph.DefaultWeightedEdge;
@@ -19,8 +20,9 @@ public class Wellman implements NetworkBuilder {
 
     @Override
     public SimpleWeightedGraph<NetworkEntity, DefaultWeightedEdge> createNetwork(MarketSimModel model) {
+        double discountRate = 0.0006;
         SecuritiesInformationProcessor sip = new SecuritiesInformationProcessor(model, "Securities Information Processor",
-                MarketSimModel.SHOW_ENTITIES_IN_TRACE, new TimeSpan(0, TimeUnit.SECONDS));
+                MarketSimModel.SHOW_ENTITIES_IN_TRACE, new TimeSpan(20, MarketSimModel.timeUnit));
         Exchange exchange1 = new Exchange(model, "Exchange1", sip, MarketSimModel.SHOW_ENTITIES_IN_TRACE);
         Exchange exchange2 = new Exchange(model, "Exchange2", sip, MarketSimModel.SHOW_ENTITIES_IN_TRACE);
 
@@ -36,7 +38,7 @@ public class Wellman implements NetworkBuilder {
         TradingAgentGroup ex1 = new TradingAgentGroup();
         TradingAgentGroup ex2 = new TradingAgentGroup();
         TradingAgentGroup all = new TradingAgentGroup();
-        TradingAgentGroup arb = new TradingAgentGroup();
+
 
         TradeTimeSeries e1TradePrices = new TradeTimeSeries(model, "Exchange 1 trade prices", ex1, "e1_trade_prices.txt",
                 new TimeInstant(0.0), new TimeInstant(MarketSimModel.SIM_LENGTH), true, false);
@@ -44,7 +46,7 @@ public class Wellman implements NetworkBuilder {
         TradeTimeSeries e2TradePrices = new TradeTimeSeries(model, "Exchange 2 trade prices", ex2, "e2_trade_prices.txt",
                 new TimeInstant(0.0), new TimeInstant(MarketSimModel.SIM_LENGTH), true, false);
 
-        TradeStatisticCalculator tradeStats = new TradeStatisticCalculator(model, "Stats (group 1)", all, true, false);
+        TradeStatisticCalculator tradeStats = new TradeStatisticCalculator(model, "Stats (group 1)", all, discountRate, true, false);
 
         exchange1.lastTradeSupplier.addObserver(tradeStats);
         exchange1.lastTradeSupplier.addObserver(e1TradePrices);
@@ -56,21 +58,25 @@ public class Wellman implements NetworkBuilder {
         VariableLimit.init(model, 6, 2.5, 0.4, 100);
 
         //Arbitrageur
-        TradingAgent arbitrageur = new Arbitrageur(model);
-        arb.addMember(arbitrageur);
-        TradeStatisticCalculator arbStats = new TradeStatisticCalculator(model, "Stats (arbitrageur)", arb, true, false);
-        exchange1.lastTradeSupplier.addObserver(arbStats);
-        exchange2.lastTradeSupplier.addObserver(arbStats);
-        exchange1.registerPriceObserver(arbitrageur);
-        exchange2.registerPriceObserver(arbitrageur);
+        if (true) {
+            TradingAgent arbitrageur = new Arbitrageur(model);
+            TradingAgentGroup arb = new TradingAgentGroup();
+            arb.addMember(arbitrageur);
+            TradeStatisticCalculator arbStats = new TradeStatisticCalculator(model, "Stats (arbitrageur)", arb, discountRate, true, false);
+            exchange1.lastTradeSupplier.addObserver(arbStats);
+            exchange2.lastTradeSupplier.addObserver(arbStats);
+            exchange1.registerPriceObserver(arbitrageur);
+            exchange2.registerPriceObserver(arbitrageur);
 
-        graph.addVertex(arbitrageur);
-        graph.setEdgeWeight(graph.addEdge(arbitrageur, exchange1), 0);
-        graph.setEdgeWeight(graph.addEdge(arbitrageur, exchange2),0);
+            graph.addVertex(arbitrageur);
+            graph.setEdgeWeight(graph.addEdge(arbitrageur, exchange1), 0);
+            graph.setEdgeWeight(graph.addEdge(arbitrageur, exchange2),0);
+        }
 
         //Create the supply and demand curves
         Exchange e;
         TradingAgentGroup g;
+        SimClock clock = model.getExperiment().getSimClock();
         for (int i = 0; i < 100; i++) {
             OrderRouter r1;
             OrderRouter r2;
@@ -83,11 +89,11 @@ public class Wellman implements NetworkBuilder {
                 g = ex2;
             }
             if ((i%50) < 6) {
-                r1 = new FixedOrderRouter(e);
-                r2 = new FixedOrderRouter(e);
+                r1 = new FixedOrderRouter(clock, e);
+                r2 = new FixedOrderRouter(clock, e);
             } else {
-                r1 = new BestPriceOrderRouter(e);
-                r2 = new BestPriceOrderRouter(e);
+                r1 = new BestPriceOrderRouter(clock, e);
+                r2 = new BestPriceOrderRouter(clock, e);
             }
             TradingAgent agent1 = new ZIC(model, new VariableLimit(), r1, Direction.BUY);
             TradingAgent agent2 = new ZIC(model, new VariableLimit(), r2, Direction.SELL);

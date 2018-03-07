@@ -17,11 +17,13 @@ public abstract class TradingAgent extends NetworkEntity {
 
     OrderRouter router;
     MarketSimModel marketSimModel;
+    SimClock clock;
 
     public TradingAgent(Model model, LimitProvider limit, OrderRouter router) {
         super(model, "TradingAgent", MarketSimModel.SHOW_ENTITIES_IN_TRACE);
         marketSimModel = (MarketSimModel) model;
         marketSimModel.registerForInitialSchedule(this); //Register so that it is scheduled
+        clock = marketSimModel.getExperiment().getSimClock();
         this.limit = limit;
         this.active = true;
         this.router = router;

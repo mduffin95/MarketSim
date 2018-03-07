@@ -7,6 +7,7 @@ import com.matt.marketsim.entities.SecuritiesInformationProcessor;
 import com.matt.marketsim.entities.agents.TradingAgent;
 import com.matt.marketsim.entities.agents.ZIP;
 import com.matt.marketsim.models.MarketSimModel;
+import desmoj.core.simulator.SimClock;
 import desmoj.core.simulator.TimeInstant;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleWeightedGraph;
@@ -55,11 +56,11 @@ public class DifferentDelay implements NetworkBuilder {
         exchange.lastTradeSupplier.addObserver(tradePrices);
         exchange.lastTradeSupplier.addObserver(tradeStatShort);
         exchange.lastTradeSupplier.addObserver(tradeStatLong);
-
+        SimClock clock = model.getExperiment().getSimClock();
         //Create the supply and demand curves
         for (int i = 0; i < num; i++) {
-            TradingAgent agentBuy = new ZIP(model, buySchedule[i], new FixedOrderRouter(exchange), Direction.BUY);
-            TradingAgent agentSell = new ZIP(model, sellSchedule[i], new FixedOrderRouter(exchange), Direction.SELL);
+            TradingAgent agentBuy = new ZIP(model, buySchedule[i], new FixedOrderRouter(clock, exchange), Direction.BUY);
+            TradingAgent agentSell = new ZIP(model, sellSchedule[i], new FixedOrderRouter(clock, exchange), Direction.SELL);
 
             //So that they receive price updates
             exchange.registerPriceObserver(agentBuy);

@@ -39,8 +39,8 @@ public class Arbitrageur extends TradingAgent {
 
         if(checkArbitrage()) {
             int midpoint = (int)Math.floor((bestBid.getPrice() + bestOffer.getPrice()) / 2.0);
-            Order b = new Order(this, bestOffer.getExchange(), Direction.BUY, midpoint);
-            Order s = new Order(this, bestBid.getExchange(), Direction.SELL, midpoint);
+            Order b = new Order(this, bestOffer.getExchange(), Direction.BUY, midpoint, clock.getTime());
+            Order s = new Order(this, bestBid.getExchange(), Direction.SELL, midpoint, clock.getTime());
             ((StoredLimit) limit).setLimitPrice(b, midpoint);
             ((StoredLimit) limit).setLimitPrice(s, midpoint);
             bestBid.getExchange().send(this, MessageType.LIMIT_ORDER, s);

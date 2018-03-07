@@ -2,16 +2,20 @@ package com.matt.marketsim;
 
 import com.matt.marketsim.entities.Exchange;
 import com.matt.marketsim.entities.agents.TradingAgent;
+import com.matt.marketsim.models.MarketSimModel;
+import desmoj.core.simulator.SimClock;
 
 public class FixedOrderRouter implements OrderRouter {
-    Exchange primary;
-    public FixedOrderRouter(Exchange exchange) {
+    private SimClock clock;
+    private Exchange primary;
+    public FixedOrderRouter(SimClock clock, Exchange exchange) {
+        this.clock = clock;
         primary = exchange;
     }
 
     @Override
     public Order routeOrder(TradingAgent agent, MessageType type, Direction direction, int price) {
-        Order order = new Order(agent, primary, direction, price);
+        Order order = new Order(agent, primary, direction, price, clock.getTime());
         primary.send(agent, MessageType.LIMIT_ORDER, order);
         return order;
     }

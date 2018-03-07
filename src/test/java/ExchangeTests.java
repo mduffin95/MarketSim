@@ -6,6 +6,7 @@ import com.matt.marketsim.FixedLimit;
 import com.matt.marketsim.builders.NetworkBuilder;
 import com.matt.marketsim.entities.agents.ZIP;
 import desmoj.core.simulator.Experiment;
+import desmoj.core.simulator.SimClock;
 import desmoj.core.simulator.TimeSpan;
 import com.matt.marketsim.entities.Exchange;
 import com.matt.marketsim.entities.NetworkEntity;
@@ -29,6 +30,7 @@ public class ExchangeTests {
     Exchange exchange;
     SecuritiesInformationProcessor sip;
     Experiment exp;
+    SimClock clock;
 
     class DummyModel extends MarketSimModel {
 
@@ -60,15 +62,16 @@ public class ExchangeTests {
 
         sip = new SecuritiesInformationProcessor(model, "TestSIP", false);
         exchange = new Exchange(model, "TestExchange", sip, false);
+        clock = exp.getSimClock();
     }
 
     @Test
     void packetArrivalTest() {
-        ZIP agent1 = new ZIP(model, new FixedLimit(50), new FixedOrderRouter(exchange), Direction.BUY);
-        ZIP agent2 = new ZIP(model, new FixedLimit(40), new FixedOrderRouter(exchange), Direction.SELL);
+        ZIP agent1 = new ZIP(model, new FixedLimit(50), new FixedOrderRouter(clock, exchange), Direction.BUY);
+        ZIP agent2 = new ZIP(model, new FixedLimit(40), new FixedOrderRouter(clock, exchange), Direction.SELL);
 
-        Order orderBuy = new Order(agent1, exchange, agent1.direction, 40);
-        Order orderSell = new Order(agent2, exchange, agent2.direction, 50);
+        Order orderBuy = new Order(agent1, exchange, agent1.direction, 40, clock.getTime());
+        Order orderSell = new Order(agent2, exchange, agent2.direction, 50, clock.getTime());
         Packet packet1 = new Packet(model, "TestPacket", false, null, null, MessageType.LIMIT_ORDER, orderBuy);
         Packet packet2 = new Packet(model, "TestPacket", false, null, null, MessageType.LIMIT_ORDER, orderSell);
         exchange.handlePacket(packet1);
@@ -82,8 +85,8 @@ public class ExchangeTests {
     @Test
     void cancelOrderTest() {
         //When an order is cancelled it should be removed from the order book
-        ZIP agent1 = new ZIP(model, new FixedLimit(50), new FixedOrderRouter(exchange), Direction.BUY);
-        Order orderBuy = new Order(agent1, exchange, agent1.direction, 40);
+        ZIP agent1 = new ZIP(model, new FixedLimit(50), new FixedOrderRouter(clock, exchange), Direction.BUY);
+        Order orderBuy = new Order(agent1, exchange, agent1.direction, 40, clock.getTime());
         Packet packet1 = new Packet(model, "TestPacket", false, null, null, MessageType.LIMIT_ORDER, orderBuy);
         exchange.handlePacket(packet1);
 
@@ -103,10 +106,10 @@ public class ExchangeTests {
         FixedLimit sellLimit = new FixedLimit(30);
         int sellPrice = 35;
 
-        ZIP agent1 = new ZIP(model, buyLimit, new FixedOrderRouter(exchange), Direction.BUY);
-        ZIP agent2 = new ZIP(model, sellLimit, new FixedOrderRouter(exchange), Direction.SELL);
-        Order orderBuy = new Order(agent1, exchange, agent1.direction, buyPrice);
-        Order orderSell = new Order(agent2, exchange, agent2.direction, sellPrice);
+        ZIP agent1 = new ZIP(model, buyLimit, new FixedOrderRouter(clock, exchange), Direction.BUY);
+        ZIP agent2 = new ZIP(model, sellLimit, new FixedOrderRouter(clock, exchange), Direction.SELL);
+        Order orderBuy = new Order(agent1, exchange, agent1.direction, buyPrice, clock.getTime());
+        Order orderSell = new Order(agent2, exchange, agent2.direction, sellPrice, clock.getTime());
         Packet packetBuy = new Packet(model, null, null, MessageType.LIMIT_ORDER, orderBuy);
         Packet packetSell = new Packet(model, null, null, MessageType.LIMIT_ORDER, orderSell);
         exchange.handlePacket(packetBuy);
@@ -135,10 +138,10 @@ public class ExchangeTests {
         FixedLimit sellLimit = new FixedLimit(30);
         int sellPrice = 35;
 
-        ZIP agent1 = new ZIP(model, buyLimit, new FixedOrderRouter(exchange), Direction.BUY);
-        ZIP agent2 = new ZIP(model, sellLimit, new FixedOrderRouter(exchange), Direction.SELL);
-        Order orderBuy = new Order(agent1, exchange, agent1.direction, buyPrice);
-        Order orderSell = new Order(agent2, exchange, agent2.direction, sellPrice);
+        ZIP agent1 = new ZIP(model, buyLimit, new FixedOrderRouter(clock, exchange), Direction.BUY);
+        ZIP agent2 = new ZIP(model, sellLimit, new FixedOrderRouter(clock, exchange), Direction.SELL);
+        Order orderBuy = new Order(agent1, exchange, agent1.direction, buyPrice, clock.getTime());
+        Order orderSell = new Order(agent2, exchange, agent2.direction, sellPrice, clock.getTime());
         Packet packetBuy = new Packet(model, null, null, MessageType.LIMIT_ORDER, orderBuy);
         Packet packetSell = new Packet(model, null, null, MessageType.LIMIT_ORDER, orderSell);
         exchange.handlePacket(packetBuy);

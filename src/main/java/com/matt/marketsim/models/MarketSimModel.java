@@ -56,6 +56,7 @@ public class MarketSimModel extends Model {
     public static boolean SHOW_EVENTS_IN_TRACE = true;
     public static boolean PACKET_SEND_IN_TRACE = true;
     public static boolean PACKET_ARRIVAL_IN_TRACE = true;
+    public static TimeUnit timeUnit = TimeUnit.SECONDS;
 
     /*
      * Model entities
@@ -72,12 +73,7 @@ public class MarketSimModel extends Model {
         super(null, "ExchangeModel", true, true);
         generator = new Random();
         this.builder = builder;
-
-
-
-        /*
-         * Reporting
-         */
+        setSeed(1);
 
     }
 
@@ -132,7 +128,7 @@ public class MarketSimModel extends Model {
 
     public TimeSpan getAgentArrivalTime() {
 //        return agentArrivalTime.sample();
-        return new TimeSpan(agentArrivalTime.sample(), TimeUnit.SECONDS);
+        return new TimeSpan(agentArrivalTime.sample(), MarketSimModel.timeUnit);
     }
 
     public int getRandomPrice() {
@@ -146,7 +142,7 @@ public class MarketSimModel extends Model {
     public TimeSpan getLatency(NetworkEntity a, NetworkEntity b) {
         //TODO: Implement adjacency matrix
         DefaultWeightedEdge edge = network.getEdge(a, b);
-        return new TimeSpan(network.getEdgeWeight(edge), TimeUnit.MILLISECONDS);
+        return new TimeSpan(network.getEdgeWeight(edge), MarketSimModel.timeUnit);
     }
 
     public void setSeed(long s) {
@@ -179,15 +175,16 @@ public class MarketSimModel extends Model {
 
         // create model and experiment
         Experiment exp = new Experiment("Exp1");
+//        NetworkBuilder builder = new ZIPExperiment(50, 0, 200);
         NetworkBuilder builder = new Wellman();
         MarketSimModel model = new MarketSimModel(builder);
-        model.setSeed(1);
+//        model.setSeed(1);
         // and connect them
         model.connectToExperiment(exp);
 
         // set experiment parameters
         exp.setShowProgressBar(false);
-        TimeInstant stopTime = new TimeInstant(MarketSimModel.SIM_LENGTH, TimeUnit.SECONDS);
+        TimeInstant stopTime = new TimeInstant(MarketSimModel.SIM_LENGTH, MarketSimModel.timeUnit);
         exp.tracePeriod(new TimeInstant(0), stopTime);
         exp.stop(stopTime);
         // start experiment
