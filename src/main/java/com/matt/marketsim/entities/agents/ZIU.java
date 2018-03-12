@@ -6,28 +6,35 @@ import desmoj.core.simulator.Model;
 
 public class ZIU extends TradingAgent {
     private Direction direction;
+    private int limit;
+    private OrderRouter router;
 
-    public ZIU(Model model, LimitProvider limit, OrderRouter router, Direction direction) {
-        super(model, limit, router);
+    public ZIU(Model model, int limit, OrderRouter router, Direction direction) {
+        super(model, router);
         this.direction = direction;
-
+        this.limit = limit;
     }
 
     @Override
     public void doSomething() {
         int price = marketSimModel.getRandomPrice();
 
-        router.routeOrder(this, MessageType.LIMIT_ORDER, direction, price);
+        router.routeOrder(this, MessageType.LIMIT_ORDER, direction, price, limit);
     }
 
     @Override
-    protected void respond(MarketUpdate update) {
-        return;
+    protected void onOwnCompleted(MarketUpdate update) {
+        super.onOwnCompleted(update);
+        active = false;
     }
 
     @Override
-    protected void cancelSuccess(Order order) {
-        throw new UnsupportedOperationException();
+    protected void onCancelSuccess(Order order) {
+
     }
 
+    @Override
+    protected void onCancelFailure(Order order) {
+
+    }
 }

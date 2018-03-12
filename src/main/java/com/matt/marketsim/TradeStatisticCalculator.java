@@ -40,7 +40,7 @@ public class TradeStatisticCalculator extends StatisticObject {
                 count++;
                 TimeSpan t = TimeOperations.diff(currentTime, trade.buyOrder.getTimeStamp());
                 double coeff = Math.exp(-1 * discountRate * t.getTimeAsDouble(MarketSimModel.timeUnit));
-                totalUtility += coeff * (trade.buyer.getLimitPrice(trade.buyOrder) - trade.price);
+                totalUtility += coeff * (trade.buyOrder.getLimit() - trade.price);
                 if (equilibriumSet)
                     sumOfSquares += Math.pow(trade.price - equilibrium, 2);
             }
@@ -48,7 +48,7 @@ public class TradeStatisticCalculator extends StatisticObject {
                 count++;
                 TimeSpan t = TimeOperations.diff(currentTime, trade.sellOrder.getTimeStamp());
                 double coeff = Math.exp(-1 * discountRate * t.getTimeAsDouble(MarketSimModel.timeUnit));
-                totalUtility += coeff * (trade.price - trade.seller.getLimitPrice(trade.sellOrder));
+                totalUtility += coeff * (trade.price - trade.sellOrder.getLimit());
                 if (equilibriumSet)
                     sumOfSquares += Math.pow(trade.price - equilibrium, 2);
             }
@@ -63,14 +63,14 @@ public class TradeStatisticCalculator extends StatisticObject {
         return Math.sqrt(sumOfSquares / count) / equilibrium;
     }
 
-    public double getAllocEfficiency() {
-        try {
-            return totalUtility / (double) group.getTheoreticalUtility();
-        } catch (UnsupportedOperationException e) {
-            return 0;
-        }
-
-    }
+//    public double getAllocEfficiency() {
+//        try {
+//            return totalUtility / (double) group.getTheoreticalUtility();
+//        } catch (UnsupportedOperationException e) {
+//            return 0;
+//        }
+//
+//    }
 
     public double getTotalUtility() { return totalUtility; }
 

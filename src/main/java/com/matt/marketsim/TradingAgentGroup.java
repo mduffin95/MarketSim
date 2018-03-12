@@ -26,16 +26,16 @@ public class TradingAgentGroup {
         return members.contains(ta);
     }
 
-    public int getTheoreticalUtility() {
-        if (!equilibriumSet) {
-            throw new UnsupportedOperationException("Equilibrium price not set.");
-        }
-        int theoreticalUtility = 0;
-        for (TradingAgent ta: members) {
-            int tmp = ta.getTheoreticalUtility(equilibrium);
-            if (tmp > 0)
-                theoreticalUtility += tmp;
-        }
-        return theoreticalUtility;
-    }
+//    public int getTheoreticalUtility() {
+//        if (!equilibriumSet) {
+//            throw new UnsupportedOperationException("Equilibrium price not set.");
+//        }
+//        int theoreticalUtility = 0;
+//        for (TradingAgent ta: members) {
+//            int tmp = ta.getTheoreticalUtility(equilibrium);
+//            if (tmp > 0)
+//                theoreticalUtility += tmp;
+//        }
+//        return theoreticalUtility;
+//    }
 }

@@ -11,7 +11,7 @@ public class Arbitrageur extends TradingAgent {
     private Order bestOffer;
 
     public Arbitrageur(Model model) {
-        super(model, new StoredLimit(), null);
+        super(model, null);
     }
 
     @Override
@@ -19,8 +19,28 @@ public class Arbitrageur extends TradingAgent {
         return;
     }
 
+    private boolean checkArbitrage() {
+        if (null == bestBid || null == bestOffer) return false;
+
+        if (bestBid.getPrice() > bestOffer.getPrice()) {
+            if (bestBid.getExchange() != bestOffer.getExchange()) {
+                //Arbitrage opportunity exists.
+                return true;
+            } else {
+                //Shouldn't happen
+                throw new RuntimeException("Prices should have matched on the same exchange.");
+            }
+        }
+        return false;
+    }
+
     @Override
-    protected void respond(MarketUpdate update) {
+    protected void onOwnCompleted(MarketUpdate update) {
+
+    }
+
+    @Override
+    protected void onMarketUpdate(MarketUpdate update) {
         Order bid = update.summary.getBestBuyOrder();
         Order offer = update.summary.getBestSellOrder();
 
@@ -39,34 +59,20 @@ public class Arbitrageur extends TradingAgent {
 
         if(checkArbitrage()) {
             int midpoint = (int)Math.floor((bestBid.getPrice() + bestOffer.getPrice()) / 2.0);
-            Order b = new Order(this, bestOffer.getExchange(), Direction.BUY, midpoint, clock.getTime());
-            Order s = new Order(this, bestBid.getExchange(), Direction.SELL, midpoint, clock.getTime());
-            ((StoredLimit) limit).setLimitPrice(b, midpoint);
-            ((StoredLimit) limit).setLimitPrice(s, midpoint);
+            Order b = new Order(this, bestOffer.getExchange(), Direction.BUY, midpoint, midpoint, clock.getTime());
+            Order s = new Order(this, bestBid.getExchange(), Direction.SELL, midpoint, midpoint, clock.getTime());
             bestBid.getExchange().send(this, MessageType.LIMIT_ORDER, s);
             bestOffer.getExchange().send(this, MessageType.LIMIT_ORDER, b);
         }
     }
 
-    //TODO: This needs the same logic as the SIP
-    private boolean checkArbitrage() {
-        if (null == bestBid || null == bestOffer) return false;
-
-        if (bestBid.getPrice() > bestOffer.getPrice()) {
-            if (bestBid.getExchange() != bestOffer.getExchange()) {
-                //Arbitrage opportunity exists.
-                return true;
-            } else {
-                //Shouldn't happen
-                throw new RuntimeException("Prices should have matched on the same exchange.");
-            }
-        }
-        return false;
+    @Override
+    protected void onCancelSuccess(Order order) {
+        //Shouldn't need to cancel as trades will execute immediately
     }
 
-    //Shouldn't need to cancel as trades will execute immediately.
     @Override
-    protected void cancelSuccess(Order order) {
-        return;
+    protected void onCancelFailure(Order order) {
+
     }
 }

@@ -32,33 +32,7 @@ public class Exchange extends NetworkEntity implements PriceProvider {
     }
 
     @Override
-    public void handlePacket(Packet packet) {
-        Order order;
-        switch (packet.getType()) {
-            case LIMIT_ORDER:
-                order = (Order)packet.getPayload();
-                handleOrder(order);
-                break;
-            case MARKET_ORDER:
-                break;
-            case MARKET_UPDATE:
-                break;
-            case CANCEL:
-                order = (Order)packet.getPayload();
-                if (null != order) {
-                    sendTraceNote("Cancelling order: " + order.toString());
-                    boolean success = orderBook.remove(order);
-                    if (success) {
-                        order.agent.send(this, MessageType.CANCEL_SUCCESS, order);
-                    } else {
-                        order.agent.send(this, MessageType.CANCEL_FAILURE, order);
-                    }
-                }
-                break;
-        }
-    }
-
-    private void handleOrder(Order order) {
+    protected void onLimitOrder(Order order) {
         String note = "Handling order: " + order.toString();
         sendTraceNote(note);
 
@@ -105,6 +79,44 @@ public class Exchange extends NetworkEntity implements PriceProvider {
             }
         }
         recentTrade = newTrade;
+    }
+
+    @Override
+    protected void onMarketOrder(Order order) {
+
+    }
+
+    @Override
+    protected void onOwnCompleted(MarketUpdate update) {
+
+    }
+
+    @Override
+    protected void onMarketUpdate(MarketUpdate update) {
+
+    }
+
+    @Override
+    protected void onCancelOrder(Order order) {
+        if (null != order) {
+            sendTraceNote("Cancelling order: " + order.toString());
+            boolean success = orderBook.remove(order);
+            if (success) {
+                order.agent.send(this, MessageType.CANCEL_SUCCESS, order);
+            } else {
+                order.agent.send(this, MessageType.CANCEL_FAILURE, order);
+            }
+        }
+    }
+
+    @Override
+    protected void onCancelSuccess(Order order) {
+
+    }
+
+    @Override
+    protected void onCancelFailure(Order order) {
+
     }
 
     /**

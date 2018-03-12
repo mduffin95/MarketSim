@@ -12,19 +12,15 @@ public abstract class TradingAgent extends NetworkEntity {
 
     public Direction direction;
     public boolean active;
-    protected LimitProvider limit;
-//    protected int utility;
-
-    OrderRouter router;
     MarketSimModel marketSimModel;
     SimClock clock;
+    OrderRouter router;
 
-    public TradingAgent(Model model, LimitProvider limit, OrderRouter router) {
+    public TradingAgent(Model model, OrderRouter router) {
         super(model, "TradingAgent", MarketSimModel.SHOW_ENTITIES_IN_TRACE);
         marketSimModel = (MarketSimModel) model;
         marketSimModel.registerForInitialSchedule(this); //Register so that it is scheduled
         clock = marketSimModel.getExperiment().getSimClock();
-        this.limit = limit;
         this.active = true;
         this.router = router;
     }
@@ -32,59 +28,23 @@ public abstract class TradingAgent extends NetworkEntity {
     //TODO: What happens if this method is called while we are waiting for a cancel acknowledgement? State machine?
     public abstract void doSomething();
 
-    protected abstract void respond(MarketUpdate update);
-    protected abstract void cancelSuccess(Order order);
 
-    public void handlePacket(Packet packet) {
-        switch (packet.getType()) {
-            case LIMIT_ORDER:
-                break;
-            case MARKET_ORDER:
-                break;
-            case MARKET_UPDATE:
-                MarketUpdate update = (MarketUpdate)packet.getPayload();
-                if (null != router) {
-                    router.respond(update); //Call router first, in case the trading agent responds by sending an order.
-                }
-                respond(update);
-            case CANCEL:
-                break;
-            case CANCEL_SUCCESS:
-                Order order = (Order) packet.getPayload();
-                cancelSuccess(order);
-                break;
-            case CANCEL_FAILURE:
-                active = false;
-                break;
-        }
+    @Override
+    protected void onOwnCompleted(MarketUpdate update) {
+        router.respond(update);
     }
-
-    boolean isMyTrade(Trade trade) {
-        return null != trade && (this == trade.buyer || this == trade.seller);
+    @Override
+    protected void onMarketUpdate(MarketUpdate update) {
+        router.respond(update);
     }
 
     /*
-     * Handles the utility of a trading agent and sets them to inactive after a successful trade.
+     * These methods aren't necessary for trading agents.
      */
-    void handleTrade(Trade trade) {
-        if (isMyTrade(trade)) {
-            //Was a buyer or a seller in this trade
-            this.active = false;
-        }
-    }
-
-    public int getTheoreticalUtility(int equilibrium) {
-        if (null == limit) {
-            throw new RuntimeException("Tried to get theoretical utility of agent with no limit price.");
-        }
-
-        if (direction == Direction.BUY)
-            return limit.getLimitPrice(null) - equilibrium;
-        else
-            return equilibrium - limit.getLimitPrice(null);
-    }
-
-    public int getLimitPrice(Order order) {
-        return limit.getLimitPrice(order);
-    }
+    @Override
+    protected void onLimitOrder(Order order) {}
+    @Override
+    protected void onMarketOrder(Order order) {}
+    @Override
+    protected void onCancelOrder(Order order) {}
 }

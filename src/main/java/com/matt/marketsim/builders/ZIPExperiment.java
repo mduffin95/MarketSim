@@ -46,8 +46,8 @@ public class ZIPExperiment implements NetworkBuilder {
         SimClock clock = model.getExperiment().getSimClock();
         //Create the supply and demand curves
         for (int i = 0; i < num; i++) {
-            TradingAgent agentBuy = new ZIP(model, new FixedLimit(min + i * step), new FixedOrderRouter(clock, exchange), Direction.BUY);
-            TradingAgent agentSell = new ZIP(model, new FixedLimit(min + i * step), new FixedOrderRouter(clock, exchange), Direction.SELL);
+            TradingAgent agentBuy = new ZIP(model, min + i * step, new FixedOrderRouter(clock, exchange), Direction.BUY);
+            TradingAgent agentSell = new ZIP(model, min + i * step, new FixedOrderRouter(clock, exchange), Direction.SELL);
 
             //Add to reporting groups
             all.addMember(agentBuy);

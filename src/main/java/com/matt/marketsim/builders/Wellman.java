@@ -22,7 +22,7 @@ public class Wellman implements NetworkBuilder {
     public SimpleWeightedGraph<NetworkEntity, DefaultWeightedEdge> createNetwork(MarketSimModel model) {
         double discountRate = 0.0006;
         SecuritiesInformationProcessor sip = new SecuritiesInformationProcessor(model, "Securities Information Processor",
-                MarketSimModel.SHOW_ENTITIES_IN_TRACE, new TimeSpan(20, MarketSimModel.timeUnit));
+                MarketSimModel.SHOW_ENTITIES_IN_TRACE, new TimeSpan(0, MarketSimModel.timeUnit));
         Exchange exchange1 = new Exchange(model, "Exchange1", sip, MarketSimModel.SHOW_ENTITIES_IN_TRACE);
         Exchange exchange2 = new Exchange(model, "Exchange2", sip, MarketSimModel.SHOW_ENTITIES_IN_TRACE);
 
@@ -54,8 +54,7 @@ public class Wellman implements NetworkBuilder {
         exchange2.lastTradeSupplier.addObserver(tradeStats);
         exchange2.lastTradeSupplier.addObserver(e2TradePrices);
 
-        //TODO: Use a factory and dependency injection
-        VariableLimit.init(model, 6, 2.5, 0.4, 100);
+        VariableLimitFactory factory = new VariableLimitFactory(model, 6, 2.5, 0.4, 100);
 
         //Arbitrageur
         if (true) {
@@ -95,8 +94,8 @@ public class Wellman implements NetworkBuilder {
                 r1 = new BestPriceOrderRouter(clock, e);
                 r2 = new BestPriceOrderRouter(clock, e);
             }
-            TradingAgent agent1 = new ZIC(model, new VariableLimit(), r1, Direction.BUY);
-            TradingAgent agent2 = new ZIC(model, new VariableLimit(), r2, Direction.SELL);
+            TradingAgent agent1 = new ZIC(model, factory.create(), r1, Direction.BUY);
+            TradingAgent agent2 = new ZIC(model, factory.create(), r2, Direction.SELL);
 
             //So that they receive price updates
             e.registerPriceObserver(agent1);

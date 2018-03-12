@@ -25,7 +25,7 @@ public class BestPriceOrderRouter implements OrderRouter {
      * Returns the order that it sends. Send to exchange with the closest opposing order.
      */
     @Override
-    public Order routeOrder(TradingAgent agent, MessageType type, Direction direction, int price) {
+    public Order routeOrder(TradingAgent agent, MessageType type, Direction direction, int price, int limit) {
         Exchange e;
         if (direction == Direction.BUY && bestOffer != null) {
             e = bestOffer.getExchange();
@@ -34,7 +34,7 @@ public class BestPriceOrderRouter implements OrderRouter {
         } else {
             e = primary;
         }
-        Order newOrder = new Order(agent, e, direction, price, clock.getTime());
+        Order newOrder = new Order(agent, e, direction, price, limit, clock.getTime());
         e.send(agent, type, newOrder);
         return newOrder;
     }

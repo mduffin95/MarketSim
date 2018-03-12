@@ -10,17 +10,20 @@ public class Order implements Comparable<Order> {
     public Direction direction;
 
     private TimeInstant timeStamp;
+
     public TimeInstant getTimeStamp() {
         return timeStamp;
     }
 
     private int price;
+    private int limit; //For statistics
 
-    public Order(TradingAgent agent, Exchange exchange, Direction direction, int price, TimeInstant time) {
+    public Order(TradingAgent agent, Exchange exchange, Direction direction, int price, int limit, TimeInstant time) {
         this.agent = agent;
         this.exchange = exchange;
         this.direction = direction;
         this.price = price;
+        this.limit = limit;
 
         timeStamp = time;
     }
@@ -36,6 +39,10 @@ public class Order implements Comparable<Order> {
 
     public int getPrice() {
         return price;
+    }
+
+    public int getLimit() {
+        return limit;
     }
 
     @Override

@@ -16,10 +16,12 @@ public class ZIP extends TradingAgent {
     private LOBSummary currentSummary;
 
     private Order previousOrder = null;
+    private int limit;
 
 
-    public ZIP(Model model, LimitProvider limit, OrderRouter router, Direction direction) {
-        super(model, limit, router);
+    public ZIP(Model model, int limit, OrderRouter router, Direction direction) {
+        super(model, router);
+        this.limit = limit;
         this.direction = direction;
 //        learning_rate = 0.25;
         momentum = 0.1 * marketSimModel.generator.nextDouble();
@@ -43,23 +45,37 @@ public class ZIP extends TradingAgent {
     }
 
     @Override
-    public void cancelSuccess(Order order) {
+    protected void onOwnCompleted(MarketUpdate update) {
+        active = false;
+        onMarketUpdate(update);
+    }
+
+    @Override
+    protected void onCancelOrder(Order order) {
+
+    }
+
+    @Override
+    public void onCancelSuccess(Order order) {
         assert previousOrder == order;
         placeOrder();
     }
 
+    @Override
+    protected void onCancelFailure(Order order) {
+
+    }
+
     private void placeOrder() {
-        previousOrder = router.routeOrder(this, MessageType.LIMIT_ORDER, direction, getPrice());
+        previousOrder = router.routeOrder(this, MessageType.LIMIT_ORDER, direction, getPrice(), limit);
     }
 
     @Override
-    protected void respond(MarketUpdate update) {
+    protected void onMarketUpdate(MarketUpdate update) {
+        super.onMarketUpdate(update);
         //TODO: Make sure it only responds to price changes once (not duplicates from SIP).
-        handleTrade(update.trade);
-
-        //Determine what has happened
-        LOBSummary newSummary = update.summary;
         Trade trade = update.trade;
+        LOBSummary summary = update.summary;
 
         boolean deal = trade != null;
         Direction lastOrderDirection = null;
@@ -68,7 +84,7 @@ public class ZIP extends TradingAgent {
         Order currentBestBuy = (null == currentSummary) ? null : currentSummary.getBestBuyOrder();
         Order currentBestSell = (null == currentSummary) ? null : currentSummary.getBestSellOrder();
 
-        if (currentBestBuy != newSummary.getBestBuyOrder()) {
+        if (currentBestBuy != summary.getBestBuyOrder()) {
             //Either new buy order or trade occurred that cleared with the buy order
             if (deal) {
                 //Most recent order was a sell order
@@ -77,9 +93,9 @@ public class ZIP extends TradingAgent {
             } else {
                 //Most recent order was a buy order
                 lastOrderDirection = Direction.BUY;
-                price = newSummary.getBestBuyOrder().getPrice();
+                price = summary.getBestBuyOrder().getPrice();
             }
-        } else if (currentBestSell != newSummary.getBestSellOrder()) {
+        } else if (currentBestSell != summary.getBestSellOrder()) {
             //Either new sell order or trade occurred that cleared with the sell order
             if (deal) {
                 //Most recent order was a buy order
@@ -88,14 +104,14 @@ public class ZIP extends TradingAgent {
             } else {
                 //Most recent order was a sell order
                 lastOrderDirection = Direction.SELL;
-                price = newSummary.getBestSellOrder().getPrice();
+                price = summary.getBestSellOrder().getPrice();
             }
         } else {
             //Nothing has changed
             return;
         }
 
-        currentSummary = newSummary;
+        currentSummary = summary;
 
         int target;
         if (direction == Direction.SELL) {
@@ -158,7 +174,7 @@ public class ZIP extends TradingAgent {
         double delta = beta * (target - price);
         double change = (momentum * prev_change) + (1.0 - momentum) * delta;
         prev_change = change;
-        double newMargin = ((price + change) / getLimitPrice(null)) - 1;
+        double newMargin = ((price + change) / getLimitPrice()) - 1;
 
         if (direction == Direction.BUY) {
             if (newMargin < 0.0) {
@@ -172,8 +188,12 @@ public class ZIP extends TradingAgent {
     }
 
     private int getPrice() {
-        int p = (int)Math.round(getLimitPrice(null) * (1 + margin));
-        assert (direction == Direction.BUY && p <= getLimitPrice(null)) || (direction == Direction.SELL && p >= getLimitPrice(null));
+        int p = (int)Math.round(getLimitPrice() * (1 + margin));
+        assert (direction == Direction.BUY && p <= getLimitPrice()) || (direction == Direction.SELL && p >= getLimitPrice());
         return p;
+    }
+
+    private int getLimitPrice() {
+        return limit;
     }
 }

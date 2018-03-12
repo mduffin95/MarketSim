@@ -28,13 +28,23 @@ public class SecuritiesInformationProcessor extends NetworkEntity implements Pri
         this.delta = delta;
     }
 
-    //TODO: could this be the same as a 'respond' method?
     @Override
-    public void handlePacket(Packet packet) {
-        if (packet.getType() != MessageType.MARKET_UPDATE) {
-            return;
-        }
-        MarketUpdate update = (MarketUpdate) packet.getPayload();
+    protected void onLimitOrder(Order order) {
+
+    }
+
+    @Override
+    protected void onMarketOrder(Order order) {
+
+    }
+
+    @Override
+    protected void onOwnCompleted(MarketUpdate update) {
+
+    }
+
+    @Override
+    protected void onMarketUpdate(MarketUpdate update) {
         LOBSummary summary = update.summary;
 //        sendTraceNote("SIP quote: BUY = " + quote.getBestBuyOrder().price + ", SELL = " + quote.getBestSellOrder().price);
 
@@ -46,20 +56,35 @@ public class SecuritiesInformationProcessor extends NetworkEntity implements Pri
         if ((null == bestBid ^ null == bid) ||
                 null != bid &&
                         (bid.getPrice() > bestBid.getPrice() ||
-                        (bid.getExchange() == bestBid.getExchange() && bid != bestBid))) {
+                                (bid.getExchange() == bestBid.getExchange() && bid != bestBid))) {
             bestBid = bid;
             changed = true;
         }
         if ((null == bestOffer ^ null == offer) ||
                 null != offer &&
                         (offer.getPrice() < bestOffer.getPrice() ||
-                        (offer.getExchange() == bestOffer.getExchange() && offer != bestOffer))) {
+                                (offer.getExchange() == bestOffer.getExchange() && offer != bestOffer))) {
             bestOffer = offer;
             changed = true;
         }
         if (changed) {
             updateObservers();
         }
+    }
+
+    @Override
+    protected void onCancelOrder(Order order) {
+
+    }
+
+    @Override
+    protected void onCancelSuccess(Order order) {
+
+    }
+
+    @Override
+    protected void onCancelFailure(Order order) {
+
     }
 
     private void updateObservers() {
