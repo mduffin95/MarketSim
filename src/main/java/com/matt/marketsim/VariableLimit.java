@@ -20,16 +20,13 @@ public class VariableLimit {
     //Member variables
     private int price_valuation;
 
-    public VariableLimit(MarketSimModel model, double sigma_shock, double sigma_pv, double k, double initial_fundamental,
-                         ContDistNormal normal_shock, ContDistNormal normal_pv) {
+    public VariableLimit(MarketSimModel model, double k, double initial_fundamental, ContDistNormal normal_shock, ContDistNormal normal_pv) {
         assert (k >= 0 && k <= 1);
         this.n = 1;
         this.fundamental_mean = initial_fundamental;
         this.fundamental = initial_fundamental;
         this.k = k;
         this.model = model;
-        this.sigma_shock = sigma_shock;
-        this.sigma_pv = sigma_pv;
         this.normal_shock = normal_shock;
         this.normal_pv = normal_pv;
         this.model.distributionManager.register(normal_shock);

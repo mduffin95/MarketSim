@@ -16,8 +16,8 @@ public abstract class TradingAgent extends NetworkEntity {
     SimClock clock;
     OrderRouter router;
 
-    public TradingAgent(Model model, OrderRouter router) {
-        super(model, "TradingAgent", MarketSimModel.SHOW_ENTITIES_IN_TRACE);
+    public TradingAgent(Model model, OrderRouter router, boolean showInTrace) {
+        super(model, "TradingAgent", showInTrace);
         marketSimModel = (MarketSimModel) model;
         marketSimModel.registerForInitialSchedule(this); //Register so that it is scheduled
         clock = marketSimModel.getExperiment().getSimClock();

@@ -9,9 +9,11 @@ import desmoj.core.simulator.Model;
 public class Arbitrageur extends TradingAgent {
     private Order bestBid;
     private Order bestOffer;
+    private double alpha;
 
-    public Arbitrageur(Model model) {
+    public Arbitrageur(Model model, double alpha) {
         super(model, null);
+        this.alpha = alpha;
     }
 
     @Override
@@ -22,7 +24,7 @@ public class Arbitrageur extends TradingAgent {
     private boolean checkArbitrage() {
         if (null == bestBid || null == bestOffer) return false;
 
-        if (bestBid.getPrice() > bestOffer.getPrice()) {
+        if (bestBid.getPrice() > (1.0 + alpha) * bestOffer.getPrice()) {
             if (bestBid.getExchange() != bestOffer.getExchange()) {
                 //Arbitrage opportunity exists.
                 return true;
