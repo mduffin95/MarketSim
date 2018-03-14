@@ -6,10 +6,13 @@ import desmoj.core.simulator.*;
 
 public class TradingAgentDecisionEvent extends Event<TradingAgent> {
     MarketSimModel marketSimModel;
+    boolean canReschedule;
 
-    public TradingAgentDecisionEvent(Model model, String s, boolean b) {
+    //TODO: Pass in a distribution for sampling a rescheduling time.
+    public TradingAgentDecisionEvent(MarketSimModel model, String s, boolean b, boolean canReschedule) {
         super(model, s, b);
-        marketSimModel = (MarketSimModel)model;
+        marketSimModel = model;
+        this.canReschedule = canReschedule;
     }
 
     @Override
@@ -20,6 +23,7 @@ public class TradingAgentDecisionEvent extends Event<TradingAgent> {
         tradingAgent.doSomething();
 
         //Reschedule
-        schedule(tradingAgent, marketSimModel.getAgentArrivalTime());
+        if (canReschedule)
+            reSchedule(marketSimModel.getAgentArrivalTime());
     }
 }

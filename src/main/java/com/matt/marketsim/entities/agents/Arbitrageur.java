@@ -11,8 +11,8 @@ public class Arbitrageur extends TradingAgent {
     private Order bestOffer;
     private double alpha;
 
-    public Arbitrageur(Model model, double alpha) {
-        super(model, null);
+    public Arbitrageur(Model model, double alpha, boolean showInTrace) {
+        super(model, null, showInTrace);
         this.alpha = alpha;
     }
 

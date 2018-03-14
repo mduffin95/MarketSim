@@ -17,6 +17,8 @@ public class VariableLimitFactory {
         this.initial_fundamental = initial_fundamental;
         this.normal_shock = new ContDistNormal(this.model, "Shock", 0, sigma_shock, true, false);
         this.normal_pv = new ContDistNormal(this.model, "Price valuation", 0, sigma_pv, true, false);
+        model.distributionManager.register(this.normal_shock);
+        model.distributionManager.register(this.normal_pv);
     }
 
     public VariableLimit create() {

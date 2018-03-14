@@ -6,13 +6,12 @@ import desmoj.core.simulator.*;
 
 //TODO: Could do away with this class
 public class PacketSendEvent extends Event<Packet> {
-    public PacketSendEvent(Model owner) {
-        super(owner, "PacketSendEvent", MarketSimModel.PACKET_SEND_IN_TRACE);
+    public PacketSendEvent(MarketSimModel model) {
+        super(model, "PacketSendEvent", model.showPacketSendInTrace());
     }
 
     @Override
     public void eventRoutine(Packet packet) {
         packet.scheduleArrival();
     }
-
 }

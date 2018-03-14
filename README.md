@@ -24,3 +24,10 @@ Looking at using GraphML to represent the graph.
 Decided to assume that each trading agent is only trading one unit. This simplifies the design. 
 
 Currently not seeing any difference in allocative efficiency between agents with long and short delays. 
+
+### Week 5 - March 7th - March 14th
+Found out that the issue was that there was a slight delay set on the connection between the exchange and the SIP. This 
+meant arbitrageur could still profit even when internal SIP delta was zero.
+
+Can't work out how the Wellman paper decides which primary market a trader gets. It says an 'equal proportion' but does that mean split exactly in half
+or are they assigned with 0.5 probability?

@@ -4,6 +4,8 @@ import com.matt.marketsim.*;
 import com.matt.marketsim.LimitProvider;
 import desmoj.core.simulator.Model;
 
+import java.util.Random;
+
 public class ZIP extends TradingAgent {
     private double margin;
     private double ca = 0.05;
@@ -17,20 +19,22 @@ public class ZIP extends TradingAgent {
 
     private Order previousOrder = null;
     private int limit;
+    private Random generator;
 
 
-    public ZIP(Model model, int limit, OrderRouter router, Direction direction) {
-        super(model, router);
+    public ZIP(Model model, int limit, OrderRouter router, Direction direction, Random generator, boolean showInTrace) {
+        super(model, router, showInTrace);
         this.limit = limit;
         this.direction = direction;
+        this.generator = generator;
 //        learning_rate = 0.25;
-        momentum = 0.1 * marketSimModel.generator.nextDouble();
-        beta = 0.1 + 0.4 * marketSimModel.generator.nextDouble();
+        momentum = 0.1 * generator.nextDouble();
+        beta = 0.1 + 0.4 * generator.nextDouble();
 
         if (direction == Direction.BUY) {
-            margin = -1.0 * (0.05 + 0.3 * marketSimModel.generator.nextDouble());
+            margin = -1.0 * (0.05 + 0.3 * generator.nextDouble());
         } else {
-            margin = 0.05 + 0.3 * marketSimModel.generator.nextDouble();
+            margin = 0.05 + 0.3 * generator.nextDouble();
         }
     }
 
@@ -154,16 +158,16 @@ public class ZIP extends TradingAgent {
     }
 
     private int target_up(int price) {
-        double ptrb_abs = ca * marketSimModel.generator.nextDouble();
-        double ptrb_rel = (1 + cr * marketSimModel.generator.nextDouble()) * price;
+        double ptrb_abs = ca * generator.nextDouble();
+        double ptrb_rel = (1 + cr * generator.nextDouble()) * price;
 
         return (int)Math.round(ptrb_rel + ptrb_abs);
 
     }
 
     private int target_down(int price) {
-        double ptrb_abs = ca * marketSimModel.generator.nextDouble();
-        double ptrb_rel = (1 - cr * marketSimModel.generator.nextDouble()) * price;
+        double ptrb_abs = ca * generator.nextDouble();
+        double ptrb_rel = (1 - cr * generator.nextDouble()) * price;
 
         return (int)Math.round(ptrb_rel - ptrb_abs);
 

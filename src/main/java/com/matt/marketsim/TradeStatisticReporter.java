@@ -10,15 +10,15 @@ public class TradeStatisticReporter extends Reporter {
         columns = new String[numColumns];
         columns[0] = "Title";
 //        columns[1] = "Alloc. Efficiency";
-        columns[1] = "Alpha";
-        columns[2] = "Total Utility";
+//        columns[1] = "Alpha";
+        columns[1] = "Total Utility";
 
         entries = new String[numColumns];
         if (source instanceof TradeStatisticCalculator) {
             entries[0] = source.getName();
 //            entries[1] = String.valueOf(((TradeStatisticCalculator) source).getAllocEfficiency());
-            entries[1] = String.valueOf(((TradeStatisticCalculator) source).getSmithsAlpha());
-            entries[2] = String.valueOf(((TradeStatisticCalculator) source).getTotalUtility());
+//            entries[1] = String.valueOf(((TradeStatisticCalculator) source).getSmithsAlpha());
+            entries[1] = String.valueOf(((TradeStatisticCalculator) source).getTotalUtility());
         }
         groupHeading = "TradeStatistics";
         groupID = 99;

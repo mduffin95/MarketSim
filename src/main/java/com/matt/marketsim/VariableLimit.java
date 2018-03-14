@@ -29,8 +29,6 @@ public class VariableLimit {
         this.model = model;
         this.normal_shock = normal_shock;
         this.normal_pv = normal_pv;
-        this.model.distributionManager.register(normal_shock);
-        this.model.distributionManager.register(normal_pv);
     }
 
     public double getFundamental() {

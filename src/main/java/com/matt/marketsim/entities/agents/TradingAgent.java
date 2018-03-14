@@ -12,13 +12,13 @@ public abstract class TradingAgent extends NetworkEntity {
 
     public Direction direction;
     public boolean active;
-    MarketSimModel marketSimModel;
+//    MarketSimModel marketSimModel;
     SimClock clock;
     OrderRouter router;
 
     public TradingAgent(Model model, OrderRouter router, boolean showInTrace) {
         super(model, "TradingAgent", showInTrace);
-        marketSimModel = (MarketSimModel) model;
+        MarketSimModel marketSimModel = (MarketSimModel) model;
         marketSimModel.registerForInitialSchedule(this); //Register so that it is scheduled
         clock = marketSimModel.getExperiment().getSimClock();
         this.active = true;

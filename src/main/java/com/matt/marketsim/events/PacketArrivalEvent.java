@@ -6,8 +6,8 @@ import desmoj.core.simulator.*;
 
 public class PacketArrivalEvent extends Event<Packet> {
 
-    public PacketArrivalEvent(Model model) {
-        super(model, "PacketArrivalEvent",  MarketSimModel.PACKET_ARRIVAL_IN_TRACE);
+    public PacketArrivalEvent(MarketSimModel model) {
+        super(model, "PacketArrivalEvent",  model.showPacketArrivalInTrace());
     }
 
     @Override

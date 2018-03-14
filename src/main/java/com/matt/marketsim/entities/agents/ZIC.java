@@ -3,17 +3,21 @@ package com.matt.marketsim.entities.agents;
 import com.matt.marketsim.*;
 import com.matt.marketsim.LimitProvider;
 import com.matt.marketsim.models.MarketSimModel;
+import desmoj.core.dist.ContDist;
+import desmoj.core.dist.ContDistUniform;
 import desmoj.core.simulator.Model;
 
 public class ZIC extends TradingAgent {
     private Direction direction;
     private Order currentOrder;
     private VariableLimit limit;
+    private ContDist offsetRange;
 
-    public ZIC(Model model, VariableLimit limit, OrderRouter router, Direction direction) {
-        super(model, router);
+    public ZIC(Model model, VariableLimit limit, OrderRouter router, Direction direction, ContDist offsetRange, boolean showInTrace) {
+        super(model, router, showInTrace);
         this.direction = direction;
         this.limit = limit;
+        this.offsetRange = offsetRange;
     }
 
     private int newPrice;
@@ -43,10 +47,10 @@ public class ZIC extends TradingAgent {
     private int getNewPrice() {
         int price;
         if (direction == Direction.BUY) {
-            price = Math.max(0, limit.getLimitPrice() - (int)Math.round(marketSimModel.offsetRange.sample()));
+            price = Math.max(0, limit.getLimitPrice() - (int)Math.round(offsetRange.sample()));
 
         } else {
-            price = limit.getLimitPrice() + (int)Math.round(marketSimModel.offsetRange.sample());
+            price = limit.getLimitPrice() + (int)Math.round(offsetRange.sample());
         }
         return price;
     }

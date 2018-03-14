@@ -13,6 +13,7 @@ public class Packet extends Entity {
     private Object payload;
 
     private MarketSimModel marketSimModel;
+    private boolean showInTrace;
 
     public Packet(Model model, String name, boolean showInTrace, NetworkEntity source, NetworkEntity dest,
                   MessageType type, Object payload) {
@@ -21,6 +22,7 @@ public class Packet extends Entity {
         this.dest = dest;
         this.type = type;
         this.payload = payload;
+        this.showInTrace = showInTrace;
 
         marketSimModel = (MarketSimModel) model;
     }
