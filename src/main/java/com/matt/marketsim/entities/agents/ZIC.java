@@ -3,6 +3,7 @@ package com.matt.marketsim.entities.agents;
 import com.matt.marketsim.*;
 import com.matt.marketsim.LimitProvider;
 import com.matt.marketsim.models.MarketSimModel;
+import desmoj.core.dist.BoolDistBernoulli;
 import desmoj.core.dist.ContDist;
 import desmoj.core.dist.ContDistUniform;
 import desmoj.core.simulator.Model;
@@ -13,11 +14,15 @@ public class ZIC extends TradingAgent {
     private VariableLimit limit;
     private ContDist offsetRange;
 
-    public ZIC(Model model, VariableLimit limit, OrderRouter router, Direction direction, ContDist offsetRange, boolean showInTrace) {
+    public ZIC(Model model, VariableLimit limit, OrderRouter router, BoolDistBernoulli buyOrSell, ContDist offsetRange, boolean showInTrace) {
         super(model, router, showInTrace);
-        this.direction = direction;
         this.limit = limit;
         this.offsetRange = offsetRange;
+        if (buyOrSell.sample()) {
+            direction = Direction.BUY;
+        } else {
+            direction = Direction.SELL;
+        }
     }
 
     private int newPrice;

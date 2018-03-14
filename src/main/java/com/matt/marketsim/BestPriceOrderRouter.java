@@ -12,6 +12,8 @@ public class BestPriceOrderRouter implements OrderRouter {
 //    private MarketSimModel model;
     private Order bestBid;
     private Order bestOffer;
+    private Order primaryBestBid;
+    private Order primaryBestOffer;
     private Exchange primary; //Used when we don't yet have a best bid or offer
     private SimClock clock;
 
@@ -27,16 +29,59 @@ public class BestPriceOrderRouter implements OrderRouter {
     @Override
     public Order routeOrder(TradingAgent agent, MessageType type, Direction direction, int price, int limit) {
         Exchange e;
-        if (direction == Direction.BUY && bestOffer != null) {
-            e = bestOffer.getExchange();
-        } else if (direction == Direction.SELL && bestBid != null) {
-            e = bestBid.getExchange();
+        if (direction == Direction.BUY) {
+            if (lessThan(bestOffer, primaryBestOffer)) {
+                //NBBO price is better than the primary market.
+                if (bestOffer.getPrice() < price) {
+                    //Trade will transact immediately so send to other market.
+                    e = bestOffer.getExchange();
+                } else {
+                    //Trade will not transact immediately so send to primary market.
+                    e = primary;
+                }
+            } else {
+                e = primary;
+            }
         } else {
-            e = primary;
+            if (greaterThan(bestBid, primaryBestBid)) {
+                //NBBO price is better than primary market.
+                if (bestBid.getPrice() > price) {
+                    //Trade will transact immediately so send to other market.
+                    e = bestBid.getExchange();
+                } else {
+                    //Trade will not transact immediately so send to primary market.
+                    e = primary;
+                }
+
+            } else {
+                //Send to primary market
+                e = primary;
+            }
         }
+
         Order newOrder = new Order(agent, e, direction, price, limit, clock.getTime());
         e.send(agent, type, newOrder);
         return newOrder;
+    }
+
+    private boolean greaterThan(Order a, Order b) {
+        if (null != a && null == b) {
+            return true;
+        }
+        if (null == a) {
+            return false;
+        }
+        return a.getPrice() > b.getPrice();
+    }
+
+    private boolean lessThan(Order a, Order b) {
+        if (null == a && null != b) {
+            return true;
+        }
+        if (null == b) {
+            return false;
+        }
+        return a.getPrice() < b.getPrice();
     }
 
 //    @Override
@@ -55,17 +100,21 @@ public class BestPriceOrderRouter implements OrderRouter {
         Order bid = update.summary.getBestBuyOrder();
         Order offer = update.summary.getBestSellOrder();
 
-        if ((null == bestBid ^ null == bid) ||
-                null != bid &&
-                        (bid.getPrice() > bestBid.getPrice() ||
-                                (bid.getExchange() == bestBid.getExchange() && bid != bestBid))) {
+        if (null == bestBid || null != bid &&
+                (bid.getPrice() > bestBid.getPrice() ||
+                        (bid.getExchange() == bestBid.getExchange() && bid != bestBid))) {
             bestBid = bid;
+            if (null != bid && bid.getExchange() == primary) {
+                primaryBestBid = bid;
+            }
         }
-        if ((null == bestOffer ^ null == offer) ||
-                null != offer &&
-                        (offer.getPrice() < bestOffer.getPrice() ||
-                                (offer.getExchange() == bestOffer.getExchange() && offer != bestOffer))) {
+        if (null == bestOffer || null != offer &&
+                (offer.getPrice() < bestOffer.getPrice() ||
+                        (offer.getExchange() == bestOffer.getExchange() && offer != bestOffer))) {
             bestOffer = offer;
+            if (null != offer && offer.getExchange() == primary) {
+                primaryBestOffer = offer;
+            }
         }
     }
 }

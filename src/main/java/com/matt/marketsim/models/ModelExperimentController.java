@@ -21,7 +21,7 @@ public class ModelExperimentController {
         double k = 0.05;
         double MEAN_FUNDAMENTAL = 100000;
         double ALPHA = 0.001; //Arbitrageur threshold
-        double DELTA = 0.0;
+        double DELTA = 300;
         double OFFSET_RANGE = 2000;
         double LAMBDA = 0.075;
         int simLength = 15000;
@@ -34,7 +34,7 @@ public class ModelExperimentController {
 //        NetworkBuilder builder = new ZIPExperiment(50, 0, 200);
         MarketSimModel model = new TwoMarketModel(timeUnit, simLength, ALPHA, MEAN_FUNDAMENTAL, k, VAR_PV, VAR_SHOCK,
                 OFFSET_RANGE, LAMBDA, DELTA);
-//        model.setSeed(1);
+        model.setSeed(1);
         // and connect them
         model.connectToExperiment(exp);
 

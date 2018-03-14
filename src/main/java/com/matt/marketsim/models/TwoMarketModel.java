@@ -27,6 +27,7 @@ public class TwoMarketModel extends MarketSimModel {
     private ContDistExponential agentArrivalTimeDist;
     public ContDistUniform offsetRangeDist;
     private DiscreteDistUniform priceDist;
+    private BoolDistBernoulli buyOrSell;
     //    private BoolDistBernoulli buyOrSell;
 
     /*
@@ -96,11 +97,14 @@ public class TwoMarketModel extends MarketSimModel {
         offsetRangeDist = new ContDistUniform(this, "OffsetRangeUniformStream",
                 0, OFFSET_RANGE, true, false);
 
+        buyOrSell = new BoolDistBernoulli(this, "BuyOrSell", 0.5, true, false);
+
         /*
          * Add distributions to the distribution manager. This allows us to set a single seed.
          */
         distributionManager.register(agentArrivalTimeDist);
         distributionManager.register(offsetRangeDist);
+        distributionManager.register(buyOrSell);
 
         network = createNetwork(); //Always call this last
     }
@@ -185,38 +189,34 @@ public class TwoMarketModel extends MarketSimModel {
 
         //Create the supply and demand curves
         Exchange e;
-        TradingAgentGroup g;
+        TradingAgentGroup g1;
+        TradingAgentGroup g2;
         SimClock clock = this.getExperiment().getSimClock();
         for (int i = 0; i < 250; i++) {
             OrderRouter r1;
             OrderRouter r2;
 
-            if (i < 125) {
-                e = exchange1;
-                g = ex1;
+            if (i < 0) {
+                r1 = new FixedOrderRouter(clock, exchange1);
+                r2 = new FixedOrderRouter(clock, exchange2);
             } else {
-                e = exchange2;
-                g = ex2;
+                r1 = new BestPriceOrderRouter(clock, exchange1);
+                r2 = new BestPriceOrderRouter(clock, exchange2);
             }
-            if ((i%125) < 0) {
-                r1 = new FixedOrderRouter(clock, e);
-                r2 = new FixedOrderRouter(clock, e);
-            } else {
-                r1 = new BestPriceOrderRouter(clock, e);
-                r2 = new BestPriceOrderRouter(clock, e);
-            }
-            TradingAgent agent1 = new ZIC(this, factory.create(), r1, Direction.BUY, offsetRangeDist, SHOW_ENTITIES_IN_TRACE);
-            TradingAgent agent2 = new ZIC(this, factory.create(), r2, Direction.SELL, offsetRangeDist, SHOW_ENTITIES_IN_TRACE);
+            //Market 1
+            TradingAgent agent1 = new ZIC(this, factory.create(), r1, buyOrSell, offsetRangeDist, SHOW_ENTITIES_IN_TRACE);
+            //Market 2
+            TradingAgent agent2 = new ZIC(this, factory.create(), r2, buyOrSell, offsetRangeDist, SHOW_ENTITIES_IN_TRACE);
 
             //So that they receive price updates
-            e.registerPriceObserver(agent1);
-            e.registerPriceObserver(agent2);
+            exchange1.registerPriceObserver(agent1);
+            exchange2.registerPriceObserver(agent2);
             sip.registerPriceObserver(agent1);
             sip.registerPriceObserver(agent2);
 
             //Add to reporting groups
-            g.addMember(agent1);
-            g.addMember(agent2);
+            ex1.addMember(agent1);
+            ex2.addMember(agent2);
             all.addMember(agent1);
             all.addMember(agent2);
 
