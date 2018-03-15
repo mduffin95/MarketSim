@@ -10,23 +10,24 @@ import java.util.concurrent.TimeUnit;
  * a model to allow results to be averaged.
  */
 public class ModelExperimentController {
+    public static String name;
+    static final double VAR_SHOCK = 150000000;
+    static final double VAR_PV = 100000000;
+    static final double k = 0.05;
+    static final double MEAN_FUNDAMENTAL = 100000;
+    static final double ALPHA = 0.001; //Arbitrageur threshold
+    static final double DELTA = 0;
+    static final double OFFSET_RANGE = 2000;
+    static final double LAMBDA = 0.075;
+    static final int simLength = 15000;
+    static final int ROUNDS = 1;
+
+    public static void runOnce(long seed) {
 
 
-    /**
-     * runs the model
-     */
-    public static void main(String[] args) {
-        double VAR_SHOCK = 150000000;
-        double VAR_PV = 100000000;
-        double k = 0.05;
-        double MEAN_FUNDAMENTAL = 100000;
-        double ALPHA = 0.001; //Arbitrageur threshold
-        double DELTA = 300;
-        double OFFSET_RANGE = 2000;
-        double LAMBDA = 0.075;
-        int simLength = 15000;
+        name = "results_" + String.valueOf((int)DELTA) + ".txt";
 
-        
+
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
 
         // create model and experiment
@@ -34,7 +35,7 @@ public class ModelExperimentController {
 //        NetworkBuilder builder = new ZIPExperiment(50, 0, 200);
         MarketSimModel model = new TwoMarketModel(timeUnit, simLength, ALPHA, MEAN_FUNDAMENTAL, k, VAR_PV, VAR_SHOCK,
                 OFFSET_RANGE, LAMBDA, DELTA);
-        model.setSeed(1);
+        model.setSeed(seed);
         // and connect them
         model.connectToExperiment(exp);
 
@@ -49,5 +50,13 @@ public class ModelExperimentController {
         // generate report and shut everything off
         exp.report();
         exp.finish();
+    }
+
+    /**
+     * runs the model
+     */
+    public static void main(String[] args) {
+        for (int i=0; i< ROUNDS; i++)
+            runOnce(i);
     }
 }

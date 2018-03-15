@@ -8,9 +8,13 @@ import desmoj.core.simulator.TimeSpan;
 import desmoj.core.statistic.TimeSeries;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class SecuritiesInformationProcessor extends NetworkEntity implements PriceProvider {
+
+    private Map<Exchange, LOBSummary> summaryMap;
 
     private Order bestBid;
     private Order bestOffer;
@@ -25,6 +29,7 @@ public class SecuritiesInformationProcessor extends NetworkEntity implements Pri
     public SecuritiesInformationProcessor(Model model, String name, boolean showInTrace, TimeSpan delta) {
         super(model, name, showInTrace);
         observers = new ArrayList<>();
+        summaryMap = new HashMap<>();
         this.delta = delta;
     }
 
@@ -48,24 +53,32 @@ public class SecuritiesInformationProcessor extends NetworkEntity implements Pri
         LOBSummary summary = update.summary;
 //        sendTraceNote("SIP quote: BUY = " + quote.getBestBuyOrder().price + ", SELL = " + quote.getBestSellOrder().price);
 
-        Order bid = summary.getBestBuyOrder();
-        Order offer = summary.getBestSellOrder();
-        boolean changed = false;
+        //TODO: Need to have access to the exchange in a better way than this.
+        Exchange e;
+        Order o = summary.getBestBuyOrder();
+        e = null != o ? o.getExchange() : null;
+        o = summary.getBestSellOrder();
+        if (null == e && null != o) {
+            e = o.getExchange();
+        }
 
-        //TODO: Refactor
-        if (null == bestBid || null != bid &&
-                (bid.getPrice() > bestBid.getPrice() ||
-                        (bid.getExchange() == bestBid.getExchange() && bid != bestBid))) {
-            bestBid = bid;
-            changed = true;
+        summaryMap.put(e, summary);
+        Order oldBestBid = bestBid;
+        Order oldBestOffer = bestOffer;
+        bestBid = null;
+        bestOffer = null;
+
+        for (Map.Entry<Exchange, LOBSummary> entry : summaryMap.entrySet()) {
+            Order bid = entry.getValue().getBestBuyOrder();
+            Order offer = entry.getValue().getBestSellOrder();
+            if (null == bestBid || bid != null && bid.getPrice() > bestBid.getPrice()) {
+                bestBid = bid;
+            }
+            if (null == bestOffer || offer != null && offer.getPrice() < bestOffer.getPrice()) {
+                bestOffer = offer;
+            }
         }
-        if (null == bestOffer || null != offer &&
-                (offer.getPrice() < bestOffer.getPrice() ||
-                        (offer.getExchange() == bestOffer.getExchange() && offer != bestOffer))) {
-            bestOffer = offer;
-            changed = true;
-        }
-        if (changed) {
+        if (bestBid != oldBestBid || bestOffer != oldBestOffer) {
             updateObservers();
         }
     }
