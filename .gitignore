@@ -3,4 +3,9 @@
 workspace.xml
 tasks.xml
 *.txt
+*.swp
+*.png
+
 target/
+results/
+

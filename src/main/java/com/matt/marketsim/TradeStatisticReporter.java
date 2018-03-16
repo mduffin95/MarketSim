@@ -1,15 +1,7 @@
 package com.matt.marketsim;
 
-import com.matt.marketsim.models.ModelExperimentController;
 import desmoj.core.report.Reporter;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-import java.util.Arrays;
 
 public class TradeStatisticReporter extends Reporter {
     public TradeStatisticReporter(desmoj.core.simulator.Reportable informationSource) {
@@ -35,13 +27,6 @@ public class TradeStatisticReporter extends Reporter {
 
     @Override
     public String[] getEntries() {
-        try {
-            String toWrite = entries[0] + ", " + entries[1];
-            final Path path = Paths.get(ModelExperimentController.name);
-            Files.write(path, Arrays.asList(toWrite), Files.exists(path) ? StandardOpenOption.APPEND : StandardOpenOption.CREATE);
-        } catch (IOException e) {
-
-        }
         return entries;
     }
 }

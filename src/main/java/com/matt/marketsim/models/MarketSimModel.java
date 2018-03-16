@@ -7,6 +7,8 @@ import com.matt.marketsim.entities.NetworkEntity;
 import com.matt.marketsim.events.TradingAgentDecisionEvent;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleWeightedGraph;
+
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -67,4 +69,6 @@ public abstract class MarketSimModel extends Model {
     public void setSeed(long s) {
         generator.setSeed(s);
     }
+
+    public abstract void writeResultsToFile(Path path);
 }

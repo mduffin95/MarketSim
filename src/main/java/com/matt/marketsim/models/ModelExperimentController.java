@@ -3,6 +3,8 @@ package com.matt.marketsim.models;
 import desmoj.core.simulator.Experiment;
 import desmoj.core.simulator.TimeInstant;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 
 /*
@@ -10,23 +12,22 @@ import java.util.concurrent.TimeUnit;
  * a model to allow results to be averaged.
  */
 public class ModelExperimentController {
-    public static String name;
     static final double VAR_SHOCK = 150000000;
     static final double VAR_PV = 100000000;
     static final double k = 0.05;
     static final double MEAN_FUNDAMENTAL = 100000;
     static final double ALPHA = 0.001; //Arbitrageur threshold
-    static final double DELTA = 0;
+    static double DELTA = 0;
     static final double OFFSET_RANGE = 2000;
     static final double LAMBDA = 0.075;
     static final int simLength = 15000;
-    static final int ROUNDS = 1;
+    static final int ROUNDS = 5;
 
     public static void runOnce(long seed) {
 
 
-        name = "results_" + String.valueOf((int)DELTA) + ".txt";
-
+        final String name = "results/results.csv";
+        final Path path = Paths.get(name);
 
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
 
@@ -49,6 +50,7 @@ public class ModelExperimentController {
 
         // generate report and shut everything off
         exp.report();
+        model.writeResultsToFile(path);
         exp.finish();
     }
 
@@ -56,7 +58,11 @@ public class ModelExperimentController {
      * runs the model
      */
     public static void main(String[] args) {
-        for (int i=0; i< ROUNDS; i++)
-            runOnce(i);
+        for (int i=0; i<=1000; i+= 100) {
+            DELTA = i;
+            for (int j=0; j< ROUNDS; j++)
+                runOnce(j);
+        }
+
     }
 }

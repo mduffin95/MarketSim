@@ -14,9 +14,13 @@ import desmoj.core.simulator.TimeInstant;
 import desmoj.core.simulator.TimeSpan;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleWeightedGraph;
+import sun.security.x509.DeltaCRLIndicatorExtension;
 
-import java.util.Collections;
-import java.util.Random;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public class TwoMarketModel extends MarketSimModel {
@@ -38,6 +42,11 @@ public class TwoMarketModel extends MarketSimModel {
     public static boolean SHOW_EVENTS_IN_TRACE = true;
     public static boolean PACKET_SEND_IN_TRACE = false;
     public static boolean PACKET_ARRIVAL_IN_TRACE = false;
+
+    /*
+     * Statistics
+     */
+    List<TradeStatisticCalculator> statsObjects;
 
 
     /*
@@ -65,6 +74,8 @@ public class TwoMarketModel extends MarketSimModel {
         this.OFFSET_RANGE = range;
         this.LAMBDA = lambda;
         this.DELTA = delta;
+
+        statsObjects = new ArrayList<>();
     }
 
     @Override
@@ -76,7 +87,7 @@ public class TwoMarketModel extends MarketSimModel {
     public void doInitialSchedules() {
         Collections.shuffle(initialAgents, generator);
         double cumulative = 0.0;
-        for (TradingAgent a: initialAgents) {
+        for (TradingAgent a : initialAgents) {
             cumulative += agentArrivalTimeDist.sample();
             TradingAgentDecisionEvent event = new TradingAgentDecisionEvent(this, "MarketEntryDecision", true, false);
             event.schedule(a, new TimeSpan(cumulative, timeUnit));
@@ -162,6 +173,8 @@ public class TwoMarketModel extends MarketSimModel {
         TradeStatisticCalculator tradeStats = new TradeStatisticCalculator(this, "Stats (group 1)", all,
                 discountRate, getExperiment().getSimClock(), timeUnit, true, false);
 
+        statsObjects.add(tradeStats);
+
         exchange1.lastTradeSupplier.addObserver(tradeStats);
         exchange1.lastTradeSupplier.addObserver(e1TradePrices);
 
@@ -177,6 +190,7 @@ public class TwoMarketModel extends MarketSimModel {
             arb.addMember(arbitrageur);
             TradeStatisticCalculator arbStats = new TradeStatisticCalculator(this, "Stats (arbitrageur)",
                     arb, discountRate, getExperiment().getSimClock(), timeUnit, true, false);
+            statsObjects.add(arbStats);
             exchange1.lastTradeSupplier.addObserver(arbStats);
             exchange2.lastTradeSupplier.addObserver(arbStats);
             exchange1.registerPriceObserver(arbitrageur);
@@ -184,7 +198,7 @@ public class TwoMarketModel extends MarketSimModel {
 
             graph.addVertex(arbitrageur);
             graph.setEdgeWeight(graph.addEdge(arbitrageur, exchange1), 0);
-            graph.setEdgeWeight(graph.addEdge(arbitrageur, exchange2),0);
+            graph.setEdgeWeight(graph.addEdge(arbitrageur, exchange2), 0);
         }
 
         //Create the supply and demand curves
@@ -224,16 +238,35 @@ public class TwoMarketModel extends MarketSimModel {
             graph.addVertex(agent1);
             graph.setEdgeWeight(graph.addEdge(agent1, exchange1), 0);
             graph.setEdgeWeight(graph.addEdge(agent1, exchange2), 0);
-            graph.setEdgeWeight(graph.addEdge(agent1, sip),0);
+            graph.setEdgeWeight(graph.addEdge(agent1, sip), 0);
 
             //Add sell agent to graph
             graph.addVertex(agent2);
-            graph.setEdgeWeight(graph.addEdge(agent2, exchange1),0);
-            graph.setEdgeWeight(graph.addEdge(agent2, exchange2),0);
-            graph.setEdgeWeight(graph.addEdge(agent2, sip),0);
+            graph.setEdgeWeight(graph.addEdge(agent2, exchange1), 0);
+            graph.setEdgeWeight(graph.addEdge(agent2, exchange2), 0);
+            graph.setEdgeWeight(graph.addEdge(agent2, sip), 0);
 
         }
         return graph;
+    }
+
+    @Override
+    public void writeResultsToFile(Path path) {
+        Iterator<TradeStatisticCalculator> iter = statsObjects.iterator();
+        String toWrite = String.valueOf(DELTA) + ", ";
+        while (iter.hasNext()) {
+            TradeStatisticCalculator c = iter.next();
+
+            toWrite += String.valueOf(c.getTotalUtility());
+            if (iter.hasNext()) {
+                toWrite = toWrite + ", ";
+            }
+        }
+        try {
+            Files.write(path, Arrays.asList(toWrite), Files.exists(path) ? StandardOpenOption.APPEND : StandardOpenOption.CREATE);
+        } catch (IOException e) {
+
+        }
     }
 
 }

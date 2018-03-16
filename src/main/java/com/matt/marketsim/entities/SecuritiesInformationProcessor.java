@@ -22,9 +22,9 @@ public class SecuritiesInformationProcessor extends NetworkEntity implements Pri
 
     private List<NetworkEntity> observers;
 
-    public SecuritiesInformationProcessor(Model model, String name, boolean showInTrace) {
-        this(model, name, showInTrace, new TimeSpan(0));
-    }
+//    public SecuritiesInformationProcessor(Model model, String name, boolean showInTrace) {
+//        this(model, name, showInTrace, new TimeSpan(0));
+//    }
 
     public SecuritiesInformationProcessor(Model model, String name, boolean showInTrace, TimeSpan delta) {
         super(model, name, showInTrace);
