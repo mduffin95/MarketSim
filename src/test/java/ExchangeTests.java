@@ -96,7 +96,7 @@ public class ExchangeTests {
         model.connectToExperiment(exp);
 
 //        sip = new SecuritiesInformationProcessor(null, "TestSIP", false);
-        exchange = new Exchange(model, "TestExchange", sip, false);
+        exchange = new Exchange(model, "Exchange", sip, false);
         clock = exp.getSimClock();
         generator = new Random();
 

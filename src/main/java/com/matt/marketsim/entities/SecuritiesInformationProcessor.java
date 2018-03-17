@@ -14,7 +14,7 @@ import java.util.Map;
 
 public class SecuritiesInformationProcessor extends NetworkEntity implements PriceProvider {
 
-    private Map<Exchange, LOBSummary> summaryMap;
+    private MultiMarketView multiMarketView;
 
     private IOrder bestBid;
     private IOrder bestOffer;
@@ -29,7 +29,7 @@ public class SecuritiesInformationProcessor extends NetworkEntity implements Pri
     public SecuritiesInformationProcessor(Model model, String name, boolean showInTrace, TimeSpan delta) {
         super(model, name, showInTrace);
         observers = new ArrayList<>();
-        summaryMap = new HashMap<>();
+        multiMarketView = new MultiMarketView();
         this.delta = delta;
     }
 
@@ -49,38 +49,25 @@ public class SecuritiesInformationProcessor extends NetworkEntity implements Pri
     }
 
     @Override
-    public void onMarketUpdate(MarketUpdate update) {
-        LOBSummary summary = update.summary;
+    public void onMarketUpdate(MarketUpdate update) { //Return value is for testing purposes
+        marketUpdateHelper(update);
+    }
+
+    public MarketUpdate marketUpdateHelper(MarketUpdate update) {
 //        sendTraceNote("SIP quote: BUY = " + quote.getBestBuyOrder().price + ", SELL = " + quote.getBestSellOrder().price);
 
-        //TODO: Need to have access to the exchange in a better way than this.
-        Exchange e;
-        IOrder o = summary.getBestBuyOrder();
-        e = null != o ? o.getExchange() : null;
-        o = summary.getBestSellOrder();
-        if (null == e && null != o) {
-            e = o.getExchange();
-        }
 
-        summaryMap.put(e, summary);
+        multiMarketView.add(update);
         IOrder oldBestBid = bestBid;
         IOrder oldBestOffer = bestOffer;
-        bestBid = null;
-        bestOffer = null;
+        bestBid = multiMarketView.getBestBid();
+        bestOffer = multiMarketView.getBestOffer();
 
-        for (Map.Entry<Exchange, LOBSummary> entry : summaryMap.entrySet()) {
-            IOrder bid = entry.getValue().getBestBuyOrder();
-            IOrder offer = entry.getValue().getBestSellOrder();
-            if (null == bestBid || bid != null && bid.getPrice() > bestBid.getPrice()) {
-                bestBid = bid;
-            }
-            if (null == bestOffer || offer != null && offer.getPrice() < bestOffer.getPrice()) {
-                bestOffer = offer;
-            }
-        }
+        MarketUpdate m = null;
         if (bestBid != oldBestBid || bestOffer != oldBestOffer) {
-            updateObservers();
+            m = updateObservers();
         }
+        return m;
     }
 
     @Override
@@ -98,7 +85,7 @@ public class SecuritiesInformationProcessor extends NetworkEntity implements Pri
 
     }
 
-    private void updateObservers() {
+    private MarketUpdate updateObservers() {
         String bidString = bestBid == null ? "none" : String.valueOf(bestBid.getPrice());
         String offerString = bestOffer == null ? "none" : String.valueOf(bestOffer.getPrice());
 
@@ -108,12 +95,14 @@ public class SecuritiesInformationProcessor extends NetworkEntity implements Pri
         summary.buyOrders[0] = bestBid;
         summary.sellOrders[0] = bestOffer;
 
-        MarketUpdate m = new MarketUpdate(null, summary);
+        MarketUpdate m = new MarketUpdate(this, null, summary);
 
         //Send updated prices to all observers, adding delta delay before sending
         for (NetworkEntity e: observers) {
             e.send(this, MessageType.MARKET_UPDATE, m, delta);
         }
+
+        return m;
     }
 
     @Override

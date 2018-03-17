@@ -17,7 +17,8 @@ public class Order implements IOrder {
     }
 
     private int price;
-    private int limit; //For statistics
+    private int limit; //For statistics. The limit at the time the order was made.
+    //TODO: Remove this limit. Perhaps store a log of orders and limits with the trading agent, or on the statistic calculator.
 
     public Order(TradingAgent agent, Exchange exchange, Direction direction, int price, int limit, TimeInstant time) {
         this.agent = agent;

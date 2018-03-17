@@ -10,10 +10,7 @@ import desmoj.core.simulator.SimClock;
  */
 public class BestPriceOrderRouter implements OrderRouter {
 //    private MarketSimModel model;
-    private IOrder bestBid;
-    private IOrder bestOffer;
-    private IOrder primaryBestBid;
-    private IOrder primaryBestOffer;
+    private MultiMarketView multiMarketView;
     private Exchange primary; //Used when we don't yet have a best bid or offer
     private SimClock clock;
 
@@ -21,6 +18,7 @@ public class BestPriceOrderRouter implements OrderRouter {
 //        this.model = model;
         this.clock = clock;
         primary = exchange;
+        multiMarketView = new MultiMarketView();
     }
 
     /*
@@ -28,6 +26,12 @@ public class BestPriceOrderRouter implements OrderRouter {
      */
     @Override
     public Order routeOrder(TradingAgent agent, MessageType type, Direction direction, int price, int limit) {
+        //TODO: This still has an issue when an out of date bid from our primary exchange is sent to us from the SIP.
+        //We should always trust the individual market info more than the NBBO.
+        IOrder bestOffer = multiMarketView.getBestOffer();
+        IOrder bestBid = multiMarketView.getBestBid();
+        IOrder primaryBestOffer = multiMarketView.getBestOffer(primary);
+        IOrder primaryBestBid = multiMarketView.getBestBid(primary);
         Exchange e;
         if (direction == Direction.BUY) {
             if (lessThan(bestOffer, primaryBestOffer)) {
@@ -97,24 +101,6 @@ public class BestPriceOrderRouter implements OrderRouter {
 
     @Override
     public void respond(MarketUpdate update) {
-        IOrder bid = update.summary.getBestBuyOrder();
-        IOrder offer = update.summary.getBestSellOrder();
-
-        if (null == bestBid || null != bid &&
-                (bid.getPrice() > bestBid.getPrice() ||
-                        (bid.getExchange() == bestBid.getExchange() && bid != bestBid))) {
-            bestBid = bid;
-            if (null != bid && bid.getExchange() == primary) {
-                primaryBestBid = bid;
-            }
-        }
-        if (null == bestOffer || null != offer &&
-                (offer.getPrice() < bestOffer.getPrice() ||
-                        (offer.getExchange() == bestOffer.getExchange() && offer != bestOffer))) {
-            bestOffer = offer;
-            if (null != offer && offer.getExchange() == primary) {
-                primaryBestOffer = offer;
-            }
-        }
+        multiMarketView.add(update);
     }
 }

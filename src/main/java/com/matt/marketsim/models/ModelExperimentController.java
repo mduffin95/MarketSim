@@ -21,12 +21,13 @@ public class ModelExperimentController {
     static final double OFFSET_RANGE = 2000;
     static final double LAMBDA = 0.075;
     static final int simLength = 15000;
-    static final int ROUNDS = 5;
+    static final int ROUNDS = 10;
+    static final int MAX_DELTA = 1000;
 
     public static void runOnce(long seed) {
 
 
-        final String name = "results/results.csv";
+        final String name = "results/tmp/results.csv";
         final Path path = Paths.get(name);
 
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
@@ -58,7 +59,7 @@ public class ModelExperimentController {
      * runs the model
      */
     public static void main(String[] args) {
-        for (int i=0; i<=1000; i+= 100) {
+        for (int i=0; i<=MAX_DELTA; i+= 100) {
             DELTA = i;
             for (int j=0; j< ROUNDS; j++)
                 runOnce(j);

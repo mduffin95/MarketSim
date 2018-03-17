@@ -65,6 +65,7 @@ public class Arbitrageur extends TradingAgent {
             IOrder s = new Order(this, bestBid.getExchange(), Direction.SELL, midpoint, midpoint, clock.getTime());
             bestBid.getExchange().send(this, MessageType.LIMIT_ORDER, s);
             bestOffer.getExchange().send(this, MessageType.LIMIT_ORDER, b);
+            sendTraceNote("Arbitrage opportunity, bestBid = " + bestBid.getPrice() + ", bestOffer = " + bestOffer.getPrice() + ", midpoint = " + midpoint);
         }
     }
 

@@ -31,7 +31,6 @@ public abstract class MarketSimModel extends Model {
         this.timeUnit = timeUnit;
         initialAgents = new ArrayList<>();
         this.simLength = simLength;
-
     }
 
     //Agent arrival time.

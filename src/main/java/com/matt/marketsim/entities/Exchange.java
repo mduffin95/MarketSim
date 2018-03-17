@@ -68,7 +68,7 @@ public class Exchange extends NetworkEntity implements PriceProvider {
         if (newSummary.getBestBuyOrder() != original.getBestBuyOrder() ||
                 newSummary.getBestSellOrder() != original.getBestSellOrder() ||
                 newTrade != null) {
-            MarketUpdate update = new MarketUpdate(newTrade, newSummary);
+            MarketUpdate update = new MarketUpdate(this, newTrade, newSummary);
             MessageType msg;
 
             //The price quote has changed so this needs to be sent to all observers
@@ -135,4 +135,5 @@ public class Exchange extends NetworkEntity implements PriceProvider {
     public OrderBook getOrderBook() {
         return orderBook;
     }
-} /* end of model class */
+
+}

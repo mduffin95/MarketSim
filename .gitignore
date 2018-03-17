@@ -7,5 +7,5 @@ tasks.xml
 *.png
 
 target/
-results/
+results/tmp/
 
