@@ -29,18 +29,18 @@ public class ZIU extends TradingAgent {
     }
 
     @Override
-    protected void onOwnCompleted(MarketUpdate update) {
+    public void onOwnCompleted(MarketUpdate update) {
         super.onOwnCompleted(update);
         active = false;
     }
 
     @Override
-    protected void onCancelSuccess(Order order) {
+    public void onCancelSuccess(IOrder order) {
 
     }
 
     @Override
-    protected void onCancelFailure(Order order) {
+    public void onCancelFailure(IOrder order) {
 
     }
 }

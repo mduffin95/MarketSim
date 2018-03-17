@@ -2,8 +2,8 @@ package com.matt.marketsim;
 
 public class LOBSummary {
     public int depth;
-    public Order[] buyOrders;
-    public Order[] sellOrders;
+    public IOrder[] buyOrders;
+    public IOrder[] sellOrders;
 
     public LOBSummary(int depth) {
         this.depth = depth;
@@ -11,11 +11,11 @@ public class LOBSummary {
         sellOrders = new Order[depth];
     }
 
-    public Order getBestBuyOrder() {
+    public IOrder getBestBuyOrder() {
         return buyOrders[0];
     }
 
-    public Order getBestSellOrder() {
+    public IOrder getBestSellOrder() {
         return sellOrders[0];
     }
 }

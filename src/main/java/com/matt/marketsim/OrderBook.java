@@ -5,45 +5,45 @@ import java.util.Comparator;
 import java.util.PriorityQueue;
 
 public class OrderBook {
-    private PriorityQueue<Order> buyQueue;
-    private PriorityQueue<Order> sellQueue;
+    private PriorityQueue<IOrder> buyQueue;
+    private PriorityQueue<IOrder> sellQueue;
 
     public OrderBook() {
         buyQueue = new PriorityQueue<>(10, Comparator.reverseOrder());
         sellQueue = new PriorityQueue<>(10);
     }
 
-    public boolean remove(Order order) {
+    public boolean remove(IOrder order) {
         if (order == null) {return false;}
         boolean b = buyQueue.remove(order);
         boolean s = sellQueue.remove(order);
         return (b || s);
     }
 
-    public void add(Order order) {
+    public void add(IOrder order) {
         if (order == null) {
             return;
         }
-        if (order.direction == Direction.BUY) {
+        if (order.getDirection() == Direction.BUY) {
             buyQueue.add(order);
         } else {
             sellQueue.add(order);
         }
     }
 
-    public Order getBestBuyOrder() {
+    public IOrder getBestBuyOrder() {
         return buyQueue.peek();
     }
 
-    public Order getBestSellOrder() {
+    public IOrder getBestSellOrder() {
         return sellQueue.peek();
     }
 
-    public Order pollBestBuyOrder() {
+    public IOrder pollBestBuyOrder() {
         return buyQueue.poll();
     }
 
-    public Order pollBestSellOrder() {
+    public IOrder pollBestSellOrder() {
         return sellQueue.poll();
     }
 
@@ -54,8 +54,8 @@ public class OrderBook {
 
     //TODO: Make this more efficient
     public LOBSummary getSummary(int depth) {
-        Order[] buyArray = buyQueue.toArray(new Order[buyQueue.size()]);
-        Order[] sellArray = sellQueue.toArray(new Order[sellQueue.size()]);
+        IOrder[] buyArray = buyQueue.toArray(new Order[buyQueue.size()]);
+        IOrder[] sellArray = sellQueue.toArray(new Order[sellQueue.size()]);
 
         Arrays.sort(buyArray, Comparator.reverseOrder());
         Arrays.sort(sellArray);

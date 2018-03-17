@@ -30,11 +30,11 @@ public abstract class TradingAgent extends NetworkEntity {
 
 
     @Override
-    protected void onOwnCompleted(MarketUpdate update) {
+    public void onOwnCompleted(MarketUpdate update) {
         router.respond(update);
     }
     @Override
-    protected void onMarketUpdate(MarketUpdate update) {
+    public void onMarketUpdate(MarketUpdate update) {
         router.respond(update);
     }
 
@@ -42,9 +42,9 @@ public abstract class TradingAgent extends NetworkEntity {
      * These methods aren't necessary for trading agents.
      */
     @Override
-    protected void onLimitOrder(Order order) {}
+    public void onLimitOrder(IOrder order) {}
     @Override
-    protected void onMarketOrder(Order order) {}
+    public void onMarketOrder(IOrder order) {}
     @Override
-    protected void onCancelOrder(Order order) {}
+    public void onCancelOrder(IOrder order) {}
 }

@@ -10,10 +10,10 @@ import desmoj.core.simulator.SimClock;
  */
 public class BestPriceOrderRouter implements OrderRouter {
 //    private MarketSimModel model;
-    private Order bestBid;
-    private Order bestOffer;
-    private Order primaryBestBid;
-    private Order primaryBestOffer;
+    private IOrder bestBid;
+    private IOrder bestOffer;
+    private IOrder primaryBestBid;
+    private IOrder primaryBestOffer;
     private Exchange primary; //Used when we don't yet have a best bid or offer
     private SimClock clock;
 
@@ -64,7 +64,7 @@ public class BestPriceOrderRouter implements OrderRouter {
         return newOrder;
     }
 
-    private boolean greaterThan(Order a, Order b) {
+    private boolean greaterThan(IOrder a, IOrder b) {
         if (null != a && null == b) {
             return true;
         }
@@ -74,7 +74,7 @@ public class BestPriceOrderRouter implements OrderRouter {
         return a.getPrice() > b.getPrice();
     }
 
-    private boolean lessThan(Order a, Order b) {
+    private boolean lessThan(IOrder a, IOrder b) {
         if (null == a && null != b) {
             return true;
         }
@@ -97,8 +97,8 @@ public class BestPriceOrderRouter implements OrderRouter {
 
     @Override
     public void respond(MarketUpdate update) {
-        Order bid = update.summary.getBestBuyOrder();
-        Order offer = update.summary.getBestSellOrder();
+        IOrder bid = update.summary.getBestBuyOrder();
+        IOrder offer = update.summary.getBestSellOrder();
 
         if (null == bestBid || null != bid &&
                 (bid.getPrice() > bestBid.getPrice() ||

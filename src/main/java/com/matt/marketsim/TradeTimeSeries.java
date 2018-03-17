@@ -17,8 +17,8 @@ public class TradeTimeSeries extends TimeSeries {
     public void update(Observable o, Object arg) {
         if (arg instanceof Trade) {
             Trade trade = (Trade) arg;
-            if (group.contains(trade.buyer) || group.contains(trade.seller)) {
-                super.update(o, ((Trade) arg).price);
+            if (group.contains(trade.getBuyer()) || group.contains(trade.getSeller())) {
+                super.update(o, ((Trade) arg).getPrice());
             }
         }
     }

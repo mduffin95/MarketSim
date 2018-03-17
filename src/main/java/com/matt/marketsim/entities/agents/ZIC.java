@@ -10,7 +10,7 @@ import desmoj.core.simulator.Model;
 
 public class ZIC extends TradingAgent {
     private Direction direction;
-    private Order currentOrder;
+    private IOrder currentOrder;
     private VariableLimit limit;
     private ContDist offsetRange;
 
@@ -61,34 +61,34 @@ public class ZIC extends TradingAgent {
     }
 
     @Override
-    protected void onLimitOrder(Order order) {
+    public void onLimitOrder(IOrder order) {
 
     }
 
     @Override
-    protected void onMarketOrder(Order order) {
+    public void onMarketOrder(IOrder order) {
 
     }
 
     @Override
-    protected void onOwnCompleted(MarketUpdate update) {
+    public void onOwnCompleted(MarketUpdate update) {
         super.onOwnCompleted(update);
         this.active = false;
     }
 
     @Override
-    protected void onCancelOrder(Order order) {
+    public void onCancelOrder(IOrder order) {
 
     }
 
     @Override
-    protected void onCancelSuccess(Order order) {
+    public void onCancelSuccess(IOrder order) {
         assert currentOrder == order;
         placeOrder();
     }
 
     @Override
-    protected void onCancelFailure(Order order) {
+    public void onCancelFailure(IOrder order) {
 
     }
 }

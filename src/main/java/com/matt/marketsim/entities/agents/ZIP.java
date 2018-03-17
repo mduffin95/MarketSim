@@ -17,7 +17,7 @@ public class ZIP extends TradingAgent {
 //    private double learning_rate;
     private LOBSummary currentSummary;
 
-    private Order previousOrder = null;
+    private IOrder previousOrder = null;
     private int limit;
     private Random generator;
 
@@ -49,24 +49,24 @@ public class ZIP extends TradingAgent {
     }
 
     @Override
-    protected void onOwnCompleted(MarketUpdate update) {
+    public void onOwnCompleted(MarketUpdate update) {
         active = false;
         onMarketUpdate(update);
     }
 
     @Override
-    protected void onCancelOrder(Order order) {
+    public void onCancelOrder(IOrder order) {
 
     }
 
     @Override
-    public void onCancelSuccess(Order order) {
+    public void onCancelSuccess(IOrder order) {
         assert previousOrder == order;
         placeOrder();
     }
 
     @Override
-    protected void onCancelFailure(Order order) {
+    public void onCancelFailure(IOrder order) {
 
     }
 
@@ -75,7 +75,7 @@ public class ZIP extends TradingAgent {
     }
 
     @Override
-    protected void onMarketUpdate(MarketUpdate update) {
+    public void onMarketUpdate(MarketUpdate update) {
         super.onMarketUpdate(update);
         //TODO: Make sure it only responds to price changes once (not duplicates from SIP).
         Trade trade = update.trade;
@@ -85,15 +85,15 @@ public class ZIP extends TradingAgent {
         Direction lastOrderDirection = null;
         int price;
 
-        Order currentBestBuy = (null == currentSummary) ? null : currentSummary.getBestBuyOrder();
-        Order currentBestSell = (null == currentSummary) ? null : currentSummary.getBestSellOrder();
+        IOrder currentBestBuy = (null == currentSummary) ? null : currentSummary.getBestBuyOrder();
+        IOrder currentBestSell = (null == currentSummary) ? null : currentSummary.getBestSellOrder();
 
         if (currentBestBuy != summary.getBestBuyOrder()) {
             //Either new buy order or trade occurred that cleared with the buy order
             if (deal) {
                 //Most recent order was a sell order
                 lastOrderDirection = Direction.SELL;
-                price = trade.price;
+                price = trade.getPrice();
             } else {
                 //Most recent order was a buy order
                 lastOrderDirection = Direction.BUY;
@@ -104,7 +104,7 @@ public class ZIP extends TradingAgent {
             if (deal) {
                 //Most recent order was a buy order
                 lastOrderDirection = Direction.BUY;
-                price = trade.price;
+                price = trade.getPrice();
             } else {
                 //Most recent order was a sell order
                 lastOrderDirection = Direction.SELL;
@@ -121,7 +121,7 @@ public class ZIP extends TradingAgent {
         if (direction == Direction.SELL) {
             if (deal)  {
                 //com.matt.marketsim.Trade has occurred.
-                if (getPrice() <= trade.price) {
+                if (getPrice() <= trade.getPrice()) {
                     //increase profit margin
                     target = target_up(price);
                     updateMargin(target);
@@ -139,7 +139,7 @@ public class ZIP extends TradingAgent {
         } else {
             if (deal) {
                 //com.matt.marketsim.Trade has occurred.
-                if (getPrice() >= trade.price) {
+                if (getPrice() >= trade.getPrice()) {
                     //increase profit margin (lower bid price)
                     target = target_down(price);
                     updateMargin(target);

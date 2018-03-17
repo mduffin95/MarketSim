@@ -16,15 +16,15 @@ public class SecuritiesInformationProcessor extends NetworkEntity implements Pri
 
     private Map<Exchange, LOBSummary> summaryMap;
 
-    private Order bestBid;
-    private Order bestOffer;
+    private IOrder bestBid;
+    private IOrder bestOffer;
     private TimeSpan delta;
 
     private List<NetworkEntity> observers;
 
-//    public SecuritiesInformationProcessor(Model model, String name, boolean showInTrace) {
-//        this(model, name, showInTrace, new TimeSpan(0));
-//    }
+    public SecuritiesInformationProcessor(Model model, String name, boolean showInTrace) {
+        this(model, name, showInTrace, new TimeSpan(0));
+    }
 
     public SecuritiesInformationProcessor(Model model, String name, boolean showInTrace, TimeSpan delta) {
         super(model, name, showInTrace);
@@ -34,28 +34,28 @@ public class SecuritiesInformationProcessor extends NetworkEntity implements Pri
     }
 
     @Override
-    protected void onLimitOrder(Order order) {
+    public void onLimitOrder(IOrder order) {
 
     }
 
     @Override
-    protected void onMarketOrder(Order order) {
+    public void onMarketOrder(IOrder order) {
 
     }
 
     @Override
-    protected void onOwnCompleted(MarketUpdate update) {
+    public void onOwnCompleted(MarketUpdate update) {
 
     }
 
     @Override
-    protected void onMarketUpdate(MarketUpdate update) {
+    public void onMarketUpdate(MarketUpdate update) {
         LOBSummary summary = update.summary;
 //        sendTraceNote("SIP quote: BUY = " + quote.getBestBuyOrder().price + ", SELL = " + quote.getBestSellOrder().price);
 
         //TODO: Need to have access to the exchange in a better way than this.
         Exchange e;
-        Order o = summary.getBestBuyOrder();
+        IOrder o = summary.getBestBuyOrder();
         e = null != o ? o.getExchange() : null;
         o = summary.getBestSellOrder();
         if (null == e && null != o) {
@@ -63,14 +63,14 @@ public class SecuritiesInformationProcessor extends NetworkEntity implements Pri
         }
 
         summaryMap.put(e, summary);
-        Order oldBestBid = bestBid;
-        Order oldBestOffer = bestOffer;
+        IOrder oldBestBid = bestBid;
+        IOrder oldBestOffer = bestOffer;
         bestBid = null;
         bestOffer = null;
 
         for (Map.Entry<Exchange, LOBSummary> entry : summaryMap.entrySet()) {
-            Order bid = entry.getValue().getBestBuyOrder();
-            Order offer = entry.getValue().getBestSellOrder();
+            IOrder bid = entry.getValue().getBestBuyOrder();
+            IOrder offer = entry.getValue().getBestSellOrder();
             if (null == bestBid || bid != null && bid.getPrice() > bestBid.getPrice()) {
                 bestBid = bid;
             }
@@ -84,17 +84,17 @@ public class SecuritiesInformationProcessor extends NetworkEntity implements Pri
     }
 
     @Override
-    protected void onCancelOrder(Order order) {
+    public void onCancelOrder(IOrder order) {
 
     }
 
     @Override
-    protected void onCancelSuccess(Order order) {
+    public void onCancelSuccess(IOrder order) {
 
     }
 
     @Override
-    protected void onCancelFailure(Order order) {
+    public void onCancelFailure(IOrder order) {
 
     }
 

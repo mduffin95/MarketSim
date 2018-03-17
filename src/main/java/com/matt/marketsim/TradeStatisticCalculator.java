@@ -41,19 +41,19 @@ public class TradeStatisticCalculator extends StatisticObject {
         if (arg instanceof Trade) {
             TimeInstant currentTime = clock.getTime();
             Trade trade = (Trade) arg;
-            if (group.contains(trade.buyer)) {
+            if (group.contains(trade.getBuyer())) {
                 count++;
-                TimeSpan t = TimeOperations.diff(currentTime, trade.buyOrder.getTimeStamp());
+                TimeSpan t = TimeOperations.diff(currentTime, trade.getBuyOrder().getTimeStamp());
                 double coeff = Math.exp(-1 * discountRate * t.getTimeAsDouble(timeUnit));
-                totalUtility += coeff * (trade.buyOrder.getLimit() - trade.price);
+                totalUtility += coeff * (trade.getBuyOrder().getLimit() - trade.getPrice());
 //                if (equilibriumSet)
 //                    sumOfSquares += Math.pow(trade.price - equilibrium, 2);
             }
-            if (group.contains(trade.seller)) {
+            if (group.contains(trade.getSeller())) {
                 count++;
                 TimeSpan t = TimeOperations.diff(currentTime, trade.sellOrder.getTimeStamp());
                 double coeff = Math.exp(-1 * discountRate * t.getTimeAsDouble(timeUnit));
-                totalUtility += coeff * (trade.price - trade.sellOrder.getLimit());
+                totalUtility += coeff * (trade.getPrice() - trade.sellOrder.getLimit());
 //                if (equilibriumSet)
 //                    sumOfSquares += Math.pow(trade.price - equilibrium, 2);
             }

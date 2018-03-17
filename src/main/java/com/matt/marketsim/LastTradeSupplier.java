@@ -19,7 +19,7 @@ public class LastTradeSupplier extends ValueSupplier {
     @Override
     public double value() {
         if (lastTrade != null)
-            return (double) lastTrade.price;
+            return (double) lastTrade.getPrice();
         return 0;
     }
 }

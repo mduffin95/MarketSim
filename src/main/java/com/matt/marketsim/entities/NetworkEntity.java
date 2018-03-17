@@ -14,7 +14,7 @@ public abstract class NetworkEntity extends Entity {
     }
 
     //Used to handle incoming packets
-    public void handlePacket(Packet packet) {
+    public void handlePacket(IPacket packet) {
         switch (packet.getType()) {
             case LIMIT_ORDER:
                 onLimitOrder((Order) packet.getPayload());
@@ -44,7 +44,7 @@ public abstract class NetworkEntity extends Entity {
     }
 
     boolean isMyTrade(Trade trade) {
-        return null != trade && (this == trade.buyer || this == trade.seller);
+        return null != trade && (this == trade.getBuyer() || this == trade.getSeller());
     }
 
     //Send a payload to this NetworkEntity from the source NetworkEntity
@@ -60,11 +60,11 @@ public abstract class NetworkEntity extends Entity {
         sendEvent.schedule(packet, delay);
     }
 
-    protected abstract void onLimitOrder(Order order);
-    protected abstract void onMarketOrder(Order order);
-    protected abstract void onOwnCompleted(MarketUpdate update);
-    protected abstract void onMarketUpdate(MarketUpdate update);
-    protected abstract void onCancelOrder(Order order);
-    protected abstract void onCancelSuccess(Order order);
-    protected abstract void onCancelFailure(Order order);
+    public abstract void onLimitOrder(IOrder order);
+    public abstract void onMarketOrder(IOrder order);
+    public abstract void onOwnCompleted(MarketUpdate update);
+    public abstract void onMarketUpdate(MarketUpdate update);
+    public abstract void onCancelOrder(IOrder order);
+    public abstract void onCancelSuccess(IOrder order);
+    public abstract void onCancelFailure(IOrder order);
 }

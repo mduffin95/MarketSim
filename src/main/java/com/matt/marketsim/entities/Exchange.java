@@ -32,21 +32,21 @@ public class Exchange extends NetworkEntity implements PriceProvider {
     }
 
     @Override
-    protected void onLimitOrder(Order order) {
+    public void onLimitOrder(IOrder order) {
         String note = "Handling order: " + order.toString();
         sendTraceNote(note);
 
         LOBSummary original = orderBook.getSummary(1);
         orderBook.add(order);
 
-        Order b = orderBook.getBestBuyOrder();
-        Order s = orderBook.getBestSellOrder();
+        IOrder b = orderBook.getBestBuyOrder();
+        IOrder s = orderBook.getBestSellOrder();
 
         Trade newTrade = null;
 
         if (null != b && null != s && b.getPrice() >= s.getPrice()) {
             int price;
-            if (order.direction == Direction.BUY) {
+            if (order.getDirection() == Direction.BUY) {
                 price = s.getPrice();
             } else {
                 price = b.getPrice();
@@ -57,7 +57,7 @@ public class Exchange extends NetworkEntity implements PriceProvider {
             //Update utility and record on time series
 //            marketSimModel.recordTrade(newTrade);
             lastTradeSupplier.notifyStatistics(newTrade);
-            sendTraceNote("Trade at " + newTrade.price);
+            sendTraceNote("Trade at " + newTrade.getPrice());
 
             //Remove from the order book
             orderBook.pollBestBuyOrder();
@@ -82,40 +82,40 @@ public class Exchange extends NetworkEntity implements PriceProvider {
     }
 
     @Override
-    protected void onMarketOrder(Order order) {
+    public void onMarketOrder(IOrder order) {
 
     }
 
     @Override
-    protected void onOwnCompleted(MarketUpdate update) {
+    public void onOwnCompleted(MarketUpdate update) {
 
     }
 
     @Override
-    protected void onMarketUpdate(MarketUpdate update) {
+    public void onMarketUpdate(MarketUpdate update) {
 
     }
 
     @Override
-    protected void onCancelOrder(Order order) {
+    public void onCancelOrder(IOrder order) {
         if (null != order) {
             sendTraceNote("Cancelling order: " + order.toString());
             boolean success = orderBook.remove(order);
             if (success) {
-                order.agent.send(this, MessageType.CANCEL_SUCCESS, order);
+                order.getAgent().send(this, MessageType.CANCEL_SUCCESS, order);
             } else {
-                order.agent.send(this, MessageType.CANCEL_FAILURE, order);
+                order.getAgent().send(this, MessageType.CANCEL_FAILURE, order);
             }
         }
     }
 
     @Override
-    protected void onCancelSuccess(Order order) {
+    public void onCancelSuccess(IOrder order) {
 
     }
 
     @Override
-    protected void onCancelFailure(Order order) {
+    public void onCancelFailure(IOrder order) {
 
     }
 

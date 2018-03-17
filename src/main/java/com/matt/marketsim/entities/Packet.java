@@ -5,7 +5,7 @@ import com.matt.marketsim.models.MarketSimModel;
 import desmoj.core.simulator.*;
 import com.matt.marketsim.events.PacketArrivalEvent;
 
-public class Packet extends Entity {
+public class Packet extends Entity implements IPacket {
     private NetworkEntity source;
     private NetworkEntity dest;
 
@@ -31,6 +31,7 @@ public class Packet extends Entity {
         this(model, "Packet", false, source, dest, type, payload);
     }
 
+    @Override
     public void scheduleArrival() {
         TimeSpan latency = marketSimModel.getLatency(source, dest);
 
@@ -47,14 +48,17 @@ public class Packet extends Entity {
         return source;
     }
 
+    @Override
     public MessageType getType() {
         return type;
     }
 
+    @Override
     public Object getPayload() {
         return payload;
     }
 
+    @Override
     public void arrived() {
         dest.handlePacket(this);
     }

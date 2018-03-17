@@ -31,3 +31,6 @@ meant arbitrageur could still profit even when internal SIP delta was zero.
 
 Can't work out how the Wellman paper decides which primary market a trader gets. It says an 'equal proportion' but does that mean split exactly in half
 or are they assigned with 0.5 probability?
+
+### Week 6 - March 15th - March 21st
+Added a better method for producing graphs after repeated simulation runs. Using a python script and matplotlib to produce the graphs.
