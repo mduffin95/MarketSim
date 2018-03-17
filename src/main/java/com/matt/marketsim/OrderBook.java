@@ -54,8 +54,8 @@ public class OrderBook {
 
     //TODO: Make this more efficient
     public LOBSummary getSummary(int depth) {
-        IOrder[] buyArray = buyQueue.toArray(new Order[buyQueue.size()]);
-        IOrder[] sellArray = sellQueue.toArray(new Order[sellQueue.size()]);
+        IOrder[] buyArray = buyQueue.toArray(new IOrder[buyQueue.size()]);
+        IOrder[] sellArray = sellQueue.toArray(new IOrder[sellQueue.size()]);
 
         Arrays.sort(buyArray, Comparator.reverseOrder());
         Arrays.sort(sellArray);

@@ -7,8 +7,8 @@ public class LOBSummary {
 
     public LOBSummary(int depth) {
         this.depth = depth;
-        buyOrders = new Order[depth];
-        sellOrders = new Order[depth];
+        buyOrders = new IOrder[depth];
+        sellOrders = new IOrder[depth];
     }
 
     public IOrder getBestBuyOrder() {

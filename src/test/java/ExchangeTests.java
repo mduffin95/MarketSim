@@ -3,6 +3,7 @@ import com.matt.marketsim.builders.NetworkBuilder;
 import com.matt.marketsim.entities.*;
 import com.matt.marketsim.entities.agents.TradingAgent;
 import com.matt.marketsim.entities.agents.ZIP;
+import com.matt.marketsim.models.TwoMarketModel;
 import desmoj.core.simulator.Experiment;
 import desmoj.core.simulator.SimClock;
 import desmoj.core.simulator.TimeInstant;
@@ -14,6 +15,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -30,40 +32,15 @@ public class ExchangeTests {
     SimClock clock;
     Random generator;
 
-//    class DummyModel extends MarketSimModel {
-//
-//        public DummyModel(NetworkBuilder builder) {
-//            super(builder);
-//        }
-//
-//        @Override
-//        public TimeSpan getLatency(NetworkEntity a, NetworkEntity b) {
-//            return new TimeSpan(0);
-//        }
-//    }
+    int buyLimit = 50;
+    int buyPrice = 45;
+    int sellLimit = 30;
+    int sellPrice = 35;
 
-//    class DummyPacket implements IPacket {
-//
-//        @Override
-//        public void arrived() {
-//
-//        }
-//
-//        @Override
-//        public MessageType getType() {
-//            return null;
-//        }
-//
-//        @Override
-//        public Object getPayload() {
-//            return null;
-//        }
-//
-//        @Override
-//        public void scheduleArrival() {
-//
-//        }
-//    }
+    ZIP agent1;
+    ZIP agent2;
+    Order buyOrder;
+    Order sellOrder;
 
     class DummyOrder implements IOrder {
         int price;
@@ -114,16 +91,21 @@ public class ExchangeTests {
 
     @BeforeEach
     void init() {
-//        NetworkBuilder builder = new DummyBuilder();
-//        model = new DummyModel();
-//        exp = new Experiment("Exp1");
-//        model.connectToExperiment(exp);
+        model = new TwoMarketModel(TimeUnit.MILLISECONDS, 15000, 0,0,0,0,0,0,0,0);
+        exp = new Experiment("Exp1");
+        model.connectToExperiment(exp);
 
 //        sip = new SecuritiesInformationProcessor(null, "TestSIP", false);
-        exchange = new Exchange(null, "TestExchange", sip, false);
+        exchange = new Exchange(model, "TestExchange", sip, false);
         clock = exp.getSimClock();
         generator = new Random();
-        model = null;
+
+
+
+        agent1 = new ZIP(model, buyLimit, new FixedOrderRouter(clock, exchange), Direction.BUY, generator, false);
+        agent2 = new ZIP(model, sellLimit, new FixedOrderRouter(clock, exchange), Direction.SELL, generator, false);
+        buyOrder = new Order(agent1, exchange, agent1.direction, buyPrice, buyLimit, clock.getTime());
+        sellOrder = new Order(agent2, exchange, agent2.direction, sellPrice, sellLimit, clock.getTime());
     }
 
     @Test
@@ -141,14 +123,9 @@ public class ExchangeTests {
 
     @Test
     void cancelOrderTest() {
-        //When an order is cancelled it should be removed from the order book
-        ZIP agent1 = new ZIP(model, 50, new FixedOrderRouter(clock, exchange), Direction.BUY, generator, false);
-        Order orderBuy = new Order(agent1, exchange, agent1.direction, 40, 50, clock.getTime());
-        Packet packet1 = new Packet(model, "TestPacket", false, null, null, MessageType.LIMIT_ORDER, orderBuy);
-        exchange.handlePacket(packet1);
+        exchange.onLimitOrder(buyOrder);
 
-        Packet cancelPacket = new Packet(model, "TestPacket", false, null, null, MessageType.CANCEL, orderBuy);
-        exchange.handlePacket(cancelPacket);
+        exchange.onCancelOrder(buyOrder);
 
         assertNull(exchange.getOrderBook().getBestBuyOrder());
     }
@@ -158,17 +135,8 @@ public class ExchangeTests {
         //When an order arrives that matches with an order in the order book the trade should take place. Also tests
         //that the trade takes place at the price of the order sitting on the order book.
 
-        int buyLimit = 50;
-        int buyPrice = 45;
-        int sellLimit = 30;
-        int sellPrice = 35;
-
-        ZIP agent1 = new ZIP(model, buyLimit, new FixedOrderRouter(clock, exchange), Direction.BUY, generator, false);
-        ZIP agent2 = new ZIP(model, sellLimit, new FixedOrderRouter(clock, exchange), Direction.SELL, generator, false);
-        Order orderBuy = new Order(agent1, exchange, agent1.direction, buyPrice, buyLimit, clock.getTime());
-        Order orderSell = new Order(agent2, exchange, agent2.direction, sellPrice, sellLimit, clock.getTime());
-        Packet packetBuy = new Packet(model, null, null, MessageType.LIMIT_ORDER, orderBuy);
-        Packet packetSell = new Packet(model, null, null, MessageType.LIMIT_ORDER, orderSell);
+        Packet packetBuy = new Packet(model, null, null, MessageType.LIMIT_ORDER, buyOrder);
+        Packet packetSell = new Packet(model, null, null, MessageType.LIMIT_ORDER, sellOrder);
         exchange.handlePacket(packetBuy);
         exchange.handlePacket(packetSell);
 
@@ -190,21 +158,13 @@ public class ExchangeTests {
     void cancelOrderTooLateTest() {
         //If a cancel order arrives after the order that it is supposed to cancel is matched.
         //What happens if another limit order is sent behind the cancel?
-        int buyLimit = 50;
-        int buyPrice = 45;
-        int sellLimit = 30;
-        int sellPrice = 35;
 
-        ZIP agent1 = new ZIP(model, buyLimit, new FixedOrderRouter(clock, exchange), Direction.BUY, generator, false);
-        ZIP agent2 = new ZIP(model, sellLimit, new FixedOrderRouter(clock, exchange), Direction.SELL, generator, false);
-        Order orderBuy = new Order(agent1, exchange, agent1.direction, buyPrice, buyLimit, clock.getTime());
-        Order orderSell = new Order(agent2, exchange, agent2.direction, sellPrice, sellLimit, clock.getTime());
-        Packet packetBuy = new Packet(model, null, null, MessageType.LIMIT_ORDER, orderBuy);
-        Packet packetSell = new Packet(model, null, null, MessageType.LIMIT_ORDER, orderSell);
+        Packet packetBuy = new Packet(model, null, null, MessageType.LIMIT_ORDER, buyOrder);
+        Packet packetSell = new Packet(model, null, null, MessageType.LIMIT_ORDER, sellOrder);
         exchange.handlePacket(packetBuy);
         exchange.handlePacket(packetSell);
 
-        Packet packetCancel = new Packet(model, null, null, MessageType.CANCEL, orderSell);
+        Packet packetCancel = new Packet(model, null, null, MessageType.CANCEL, sellOrder);
         exchange.handlePacket(packetCancel);
     }
 }

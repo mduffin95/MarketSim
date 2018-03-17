@@ -123,7 +123,8 @@ public class Exchange extends NetworkEntity implements PriceProvider {
      * Register a network entity to this exchange. This means the network entity will be sent price updates.
      */
     public void registerPriceObserver(NetworkEntity networkEntity) {
-        observers.add(networkEntity);
+        if (null != networkEntity)
+            observers.add(networkEntity);
     }
 
 
