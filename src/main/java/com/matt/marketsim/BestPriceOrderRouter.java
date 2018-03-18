@@ -65,7 +65,7 @@ public class BestPriceOrderRouter implements OrderRouter {
             }
         }
 
-        Order newOrder = new Order(agent, e, direction, price, limit, clock.getTime());
+        Order newOrder = new Order(agent, e, direction, price, limit);
         e.send(agent, type, newOrder);
         return newOrder;
     }

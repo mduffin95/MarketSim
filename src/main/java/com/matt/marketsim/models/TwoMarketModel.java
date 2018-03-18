@@ -1,6 +1,7 @@
 package com.matt.marketsim.models;
 
 import com.matt.marketsim.*;
+import com.matt.marketsim.dtos.ResultDto;
 import com.matt.marketsim.entities.Exchange;
 import com.matt.marketsim.entities.NetworkEntity;
 import com.matt.marketsim.entities.SecuritiesInformationProcessor;
@@ -14,14 +15,12 @@ import desmoj.core.simulator.TimeInstant;
 import desmoj.core.simulator.TimeSpan;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleWeightedGraph;
-import sun.security.x509.DeltaCRLIndicatorExtension;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 public class TwoMarketModel extends MarketSimModel {
 
@@ -265,4 +264,13 @@ public class TwoMarketModel extends MarketSimModel {
         }
     }
 
+    @Override
+    public ResultDto getResults() {
+        ResultDto result = new ResultDto();
+        result.delta = DELTA;
+        for (TradeStatisticCalculator c: statsObjects) {
+            result.tradeStatisticDtos.add(c.getResults());
+        }
+        return result;
+    }
 }

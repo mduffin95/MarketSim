@@ -14,7 +14,7 @@ public abstract class NetworkEntity extends Entity {
     }
 
     //Used to handle incoming packets
-    public void handlePacket(IPacket packet) {
+    public void handlePacket(Packet packet) {
         switch (packet.getType()) {
             case LIMIT_ORDER:
                 onLimitOrder((Order) packet.getPayload());

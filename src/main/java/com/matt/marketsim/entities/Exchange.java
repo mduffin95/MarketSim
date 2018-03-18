@@ -20,6 +20,8 @@ public class Exchange extends NetworkEntity implements PriceProvider {
     //For testing purposes
     public Trade recentTrade;
 
+    private SimClock clock;
+
     public Exchange(Model model, String name, SecuritiesInformationProcessor sip, boolean showInTrace) {
         super(model, name, showInTrace);
         observers = new ArrayList<>();
@@ -27,10 +29,13 @@ public class Exchange extends NetworkEntity implements PriceProvider {
 
         registerPriceObserver(sip);
         lastTradeSupplier = new LastTradeSupplier("LastTradeSupplier");
+        clock = model.getExperiment().getSimClock();
     }
 
     @Override
     public void onLimitOrder(Order order) {
+        order.setArrivalTime(clock.getTime());
+
         String note = "Handling order: " + order.toString();
         sendTraceNote(note);
 
@@ -49,7 +54,7 @@ public class Exchange extends NetworkEntity implements PriceProvider {
             } else {
                 price = b.getPrice();
             }
-            TimeInstant currentTime = marketSimModel.getExperiment().getSimClock().getTime();
+            TimeInstant currentTime = marketSimModel.getExperiment().getSimClock().getTime(); //Trade time
             newTrade = new Trade(currentTime, price, 1, b, s);
 
             //Update utility and record on time series

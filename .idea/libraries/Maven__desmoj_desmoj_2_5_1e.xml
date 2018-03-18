@@ -7,7 +7,7 @@
       <root url="jar://$MAVEN_REPOSITORY$/desmoj/desmoj/2.5.1e/desmoj-2.5.1e-javadoc.jar!/" />
     </JAVADOC>
     <SOURCES>
-      <root url="jar://$PROJECT_DIR$/repo/desmoj/desmoj/2.5.1e/desmoj-2.5.1e-src.zip!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/desmoj/desmoj/2.5.1e/desmoj-2.5.1e-sources.jar!/" />
     </SOURCES>
   </library>
 </component>

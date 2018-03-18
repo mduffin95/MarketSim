@@ -58,8 +58,8 @@ public class SIPTests {
 
         agent1 = new ZIP(model, buyLimit, new FixedOrderRouter(clock, exchange1), Direction.BUY, generator, false);
         agent2 = new ZIP(model, sellLimit, new FixedOrderRouter(clock, exchange1), Direction.SELL, generator, false);
-        buyOrder = new Order(agent1, exchange1, agent1.direction, buyPrice, buyLimit, clock.getTime());
-        sellOrder = new Order(agent2, exchange1, agent2.direction, sellPrice, sellLimit, clock.getTime());
+        buyOrder = new Order(agent1, exchange1, agent1.direction, buyPrice, buyLimit);
+        sellOrder = new Order(agent2, exchange1, agent2.direction, sellPrice, sellLimit);
     }
 
     @Test
@@ -90,9 +90,9 @@ public class SIPTests {
      */
     @Test
     void newTransactionChangesBestBidExchange() {
-        Order buyOrder1 = new Order(agent1, exchange1, agent1.direction, 100, 100, clock.getTime());
-        Order buyOrder2 = new Order(agent1, exchange2, agent1.direction, 95, 100, clock.getTime());
-        Order buyOrder3 = new Order(agent2, exchange1, agent1.direction, 90, 100, clock.getTime());
+        Order buyOrder1 = new Order(agent1, exchange1, agent1.direction, 100, 100);
+        Order buyOrder2 = new Order(agent1, exchange2, agent1.direction, 95, 100);
+        Order buyOrder3 = new Order(agent2, exchange1, agent1.direction, 90, 100);
         LOBSummary lobSummary1 = new LOBSummary(1);
         LOBSummary lobSummary2 = new LOBSummary(1);
         LOBSummary lobSummary3 = new LOBSummary(1);
@@ -111,9 +111,9 @@ public class SIPTests {
 
     @Test
     void betterBidArrivesAtExchange1() {
-        Order buyOrder1 = new Order(agent1, exchange1, agent1.direction, 95, 100, clock.getTime());
-        Order buyOrder2 = new Order(agent1, exchange2, agent1.direction, 90, 100, clock.getTime());
-        Order buyOrder3 = new Order(agent2, exchange1, agent1.direction, 100, 100, clock.getTime());
+        Order buyOrder1 = new Order(agent1, exchange1, agent1.direction, 95, 100);
+        Order buyOrder2 = new Order(agent1, exchange2, agent1.direction, 90, 100);
+        Order buyOrder3 = new Order(agent2, exchange1, agent1.direction, 100, 100);
         LOBSummary lobSummary1 = new LOBSummary(1);
         LOBSummary lobSummary2 = new LOBSummary(1);
         LOBSummary lobSummary3 = new LOBSummary(1);
@@ -132,9 +132,9 @@ public class SIPTests {
 
     @Test
     void bestBidDecreases() {
-        Order buyOrder1 = new Order(agent1, exchange1, agent1.direction, 100, 100, clock.getTime());
-        Order buyOrder2 = new Order(agent1, exchange2, agent1.direction, 90, 100, clock.getTime());
-        Order buyOrder3 = new Order(agent2, exchange1, agent1.direction, 95, 100, clock.getTime());
+        Order buyOrder1 = new Order(agent1, exchange1, agent1.direction, 100, 100);
+        Order buyOrder2 = new Order(agent1, exchange2, agent1.direction, 90, 100);
+        Order buyOrder3 = new Order(agent2, exchange1, agent1.direction, 95, 100);
         LOBSummary lobSummary1 = new LOBSummary(1);
         LOBSummary lobSummary2 = new LOBSummary(1);
         LOBSummary lobSummary3 = new LOBSummary(1);

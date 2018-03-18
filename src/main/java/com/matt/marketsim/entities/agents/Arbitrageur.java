@@ -61,8 +61,8 @@ public class Arbitrageur extends TradingAgent {
 
         if(checkArbitrage()) {
             int midpoint = (int)Math.floor((bestBid.getPrice() + bestOffer.getPrice()) / 2.0);
-            Order b = new Order(this, bestOffer.getExchange(), Direction.BUY, midpoint, midpoint, clock.getTime());
-            Order s = new Order(this, bestBid.getExchange(), Direction.SELL, midpoint, midpoint, clock.getTime());
+            Order b = new Order(this, bestOffer.getExchange(), Direction.BUY, midpoint, midpoint);
+            Order s = new Order(this, bestBid.getExchange(), Direction.SELL, midpoint, midpoint);
             bestBid.getExchange().send(this, MessageType.LIMIT_ORDER, s);
             bestOffer.getExchange().send(this, MessageType.LIMIT_ORDER, b);
             sendTraceNote("Arbitrage opportunity, bestBid = " + bestBid.getPrice() + ", bestOffer = " + bestOffer.getPrice() + ", midpoint = " + midpoint);

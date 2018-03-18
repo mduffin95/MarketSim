@@ -58,8 +58,8 @@ public class ExchangeTests {
 
         agent1 = new ZIP(model, buyLimit, new FixedOrderRouter(clock, exchange), Direction.BUY, generator, false);
         agent2 = new ZIP(model, sellLimit, new FixedOrderRouter(clock, exchange), Direction.SELL, generator, false);
-        buyOrder = new Order(agent1, exchange, agent1.direction, buyPrice, buyLimit, clock.getTime());
-        sellOrder = new Order(agent2, exchange, agent2.direction, sellPrice, sellLimit, clock.getTime());
+        buyOrder = new Order(agent1, exchange, agent1.direction, buyPrice, buyLimit);
+        sellOrder = new Order(agent2, exchange, agent2.direction, sellPrice, sellLimit);
     }
 
 //    @Test

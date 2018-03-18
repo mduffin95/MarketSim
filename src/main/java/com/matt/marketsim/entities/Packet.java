@@ -5,7 +5,7 @@ import com.matt.marketsim.models.MarketSimModel;
 import desmoj.core.simulator.*;
 import com.matt.marketsim.events.PacketArrivalEvent;
 
-public class Packet extends Entity implements IPacket {
+public class Packet extends Entity {
     private NetworkEntity source;
     private NetworkEntity dest;
 
@@ -13,7 +13,6 @@ public class Packet extends Entity implements IPacket {
     private Object payload;
 
     private MarketSimModel marketSimModel;
-    private boolean showInTrace;
 
     public Packet(Model model, String name, boolean showInTrace, NetworkEntity source, NetworkEntity dest,
                   MessageType type, Object payload) {
@@ -22,7 +21,6 @@ public class Packet extends Entity implements IPacket {
         this.dest = dest;
         this.type = type;
         this.payload = payload;
-        this.showInTrace = showInTrace;
 
         marketSimModel = (MarketSimModel) model;
     }
@@ -31,7 +29,6 @@ public class Packet extends Entity implements IPacket {
         this(model, "Packet", false, source, dest, type, payload);
     }
 
-    @Override
     public void scheduleArrival() {
         TimeSpan latency = marketSimModel.getLatency(source, dest);
 
@@ -48,17 +45,14 @@ public class Packet extends Entity implements IPacket {
         return source;
     }
 
-    @Override
     public MessageType getType() {
         return type;
     }
 
-    @Override
     public Object getPayload() {
         return payload;
     }
 
-    @Override
     public void arrived() {
         dest.handlePacket(this);
     }

@@ -1,6 +1,5 @@
 package com.matt.marketsim.events;
 
-import com.matt.marketsim.entities.IPacket;
 import com.matt.marketsim.entities.Packet;
 import com.matt.marketsim.models.MarketSimModel;
 import desmoj.core.simulator.*;

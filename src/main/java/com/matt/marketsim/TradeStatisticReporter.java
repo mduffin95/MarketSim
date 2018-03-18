@@ -2,17 +2,21 @@ package com.matt.marketsim;
 
 import desmoj.core.report.Reporter;
 
+import java.util.Map;
+import java.util.TreeMap;
+
 
 public class TradeStatisticReporter extends Reporter {
     public TradeStatisticReporter(desmoj.core.simulator.Reportable informationSource) {
         super(informationSource);
 
-        numColumns = 2;
+        numColumns = 3;
         columns = new String[numColumns];
         columns[0] = "Title";
 //        columns[1] = "Alloc. Efficiency";
 //        columns[1] = "Alpha";
         columns[1] = "Total Utility";
+        columns[2] = "Total Execution Time";
 
         entries = new String[numColumns];
         if (source instanceof TradeStatisticCalculator) {
@@ -20,6 +24,7 @@ public class TradeStatisticReporter extends Reporter {
 //            entries[1] = String.valueOf(((TradeStatisticCalculator) source).getAllocEfficiency());
 //            entries[1] = String.valueOf(((TradeStatisticCalculator) source).getSmithsAlpha());
             entries[1] = String.valueOf(((TradeStatisticCalculator) source).getTotalUtility());
+            entries[2] = String.valueOf(((TradeStatisticCalculator) source).getTotalExecutionTime());
         }
         groupHeading = "TradeStatistics";
         groupID = 99;

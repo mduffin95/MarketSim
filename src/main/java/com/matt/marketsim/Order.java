@@ -10,24 +10,19 @@ public class Order implements Comparable<Order> {
     private Exchange exchange;
     public Direction direction;
 
-    private TimeInstant timeStamp;
-
-    public TimeInstant getTimeStamp() {
-        return timeStamp;
-    }
+    private TimeInstant arrivalTime;
 
     private int price;
     private int limit; //For statistics. The limit at the time the order was made.
     //TODO: Remove this limit. Perhaps store a log of orders and limits with the trading agent, or on the statistic calculator.
 
-    public Order(TradingAgent agent, Exchange exchange, Direction direction, int price, int limit, TimeInstant time) {
+    public Order(TradingAgent agent, Exchange exchange, Direction direction, int price, int limit) {
         this.agent = agent;
         this.exchange = exchange;
         this.direction = direction;
         this.price = price;
         this.limit = limit;
 
-        timeStamp = time;
     }
 
     @Override
@@ -60,5 +55,12 @@ public class Order implements Comparable<Order> {
         return "[com.matt.marketsim.Order - Agent: " + agent.getName() + ", com.matt.marketsim.Direction: " + direction + ", Price: " + price + "]";
     }
 
+    public void setArrivalTime(TimeInstant arrivalTime) {
+        this.arrivalTime = arrivalTime;
+    }
+
+    public TimeInstant getArrivalTime() {
+        return arrivalTime;
+    }
 
 }

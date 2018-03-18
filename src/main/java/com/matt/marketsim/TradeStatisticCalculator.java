@@ -1,19 +1,17 @@
 package com.matt.marketsim;
 
-import com.matt.marketsim.models.MarketSimModel;
+import com.matt.marketsim.dtos.TradeStatisticDto;
 import desmoj.core.report.Reporter;
 import desmoj.core.simulator.*;
 import desmoj.core.statistic.StatisticObject;
 
+import java.util.Map;
 import java.util.Observable;
-import java.util.concurrent.TimeUnit;
+import java.util.TreeMap;
 
 public class TradeStatisticCalculator extends StatisticObject {
     private double totalUtility = 0.0;
-    private boolean equilibriumSet = false;
-//    private int equilibrium;
-    private long sumOfSquares = 0;
-    private int count = 0;
+    private TimeSpan executionTime;
     private TradingAgentGroup group;
     private double discountRate;
     private SimClock clock;
@@ -23,15 +21,9 @@ public class TradeStatisticCalculator extends StatisticObject {
         this.group = group;
         this.discountRate = discountRate;
         this.clock = clock;
-    }
 
-//    public TradeStatisticCalculator(Model model, String name, TradingAgentGroup group, double discountRate, int equilibrium, boolean showInReport, boolean showInTrace) {
-//        super(model, name, showInReport, showInTrace);
-//        this.equilibrium = equilibrium;
-//        equilibriumSet = true;
-//        this.group = group;
-//        this.discountRate = discountRate;
-//    }
+        this.executionTime = new TimeSpan(0);
+    }
 
     @Override
     public void update(Observable observable, Object arg) {
@@ -40,51 +32,47 @@ public class TradeStatisticCalculator extends StatisticObject {
             TimeInstant currentTime = clock.getTime();
             Trade trade = (Trade) arg;
             if (group.contains(trade.getBuyer())) {
-                count++;
-                TimeSpan t = TimeOperations.diff(currentTime, trade.getBuyOrder().getTimeStamp());
+                TimeSpan t = TimeOperations.diff(currentTime, trade.getBuyOrder().getArrivalTime());
+
+                //Add to total execution time
+                executionTime = TimeOperations.add(t, executionTime);
+
+                //Apply discounting and add to total utility
                 double coeff = Math.exp(-1 * discountRate * t.getTimeAsDouble());
                 totalUtility += coeff * (trade.getBuyOrder().getLimit() - trade.getPrice());
-//                if (equilibriumSet)
-//                    sumOfSquares += Math.pow(trade.price - equilibrium, 2);
             }
             if (group.contains(trade.getSeller())) {
-                count++;
-                TimeSpan t = TimeOperations.diff(currentTime, trade.sellOrder.getTimeStamp());
+                TimeSpan t = TimeOperations.diff(currentTime, trade.sellOrder.getArrivalTime());
+
+                //Add to total execution time
+                executionTime = TimeOperations.add(t, executionTime);
+
+                //Apply discounting and add to total utility
                 double coeff = Math.exp(-1 * discountRate * t.getTimeAsDouble());
                 totalUtility += coeff * (trade.getPrice() - trade.sellOrder.getLimit());
-//                if (equilibriumSet)
-//                    sumOfSquares += Math.pow(trade.price - equilibrium, 2);
             }
         }
     }
 
-//    public double getSmithsAlpha() {
-//        if (!equilibriumSet) {
-//            return 0;
-//        }
-//        if (count == 0 || equilibrium == 0) return 0;
-//        return Math.sqrt(sumOfSquares / count) / equilibrium;
-//    }
+    public double getTotalUtility() {
+        return totalUtility;
+    }
 
-//    public double getAllocEfficiency() {
-//        try {
-//            return totalUtility / (double) group.getTheoreticalUtility();
-//        } catch (UnsupportedOperationException e) {
-//            return 0;
-//        }
-//
-//    }
+    public TimeSpan getTotalExecutionTime() {
+        return executionTime;
+    }
 
-    public double getTotalUtility() { return totalUtility; }
+    public TradeStatisticDto getResults() {
+        TradeStatisticDto result = new TradeStatisticDto();
+        result.name = getName();
+        result.totalUtility = getTotalUtility();
+        result.totalExecutionTime = getTotalExecutionTime().getTimeAsDouble();
+        return result;
+    }
 
     @Override
     public Reporter createDefaultReporter() {
         return new TradeStatisticReporter(this);
     }
 
-
-//    public void setEquilibrium(int equilibrium) {
-//        this.equilibrium = equilibrium;
-//        equilibriumSet = true;
-//    }
 }

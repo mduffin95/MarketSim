@@ -1,11 +1,21 @@
 package com.matt.marketsim.models;
 
+import com.matt.marketsim.TradeStatisticCalculator;
+import com.matt.marketsim.dtos.ResultDto;
+import com.matt.marketsim.dtos.TradeStatisticDto;
 import desmoj.core.simulator.Experiment;
 import desmoj.core.simulator.TimeInstant;
 
+import javax.xml.transform.Result;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
+import org.apache.commons.io.FileUtils;
 
 /*
  * This class is used to initialise models and experiments. It is the entry point. It also allows multiple runs of
@@ -22,15 +32,14 @@ public class ModelExperimentController {
     static final double LAMBDA = 0.075;
     static final int SIM_LENGTH = 15000;
     static final int SEED_OFFSET = 4;
-    static final int ROUNDS = 10;
-    static final int MAX_DELTA = 1000;
+    static final int ROUNDS = 1;
+    static final int MAX_DELTA = 1;
     static final int NUM_AGENTS = 250; //Make sure this is even
 
-    public static void runOnce(long seed) {
+    public static ResultDto runOnce(long seed, double delta) {
 
 
-        final String name = "results/tmp/results.csv";
-        final Path path = Paths.get(name);
+
 
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
 
@@ -39,7 +48,7 @@ public class ModelExperimentController {
         exp.setReferenceUnit(timeUnit);
 //        NetworkBuilder builder = new ZIPExperiment(50, 0, 200);
         MarketSimModel model = new TwoMarketModel(SIM_LENGTH, NUM_AGENTS, ALPHA, MEAN_FUNDAMENTAL, k, VAR_PV, VAR_SHOCK,
-                OFFSET_RANGE, LAMBDA, DELTA);
+                OFFSET_RANGE, LAMBDA, delta);
         model.setSeed(seed);
         // and connect them
         model.connectToExperiment(exp);
@@ -54,19 +63,54 @@ public class ModelExperimentController {
 
         // generate report and shut everything off
         exp.report();
-        model.writeResultsToFile(path);
+        ResultDto result = model.getResults();
         exp.finish();
+        return result;
     }
 
     /**
      * runs the model
      */
     public static void main(String[] args) {
-        for (int i=0; i<=MAX_DELTA; i+= 100) {
+        final String dir = "results/tmp/";
+
+
+        int step = 100;
+        List<ResultDto> allResults = new ArrayList<ResultDto>(ROUNDS * (MAX_DELTA / step));
+        for (int i=0; i<=MAX_DELTA; i+= step) {
             DELTA = i;
-            for (int j=0; j< ROUNDS; j++)
-                runOnce(SEED_OFFSET + j);
+            for (int j=0; j< ROUNDS; j++) {
+                ResultDto result = runOnce(SEED_OFFSET + j, DELTA);
+                allResults.add(result);
+            }
+        }
+        writeToFile(dir, allResults);
+    }
+
+    private static void writeToFile(String dir, List<ResultDto> results) {
+        try {
+            FileUtils.cleanDirectory(new File(dir));
+        } catch (IOException e) {
+            System.err.println("Directory not found.");
+            return;
         }
 
+        for (ResultDto r: results) {
+            for (TradeStatisticDto t : r.tradeStatisticDtos) {
+                Path path = Paths.get(dir, t.name);
+                List<String> data = Arrays.asList(  String.valueOf(r.delta),
+                                                    String.valueOf(t.totalUtility),
+                                                    String.valueOf(t.totalExecutionTime));
+                String toWrite = String.join(", ", data);
+
+                try {
+                    Files.write(path, Arrays.asList(toWrite), Files.exists(path) ? StandardOpenOption.APPEND : StandardOpenOption.CREATE);
+                } catch (IOException e) {
+                    System.err.println("Error writing to file.");
+                    return;
+                }
+
+            }
+        }
     }
 }

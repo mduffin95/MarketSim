@@ -1,10 +1,10 @@
 package com.matt.marketsim.models;
 
+import com.matt.marketsim.dtos.ResultDto;
 import com.matt.marketsim.entities.agents.TradingAgent;
 import desmoj.core.dist.DistributionManager;
 import desmoj.core.simulator.*;
 import com.matt.marketsim.entities.NetworkEntity;
-import com.matt.marketsim.events.TradingAgentDecisionEvent;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleWeightedGraph;
 
@@ -65,4 +65,5 @@ public abstract class MarketSimModel extends Model {
     }
 
     public abstract void writeResultsToFile(Path path);
+    public abstract ResultDto getResults();
 }
