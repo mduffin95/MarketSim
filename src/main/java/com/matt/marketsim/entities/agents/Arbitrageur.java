@@ -7,8 +7,8 @@ import desmoj.core.simulator.Model;
  * Doesn't use and order router. Instead handles the submission of orders itself.
  */
 public class Arbitrageur extends TradingAgent {
-    private IOrder bestBid;
-    private IOrder bestOffer;
+    private Order bestBid;
+    private Order bestOffer;
     private double alpha;
 
     public Arbitrageur(Model model, double alpha, boolean showInTrace) {
@@ -43,8 +43,8 @@ public class Arbitrageur extends TradingAgent {
 
     @Override
     public void onMarketUpdate(MarketUpdate update) {
-        IOrder bid = update.summary.getBestBuyOrder();
-        IOrder offer = update.summary.getBestSellOrder();
+        Order bid = update.summary.getBestBuyOrder();
+        Order offer = update.summary.getBestSellOrder();
 
         if ((null == bestBid ^ null == bid) ||
                 null != bid &&
@@ -61,8 +61,8 @@ public class Arbitrageur extends TradingAgent {
 
         if(checkArbitrage()) {
             int midpoint = (int)Math.floor((bestBid.getPrice() + bestOffer.getPrice()) / 2.0);
-            IOrder b = new Order(this, bestOffer.getExchange(), Direction.BUY, midpoint, midpoint, clock.getTime());
-            IOrder s = new Order(this, bestBid.getExchange(), Direction.SELL, midpoint, midpoint, clock.getTime());
+            Order b = new Order(this, bestOffer.getExchange(), Direction.BUY, midpoint, midpoint, clock.getTime());
+            Order s = new Order(this, bestBid.getExchange(), Direction.SELL, midpoint, midpoint, clock.getTime());
             bestBid.getExchange().send(this, MessageType.LIMIT_ORDER, s);
             bestOffer.getExchange().send(this, MessageType.LIMIT_ORDER, b);
             sendTraceNote("Arbitrage opportunity, bestBid = " + bestBid.getPrice() + ", bestOffer = " + bestOffer.getPrice() + ", midpoint = " + midpoint);
@@ -70,12 +70,12 @@ public class Arbitrageur extends TradingAgent {
     }
 
     @Override
-    public void onCancelSuccess(IOrder order) {
+    public void onCancelSuccess(Order order) {
         //Shouldn't need to cancel as trades will execute immediately
     }
 
     @Override
-    public void onCancelFailure(IOrder order) {
+    public void onCancelFailure(Order order) {
 
     }
 }

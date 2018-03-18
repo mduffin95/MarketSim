@@ -42,9 +42,9 @@ public abstract class TradingAgent extends NetworkEntity {
      * These methods aren't necessary for trading agents.
      */
     @Override
-    public void onLimitOrder(IOrder order) {}
+    public void onLimitOrder(Order order) {}
     @Override
-    public void onMarketOrder(IOrder order) {}
+    public void onMarketOrder(Order order) {}
     @Override
-    public void onCancelOrder(IOrder order) {}
+    public void onCancelOrder(Order order) {}
 }

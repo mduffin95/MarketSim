@@ -9,7 +9,6 @@ import desmoj.core.statistic.ValueSupplier;
 import java.util.*;
 
 public class Exchange extends NetworkEntity implements PriceProvider {
-    private MarketSimModel marketSimModel;
 
     private OrderBook orderBook;
 
@@ -23,7 +22,6 @@ public class Exchange extends NetworkEntity implements PriceProvider {
 
     public Exchange(Model model, String name, SecuritiesInformationProcessor sip, boolean showInTrace) {
         super(model, name, showInTrace);
-        marketSimModel = (MarketSimModel)getModel();
         observers = new ArrayList<>();
         orderBook = new OrderBook();
 
@@ -32,15 +30,15 @@ public class Exchange extends NetworkEntity implements PriceProvider {
     }
 
     @Override
-    public void onLimitOrder(IOrder order) {
+    public void onLimitOrder(Order order) {
         String note = "Handling order: " + order.toString();
         sendTraceNote(note);
 
         LOBSummary original = orderBook.getSummary(1);
         orderBook.add(order);
 
-        IOrder b = orderBook.getBestBuyOrder();
-        IOrder s = orderBook.getBestSellOrder();
+        Order b = orderBook.getBestBuyOrder();
+        Order s = orderBook.getBestSellOrder();
 
         Trade newTrade = null;
 
@@ -82,7 +80,7 @@ public class Exchange extends NetworkEntity implements PriceProvider {
     }
 
     @Override
-    public void onMarketOrder(IOrder order) {
+    public void onMarketOrder(Order order) {
 
     }
 
@@ -97,7 +95,7 @@ public class Exchange extends NetworkEntity implements PriceProvider {
     }
 
     @Override
-    public void onCancelOrder(IOrder order) {
+    public void onCancelOrder(Order order) {
         if (null != order) {
             sendTraceNote("Cancelling order: " + order.toString());
             boolean success = orderBook.remove(order);
@@ -110,12 +108,12 @@ public class Exchange extends NetworkEntity implements PriceProvider {
     }
 
     @Override
-    public void onCancelSuccess(IOrder order) {
+    public void onCancelSuccess(Order order) {
 
     }
 
     @Override
-    public void onCancelFailure(IOrder order) {
+    public void onCancelFailure(Order order) {
 
     }
 

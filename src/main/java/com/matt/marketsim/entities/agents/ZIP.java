@@ -17,7 +17,7 @@ public class ZIP extends TradingAgent {
 //    private double learning_rate;
     private LOBSummary currentSummary;
 
-    private IOrder previousOrder = null;
+    private Order previousOrder = null;
     private int limit;
     private Random generator;
 
@@ -55,18 +55,18 @@ public class ZIP extends TradingAgent {
     }
 
     @Override
-    public void onCancelOrder(IOrder order) {
+    public void onCancelOrder(Order order) {
 
     }
 
     @Override
-    public void onCancelSuccess(IOrder order) {
+    public void onCancelSuccess(Order order) {
         assert previousOrder == order;
         placeOrder();
     }
 
     @Override
-    public void onCancelFailure(IOrder order) {
+    public void onCancelFailure(Order order) {
 
     }
 
@@ -85,8 +85,8 @@ public class ZIP extends TradingAgent {
         Direction lastOrderDirection = null;
         int price;
 
-        IOrder currentBestBuy = (null == currentSummary) ? null : currentSummary.getBestBuyOrder();
-        IOrder currentBestSell = (null == currentSummary) ? null : currentSummary.getBestSellOrder();
+        Order currentBestBuy = (null == currentSummary) ? null : currentSummary.getBestBuyOrder();
+        Order currentBestSell = (null == currentSummary) ? null : currentSummary.getBestSellOrder();
 
         if (currentBestBuy != summary.getBestBuyOrder()) {
             //Either new buy order or trade occurred that cleared with the buy order

@@ -16,8 +16,8 @@ public class SecuritiesInformationProcessor extends NetworkEntity implements Pri
 
     private MultiMarketView multiMarketView;
 
-    private IOrder bestBid;
-    private IOrder bestOffer;
+    private Order bestBid;
+    private Order bestOffer;
     private TimeSpan delta;
 
     private List<NetworkEntity> observers;
@@ -34,12 +34,12 @@ public class SecuritiesInformationProcessor extends NetworkEntity implements Pri
     }
 
     @Override
-    public void onLimitOrder(IOrder order) {
+    public void onLimitOrder(Order order) {
 
     }
 
     @Override
-    public void onMarketOrder(IOrder order) {
+    public void onMarketOrder(Order order) {
 
     }
 
@@ -58,8 +58,8 @@ public class SecuritiesInformationProcessor extends NetworkEntity implements Pri
 
 
         multiMarketView.add(update);
-        IOrder oldBestBid = bestBid;
-        IOrder oldBestOffer = bestOffer;
+        Order oldBestBid = bestBid;
+        Order oldBestOffer = bestOffer;
         bestBid = multiMarketView.getBestBid();
         bestOffer = multiMarketView.getBestOffer();
 
@@ -71,17 +71,17 @@ public class SecuritiesInformationProcessor extends NetworkEntity implements Pri
     }
 
     @Override
-    public void onCancelOrder(IOrder order) {
+    public void onCancelOrder(Order order) {
 
     }
 
     @Override
-    public void onCancelSuccess(IOrder order) {
+    public void onCancelSuccess(Order order) {
 
     }
 
     @Override
-    public void onCancelFailure(IOrder order) {
+    public void onCancelFailure(Order order) {
 
     }
 

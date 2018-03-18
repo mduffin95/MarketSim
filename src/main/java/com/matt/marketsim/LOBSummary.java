@@ -2,20 +2,20 @@ package com.matt.marketsim;
 
 public class LOBSummary {
     public int depth;
-    public IOrder[] buyOrders;
-    public IOrder[] sellOrders;
+    public Order[] buyOrders;
+    public Order[] sellOrders;
 
     public LOBSummary(int depth) {
         this.depth = depth;
-        buyOrders = new IOrder[depth];
-        sellOrders = new IOrder[depth];
+        buyOrders = new Order[depth];
+        sellOrders = new Order[depth];
     }
 
-    public IOrder getBestBuyOrder() {
+    public Order getBestBuyOrder() {
         return buyOrders[0];
     }
 
-    public IOrder getBestSellOrder() {
+    public Order getBestSellOrder() {
         return sellOrders[0];
     }
 }

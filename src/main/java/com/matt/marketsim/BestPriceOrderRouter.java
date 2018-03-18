@@ -24,17 +24,19 @@ public class BestPriceOrderRouter implements OrderRouter {
     /*
      * Returns the order that it sends. Send to exchange with the closest opposing order.
      */
+    //TODO: Write some tests for this method
     @Override
     public Order routeOrder(TradingAgent agent, MessageType type, Direction direction, int price, int limit) {
         //TODO: This still has an issue when an out of date bid from our primary exchange is sent to us from the SIP.
         //We should always trust the individual market info more than the NBBO.
-        IOrder bestOffer = multiMarketView.getBestOffer();
-        IOrder bestBid = multiMarketView.getBestBid();
-        IOrder primaryBestOffer = multiMarketView.getBestOffer(primary);
-        IOrder primaryBestBid = multiMarketView.getBestBid(primary);
+        Order bestOffer = multiMarketView.getBestOffer();
+        Order bestBid = multiMarketView.getBestBid();
+        Order primaryBestOffer = multiMarketView.getBestOffer(primary);
+        Order primaryBestBid = multiMarketView.getBestBid(primary);
         Exchange e;
         if (direction == Direction.BUY) {
-            if (lessThan(bestOffer, primaryBestOffer)) {
+            //TODO: Need a better way of comparing these orders which can be null
+            if ((null != bestOffer && null == primaryBestOffer) || lessThan(bestOffer, primaryBestOffer)) {
                 //NBBO price is better than the primary market.
                 if (bestOffer.getPrice() < price) {
                     //Trade will transact immediately so send to other market.
@@ -68,7 +70,7 @@ public class BestPriceOrderRouter implements OrderRouter {
         return newOrder;
     }
 
-    private boolean greaterThan(IOrder a, IOrder b) {
+    private boolean greaterThan(Order a, Order b) {
         if (null != a && null == b) {
             return true;
         }
@@ -78,7 +80,7 @@ public class BestPriceOrderRouter implements OrderRouter {
         return a.getPrice() > b.getPrice();
     }
 
-    private boolean lessThan(IOrder a, IOrder b) {
+    private boolean lessThan(Order a, Order b) {
         if (null == a && null != b) {
             return true;
         }

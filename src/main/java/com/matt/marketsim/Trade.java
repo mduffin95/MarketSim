@@ -8,11 +8,11 @@ public class Trade implements ITrade {
 //    public com.matt.marketsim.entities.Exchange exchange;
     private int price;
     private int quantity;
-    private IOrder buyOrder;
-    public IOrder sellOrder;
+    private Order buyOrder;
+    public Order sellOrder;
 
 
-    public Trade(TimeInstant time, int price, int quantity, IOrder buyOrder, IOrder sellOrder) {
+    public Trade(TimeInstant time, int price, int quantity, Order buyOrder, Order sellOrder) {
         this.time = time;
         this.price = price;
         this.quantity = quantity;
@@ -31,12 +31,12 @@ public class Trade implements ITrade {
     }
 
     @Override
-    public IOrder getBuyOrder() {
+    public Order getBuyOrder() {
         return buyOrder;
     }
 
     @Override
-    public IOrder getSellOrder() {
+    public Order getSellOrder() {
         return sellOrder;
     }
 

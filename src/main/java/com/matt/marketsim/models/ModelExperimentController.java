@@ -20,9 +20,11 @@ public class ModelExperimentController {
     static double DELTA = 0;
     static final double OFFSET_RANGE = 2000;
     static final double LAMBDA = 0.075;
-    static final int simLength = 15000;
+    static final int SIM_LENGTH = 15000;
+    static final int SEED_OFFSET = 4;
     static final int ROUNDS = 10;
     static final int MAX_DELTA = 1000;
+    static final int NUM_AGENTS = 250; //Make sure this is even
 
     public static void runOnce(long seed) {
 
@@ -34,8 +36,9 @@ public class ModelExperimentController {
 
         // create model and experiment
         Experiment exp = new Experiment("Exp1");
+        exp.setReferenceUnit(timeUnit);
 //        NetworkBuilder builder = new ZIPExperiment(50, 0, 200);
-        MarketSimModel model = new TwoMarketModel(timeUnit, simLength, ALPHA, MEAN_FUNDAMENTAL, k, VAR_PV, VAR_SHOCK,
+        MarketSimModel model = new TwoMarketModel(SIM_LENGTH, NUM_AGENTS, ALPHA, MEAN_FUNDAMENTAL, k, VAR_PV, VAR_SHOCK,
                 OFFSET_RANGE, LAMBDA, DELTA);
         model.setSeed(seed);
         // and connect them
@@ -43,7 +46,7 @@ public class ModelExperimentController {
 
         // set experiment parameters
         exp.setShowProgressBar(false);
-        TimeInstant stopTime = new TimeInstant(simLength, timeUnit);
+        TimeInstant stopTime = new TimeInstant(SIM_LENGTH, timeUnit);
         exp.tracePeriod(new TimeInstant(0), stopTime);
         exp.stop(stopTime);
         // start experiment
@@ -62,7 +65,7 @@ public class ModelExperimentController {
         for (int i=0; i<=MAX_DELTA; i+= 100) {
             DELTA = i;
             for (int j=0; j< ROUNDS; j++)
-                runOnce(j);
+                runOnce(SEED_OFFSET + j);
         }
 
     }

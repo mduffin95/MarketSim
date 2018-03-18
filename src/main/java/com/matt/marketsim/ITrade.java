@@ -5,8 +5,8 @@ import com.matt.marketsim.entities.agents.TradingAgent;
 public interface ITrade {
     int getPrice();
     int getQuantity();
-    IOrder getBuyOrder();
-    IOrder getSellOrder();
+    Order getBuyOrder();
+    Order getSellOrder();
     TradingAgent getBuyer();
     TradingAgent getSeller();
 }

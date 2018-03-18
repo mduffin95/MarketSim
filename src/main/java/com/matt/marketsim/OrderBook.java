@@ -5,22 +5,22 @@ import java.util.Comparator;
 import java.util.PriorityQueue;
 
 public class OrderBook {
-    private PriorityQueue<IOrder> buyQueue;
-    private PriorityQueue<IOrder> sellQueue;
+    private PriorityQueue<Order> buyQueue;
+    private PriorityQueue<Order> sellQueue;
 
     public OrderBook() {
         buyQueue = new PriorityQueue<>(10, Comparator.reverseOrder());
         sellQueue = new PriorityQueue<>(10);
     }
 
-    public boolean remove(IOrder order) {
+    public boolean remove(Order order) {
         if (order == null) {return false;}
         boolean b = buyQueue.remove(order);
         boolean s = sellQueue.remove(order);
         return (b || s);
     }
 
-    public void add(IOrder order) {
+    public void add(Order order) {
         if (order == null) {
             return;
         }
@@ -31,19 +31,19 @@ public class OrderBook {
         }
     }
 
-    public IOrder getBestBuyOrder() {
+    public Order getBestBuyOrder() {
         return buyQueue.peek();
     }
 
-    public IOrder getBestSellOrder() {
+    public Order getBestSellOrder() {
         return sellQueue.peek();
     }
 
-    public IOrder pollBestBuyOrder() {
+    public Order pollBestBuyOrder() {
         return buyQueue.poll();
     }
 
-    public IOrder pollBestSellOrder() {
+    public Order pollBestSellOrder() {
         return sellQueue.poll();
     }
 
@@ -54,8 +54,8 @@ public class OrderBook {
 
     //TODO: Make this more efficient
     public LOBSummary getSummary(int depth) {
-        IOrder[] buyArray = buyQueue.toArray(new IOrder[buyQueue.size()]);
-        IOrder[] sellArray = sellQueue.toArray(new IOrder[sellQueue.size()]);
+        Order[] buyArray = buyQueue.toArray(new Order[buyQueue.size()]);
+        Order[] sellArray = sellQueue.toArray(new Order[sellQueue.size()]);
 
         Arrays.sort(buyArray, Comparator.reverseOrder());
         Arrays.sort(sellArray);

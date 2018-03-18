@@ -15,7 +15,6 @@ import java.util.concurrent.TimeUnit;
 
 public abstract class MarketSimModel extends Model {
 
-    TimeUnit timeUnit;
     int simLength;
     public DistributionManager distributionManager;
     Random generator;
@@ -26,9 +25,8 @@ public abstract class MarketSimModel extends Model {
      */
     ArrayList<TradingAgent> initialAgents;
 
-    public MarketSimModel(Model model, String name, boolean showInReport, boolean showInTrace, TimeUnit timeUnit, int simLength) {
+    public MarketSimModel(Model model, String name, boolean showInReport, boolean showInTrace, int simLength) {
         super(model, name, showInReport, showInTrace);
-        this.timeUnit = timeUnit;
         initialAgents = new ArrayList<>();
         this.simLength = simLength;
     }
@@ -43,15 +41,12 @@ public abstract class MarketSimModel extends Model {
 
     abstract SimpleWeightedGraph<NetworkEntity, DefaultWeightedEdge> createNetwork();
 
-    public TimeUnit getTimeUnit() {
-        return timeUnit;
-    }
 
     @Override
     public void init() {
         long seed = generator.nextLong();
         distributionManager = new DistributionManager("Distribution Manager", seed);
-
+        getExperiment().setReferenceUnit(TimeUnit.MILLISECONDS);
     }
 
 
@@ -62,7 +57,7 @@ public abstract class MarketSimModel extends Model {
     public TimeSpan getLatency(NetworkEntity a, NetworkEntity b) {
         //TODO: Implement adjacency matrix
         DefaultWeightedEdge edge = getNetwork().getEdge(a, b);
-        return new TimeSpan(getNetwork().getEdgeWeight(edge), timeUnit);
+        return new TimeSpan(getNetwork().getEdgeWeight(edge));
     }
 
     public void setSeed(long s) {

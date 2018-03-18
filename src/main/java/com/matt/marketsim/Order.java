@@ -4,7 +4,7 @@ import com.matt.marketsim.entities.agents.TradingAgent;
 import desmoj.core.simulator.TimeInstant;
 import com.matt.marketsim.entities.Exchange;
 
-public class Order implements IOrder {
+public class Order implements Comparable<Order> {
 
     private TradingAgent agent;
     private Exchange exchange;
@@ -31,7 +31,7 @@ public class Order implements IOrder {
     }
 
     @Override
-    public int compareTo(IOrder payload) {
+    public int compareTo(Order payload) {
         return price - payload.getPrice();
     }
 
@@ -51,7 +51,6 @@ public class Order implements IOrder {
         return agent;
     }
 
-    @Override
     public Direction getDirection() {
         return direction;
     }

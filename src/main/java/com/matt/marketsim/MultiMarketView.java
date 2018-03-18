@@ -16,10 +16,10 @@ public class MultiMarketView {
         summaryMap.put(update.source, update.summary);
     }
 
-    public IOrder getBestBid() {
-        IOrder bestBid = null;
+    public Order getBestBid() {
+        Order bestBid = null;
         for (Map.Entry<NetworkEntity, LOBSummary> entry : summaryMap.entrySet()) {
-            IOrder bid = entry.getValue().getBestBuyOrder();
+            Order bid = entry.getValue().getBestBuyOrder();
             if (null == bestBid || bid != null && bid.getPrice() > bestBid.getPrice()) {
                 bestBid = bid;
             }
@@ -27,10 +27,10 @@ public class MultiMarketView {
         return bestBid;
     }
 
-    public IOrder getBestOffer() {
-        IOrder bestOffer = null;
+    public Order getBestOffer() {
+        Order bestOffer = null;
         for (Map.Entry<NetworkEntity, LOBSummary> entry : summaryMap.entrySet()) {
-            IOrder offer = entry.getValue().getBestSellOrder();
+            Order offer = entry.getValue().getBestSellOrder();
             if (null == bestOffer || offer != null && offer.getPrice() < bestOffer.getPrice()) {
                 bestOffer = offer;
             }
@@ -38,8 +38,8 @@ public class MultiMarketView {
         return bestOffer;
     }
 
-    public IOrder getBestBid(NetworkEntity e) {
-        IOrder result = null;
+    public Order getBestBid(NetworkEntity e) {
+        Order result = null;
         LOBSummary tmp = summaryMap.get(e);
         if (tmp != null) {
             result = tmp.getBestBuyOrder();
@@ -47,8 +47,8 @@ public class MultiMarketView {
         return result;
     }
 
-    public IOrder getBestOffer(NetworkEntity e) {
-        IOrder result = null;
+    public Order getBestOffer(NetworkEntity e) {
+        Order result = null;
         LOBSummary tmp = summaryMap.get(e);
         if (tmp != null) {
             result = tmp.getBestSellOrder();

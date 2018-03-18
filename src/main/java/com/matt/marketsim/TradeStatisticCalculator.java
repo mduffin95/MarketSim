@@ -17,14 +17,12 @@ public class TradeStatisticCalculator extends StatisticObject {
     private TradingAgentGroup group;
     private double discountRate;
     private SimClock clock;
-    private TimeUnit timeUnit;
 
-    public TradeStatisticCalculator(Model model, String name, TradingAgentGroup group, double discountRate, SimClock clock, TimeUnit timeUnit, boolean showInReport, boolean showInTrace) {
+    public TradeStatisticCalculator(Model model, String name, TradingAgentGroup group, double discountRate, SimClock clock, boolean showInReport, boolean showInTrace) {
         super(model, name, showInReport, showInTrace);
         this.group = group;
         this.discountRate = discountRate;
         this.clock = clock;
-        this.timeUnit = timeUnit;
     }
 
 //    public TradeStatisticCalculator(Model model, String name, TradingAgentGroup group, double discountRate, int equilibrium, boolean showInReport, boolean showInTrace) {
@@ -44,7 +42,7 @@ public class TradeStatisticCalculator extends StatisticObject {
             if (group.contains(trade.getBuyer())) {
                 count++;
                 TimeSpan t = TimeOperations.diff(currentTime, trade.getBuyOrder().getTimeStamp());
-                double coeff = Math.exp(-1 * discountRate * t.getTimeAsDouble(timeUnit));
+                double coeff = Math.exp(-1 * discountRate * t.getTimeAsDouble());
                 totalUtility += coeff * (trade.getBuyOrder().getLimit() - trade.getPrice());
 //                if (equilibriumSet)
 //                    sumOfSquares += Math.pow(trade.price - equilibrium, 2);
@@ -52,7 +50,7 @@ public class TradeStatisticCalculator extends StatisticObject {
             if (group.contains(trade.getSeller())) {
                 count++;
                 TimeSpan t = TimeOperations.diff(currentTime, trade.sellOrder.getTimeStamp());
-                double coeff = Math.exp(-1 * discountRate * t.getTimeAsDouble(timeUnit));
+                double coeff = Math.exp(-1 * discountRate * t.getTimeAsDouble());
                 totalUtility += coeff * (trade.getPrice() - trade.sellOrder.getLimit());
 //                if (equilibriumSet)
 //                    sumOfSquares += Math.pow(trade.price - equilibrium, 2);

@@ -3,51 +3,29 @@ package com.matt.marketsim;
 import com.matt.marketsim.models.MarketSimModel;
 import com.sun.org.apache.xalan.internal.utils.XMLSecurityManager;
 import desmoj.core.dist.ContDistNormal;
+import desmoj.core.simulator.SimClock;
 import desmoj.core.simulator.TimeInstant;
+import desmoj.core.simulator.TimeOperations;
 
 public class VariableLimit {
-    private double k;
-    private double fundamental_mean;
-    private int n;
-    private double fundamental;
-    private double sigma_shock;
-    private double sigma_pv;
-    private ContDistNormal normal_shock;
     private ContDistNormal normal_pv;
     private MarketSimModel model;
     private TimeInstant lastTime = null;
-
-    //Member variables
+    private VariableLimitFactory factory;
+    private SimClock clock;
     private int price_valuation;
 
-    public VariableLimit(MarketSimModel model, double k, double initial_fundamental, ContDistNormal normal_shock, ContDistNormal normal_pv) {
-        assert (k >= 0 && k <= 1);
-        this.n = 1;
-        this.fundamental_mean = initial_fundamental;
-        this.fundamental = initial_fundamental;
-        this.k = k;
-        this.model = model;
-        this.normal_shock = normal_shock;
+    public VariableLimit(VariableLimitFactory factory, SimClock clock, ContDistNormal normal_pv) {
+        this.factory = factory;
         this.normal_pv = normal_pv;
-    }
-
-    public double getFundamental() {
-        TimeInstant currentTime = model.getExperiment().getSimClock().getTime();
-        if (lastTime != currentTime) {
-            //Calculate a new fundamental
-            double shock = normal_shock.sample();
-            fundamental = Math.max(0, k * fundamental_mean + (1 - k) * fundamental + shock);
-            n++;
-            fundamental_mean = fundamental_mean + (fundamental - fundamental_mean) / n;
-            lastTime = currentTime;
-        }
-        return fundamental;
+        this.clock = clock;
     }
 
     public int getLimitPrice() {
-        TimeInstant currentTime = model.getExperiment().getSimClock().getTime();
+        TimeInstant currentTime = clock.getTime();
         if (lastTime != currentTime) {
-            price_valuation = (int) Math.round(Math.max(0.0, getFundamental() + normal_pv.sample()));
+            price_valuation = (int) Math.round(Math.max(0.0, factory.getFundamental() + normal_pv.sample()));
+            lastTime = currentTime;
         }
         return price_valuation;
     }

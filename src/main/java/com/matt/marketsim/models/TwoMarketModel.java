@@ -60,10 +60,11 @@ public class TwoMarketModel extends MarketSimModel {
     private double DELTA;
     private double OFFSET_RANGE;
     private double LAMBDA; //Arrival rate
+    private int NUM_AGENTS;
 
 
-    public TwoMarketModel(TimeUnit unit, int simLength, double alpha, double mean_fundamental, double k, double var_pv, double var_shock, double range, double lambda, double delta) {
-        super(null, "TwoMarketModel", true, true, unit, simLength);
+    public TwoMarketModel(int simLength, int num_agents, double alpha, double mean_fundamental, double k, double var_pv, double var_shock, double range, double lambda, double delta) {
+        super(null, "TwoMarketModel", true, true, simLength);
         generator = new Random();
         this.simLength = simLength;
         this.ALPHA = alpha;
@@ -74,6 +75,7 @@ public class TwoMarketModel extends MarketSimModel {
         this.OFFSET_RANGE = range;
         this.LAMBDA = lambda;
         this.DELTA = delta;
+        this.NUM_AGENTS = num_agents;
 
         statsObjects = new ArrayList<>();
     }
@@ -90,7 +92,7 @@ public class TwoMarketModel extends MarketSimModel {
         for (TradingAgent a : initialAgents) {
             cumulative += agentArrivalTimeDist.sample();
             TradingAgentDecisionEvent event = new TradingAgentDecisionEvent(this, "MarketEntryDecision", true, false);
-            event.schedule(a, new TimeSpan(cumulative, timeUnit));
+            event.schedule(a, new TimeSpan(cumulative));
         }
     }
 
@@ -122,7 +124,7 @@ public class TwoMarketModel extends MarketSimModel {
 
     @Override
     public TimeSpan getAgentArrivalTime() {
-        return new TimeSpan(agentArrivalTimeDist.sample(), timeUnit);
+        return new TimeSpan(agentArrivalTimeDist.sample());
     }
 
     @Override
@@ -146,7 +148,7 @@ public class TwoMarketModel extends MarketSimModel {
     SimpleWeightedGraph<NetworkEntity, DefaultWeightedEdge> createNetwork() {
         double discountRate = 0.0006;
         SecuritiesInformationProcessor sip = new SecuritiesInformationProcessor(this, "Securities Information Processor",
-                SHOW_ENTITIES_IN_TRACE, new TimeSpan(DELTA, timeUnit));
+                SHOW_ENTITIES_IN_TRACE, new TimeSpan(DELTA));
         Exchange exchange1 = new Exchange(this, "Exchange1", sip, SHOW_ENTITIES_IN_TRACE);
         Exchange exchange2 = new Exchange(this, "Exchange2", sip, SHOW_ENTITIES_IN_TRACE);
 
@@ -165,13 +167,13 @@ public class TwoMarketModel extends MarketSimModel {
 
 
         TradeTimeSeries e1TradePrices = new TradeTimeSeries(this, "Exchange 1 trade prices", ex1,
-                "e1_trade_prices.txt", new TimeInstant(0.0), new TimeInstant(simLength, timeUnit), true, false);
+                "e1_trade_prices.txt", new TimeInstant(0.0), new TimeInstant(simLength), true, false);
 
         TradeTimeSeries e2TradePrices = new TradeTimeSeries(this, "Exchange 2 trade prices", ex2,
-                "e2_trade_prices.txt", new TimeInstant(0.0), new TimeInstant(simLength, timeUnit), true, false);
+                "e2_trade_prices.txt", new TimeInstant(0.0), new TimeInstant(simLength), true, false);
 
         TradeStatisticCalculator tradeStats = new TradeStatisticCalculator(this, "Stats (group 1)", all,
-                discountRate, getExperiment().getSimClock(), timeUnit, true, false);
+                discountRate, getExperiment().getSimClock(), true, false);
 
         statsObjects.add(tradeStats);
 
@@ -189,7 +191,7 @@ public class TwoMarketModel extends MarketSimModel {
             TradingAgentGroup arb = new TradingAgentGroup();
             arb.addMember(arbitrageur);
             TradeStatisticCalculator arbStats = new TradeStatisticCalculator(this, "Stats (arbitrageur)",
-                    arb, discountRate, getExperiment().getSimClock(), timeUnit, true, false);
+                    arb, discountRate, getExperiment().getSimClock(), true, false);
             statsObjects.add(arbStats);
             exchange1.lastTradeSupplier.addObserver(arbStats);
             exchange2.lastTradeSupplier.addObserver(arbStats);
@@ -206,17 +208,11 @@ public class TwoMarketModel extends MarketSimModel {
         TradingAgentGroup g1;
         TradingAgentGroup g2;
         SimClock clock = this.getExperiment().getSimClock();
-        for (int i = 0; i < 250; i++) {
-            OrderRouter r1;
-            OrderRouter r2;
+        for (int i = 0; i < (NUM_AGENTS / 2); i++) {
 
-            if (i < 0) {
-                r1 = new FixedOrderRouter(clock, exchange1);
-                r2 = new FixedOrderRouter(clock, exchange2);
-            } else {
-                r1 = new BestPriceOrderRouter(clock, exchange1);
-                r2 = new BestPriceOrderRouter(clock, exchange2);
-            }
+            OrderRouter r1 = new BestPriceOrderRouter(clock, exchange1);
+            OrderRouter r2 = new BestPriceOrderRouter(clock, exchange2);
+
             //Market 1
             TradingAgent agent1 = new ZIC(this, factory.create(), r1, buyOrSell, offsetRangeDist, SHOW_ENTITIES_IN_TRACE);
             //Market 2
