@@ -30,14 +30,11 @@ public class ModelExperimentController {
     static final int SIM_LENGTH = 15000;
     static final int SEED_OFFSET = 4;
     static final int ROUNDS = 1;
-    static final int MAX_DELTA = 1;
+    static final int MAX_DELTA = 1000;
     static final int STEP = 100; //How much to increment delta by each time
     static final int NUM_AGENTS = 250; //Make sure this is even
 
     public static ResultDto runOnce(long seed, double delta) {
-
-
-
 
         TimeUnit timeUnit = TimeUnit.MILLISECONDS;
 

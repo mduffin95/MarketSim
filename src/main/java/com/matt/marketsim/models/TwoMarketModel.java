@@ -146,16 +146,15 @@ public class TwoMarketModel extends MarketSimModel {
         SecuritiesInformationProcessor sip = new SecuritiesInformationProcessor(this, "Securities Information Processor",
                 SHOW_ENTITIES_IN_TRACE, new TimeSpan(DELTA));
         Exchange exchange1 = new Exchange(this, "Exchange1", sip, SHOW_ENTITIES_IN_TRACE);
-        Exchange exchange2 = new Exchange(this, "Exchange2", sip, SHOW_ENTITIES_IN_TRACE);
+        Exchange exchange2 = null;
 
 
         SimpleWeightedGraph<NetworkEntity, DefaultWeightedEdge> graph = new SimpleWeightedGraph<>(DefaultWeightedEdge.class);
         graph.addVertex(sip);
         graph.addVertex(exchange1);
-        graph.addVertex(exchange2);
         graph.setEdgeWeight(graph.addEdge(exchange1, sip), 0);
-        graph.setEdgeWeight(graph.addEdge(exchange2, sip), 0);
 
+        boolean twoExchange = false;
 
         TradingAgentGroup ex1 = new TradingAgentGroup();
         TradingAgentGroup ex2 = new TradingAgentGroup();
@@ -166,8 +165,6 @@ public class TwoMarketModel extends MarketSimModel {
         TradeTimeSeries e1TradePrices = new TradeTimeSeries(this, "Exchange 1 trade prices", ex1,
                 "e1_trade_prices.txt", new TimeInstant(0.0), new TimeInstant(simLength), true, false);
 
-        TradeTimeSeries e2TradePrices = new TradeTimeSeries(this, "Exchange 2 trade prices", ex2,
-                "e2_trade_prices.txt", new TimeInstant(0.0), new TimeInstant(simLength), true, false);
 
         TradeStatisticCalculator tradeStats = new TradeStatisticCalculator(this, "trading_agents", tas,
                 discountRate, getExperiment().getSimClock(), true, false);
@@ -177,13 +174,36 @@ public class TwoMarketModel extends MarketSimModel {
         exchange1.lastTradeSupplier.addObserver(tradeStats);
         exchange1.lastTradeSupplier.addObserver(e1TradePrices);
 
-        exchange2.lastTradeSupplier.addObserver(tradeStats);
-        exchange2.lastTradeSupplier.addObserver(e2TradePrices);
-
+        //Create the trading agents (background investors)
         VariableLimitFactory factory = new VariableLimitFactory(this, SIGMA_SHOCK, SIGMA_PV, k, MEAN_FUNDAMENTAL);
+        SimClock clock = this.getExperiment().getSimClock();
+        Set<TradingAgentGroup> groups = new HashSet<>();
+        if (twoExchange) {
+            TradeTimeSeries e2TradePrices = new TradeTimeSeries(this, "Exchange 2 trade prices", ex2,
+                    "e2_trade_prices.txt", new TimeInstant(0.0), new TimeInstant(simLength), true, false);
+            exchange2 = new Exchange(this, "Exchange2", sip, SHOW_ENTITIES_IN_TRACE);
+            graph.addVertex(exchange2);
+            graph.setEdgeWeight(graph.addEdge(exchange2, sip), 0);
+
+            exchange2.lastTradeSupplier.addObserver(tradeStats);
+            exchange2.lastTradeSupplier.addObserver(e2TradePrices);
+
+            groups.add(ex1);
+            groups.add(ex2);
+            groups.add(tas);
+            groups.add(all);
+
+            createAgents(graph, exchange1, sip, clock, factory, buyOrSell, offsetRangeDist, groups, 125);
+            createAgents(graph, exchange2, sip, clock, factory, buyOrSell, offsetRangeDist, groups, 125);
+        } else {
+            groups.add(ex1);
+            groups.add(tas);
+
+            createAgents(graph, exchange1, sip, clock, factory, buyOrSell, offsetRangeDist, groups, 250);
+        }
 
         //Arbitrageur
-        if (true) {
+        if (false) {
             TradingAgent arbitrageur = new Arbitrageur(this, ALPHA, SHOW_ENTITIES_IN_TRACE);
             TradingAgentGroup arb = new TradingAgentGroup();
             arb.addMember(arbitrageur);
@@ -206,49 +226,36 @@ public class TwoMarketModel extends MarketSimModel {
             graph.setEdgeWeight(graph.addEdge(arbitrageur, exchange2), 0);
         }
 
-        //Create the supply and demand curves
-        Exchange e;
-        TradingAgentGroup g1;
-        TradingAgentGroup g2;
-        SimClock clock = this.getExperiment().getSimClock();
-        for (int i = 0; i < (NUM_AGENTS / 2); i++) {
+        return graph;
+    }
+    //Exchange, clock, VariableLimitFactory, sip, reporting groups, graph
+    private void createAgents(SimpleWeightedGraph<NetworkEntity, DefaultWeightedEdge> graph, Exchange exchange, SecuritiesInformationProcessor sip,
+                              SimClock clock, VariableLimitFactory factory, BoolDistBernoulli buyOrSell, ContDistUniform offsetRangeDist, Set<TradingAgentGroup> groups,
+                              int num) {
 
-            OrderRouter r1 = new BestPriceOrderRouter(clock, exchange1);
-            OrderRouter r2 = new BestPriceOrderRouter(clock, exchange2);
+        for (int i = 0; i < num; i++) {
+
+            OrderRouter router = new BestPriceOrderRouter(clock, exchange);
+
 
             //Market 1
-            TradingAgent agent1 = new ZIC(this, factory.create(), r1, buyOrSell, offsetRangeDist, SHOW_ENTITIES_IN_TRACE);
-            //Market 2
-            TradingAgent agent2 = new ZIC(this, factory.create(), r2, buyOrSell, offsetRangeDist, SHOW_ENTITIES_IN_TRACE);
+            TradingAgent agent = new ZIC(this, factory.create(), router, buyOrSell, offsetRangeDist, SHOW_ENTITIES_IN_TRACE);
 
             //So that they receive price updates
-            exchange1.registerPriceObserver(agent1);
-            exchange2.registerPriceObserver(agent2);
-            sip.registerPriceObserver(agent1);
-            sip.registerPriceObserver(agent2);
+            exchange.registerPriceObserver(agent);
+            sip.registerPriceObserver(agent);
 
             //Add to reporting groups
-            ex1.addMember(agent1);
-            ex2.addMember(agent2);
-            tas.addMember(agent1);
-            tas.addMember(agent2);
-            all.addMember(agent1);
-            all.addMember(agent2);
+            for (TradingAgentGroup g: groups) {
+                g.addMember(agent);
+            }
 
             //Add buy agent to graph
-            graph.addVertex(agent1);
-            graph.setEdgeWeight(graph.addEdge(agent1, exchange1), 0);
-            graph.setEdgeWeight(graph.addEdge(agent1, exchange2), 0);
-            graph.setEdgeWeight(graph.addEdge(agent1, sip), 0);
-
-            //Add sell agent to graph
-            graph.addVertex(agent2);
-            graph.setEdgeWeight(graph.addEdge(agent2, exchange1), 0);
-            graph.setEdgeWeight(graph.addEdge(agent2, exchange2), 0);
-            graph.setEdgeWeight(graph.addEdge(agent2, sip), 0);
+            graph.addVertex(agent);
+            graph.setEdgeWeight(graph.addEdge(agent, exchange), 0);
+            graph.setEdgeWeight(graph.addEdge(agent, sip), 0);
 
         }
-        return graph;
     }
 
     @Override
