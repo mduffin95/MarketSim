@@ -171,7 +171,7 @@ public class TwoMarketModel extends MarketSimModel {
         TradeTimeSeries e2TradePrices = new TradeTimeSeries(this, "Exchange 2 trade prices", ex2,
                 "e2_trade_prices.txt", new TimeInstant(0.0), new TimeInstant(simLength), true, false);
 
-        TradeStatisticCalculator tradeStats = new TradeStatisticCalculator(this, "Stats (group 1)", all,
+        TradeStatisticCalculator tradeStats = new TradeStatisticCalculator(this, "trading_agents", all,
                 discountRate, getExperiment().getSimClock(), true, false);
 
         statsObjects.add(tradeStats);
@@ -189,7 +189,7 @@ public class TwoMarketModel extends MarketSimModel {
             TradingAgent arbitrageur = new Arbitrageur(this, ALPHA, SHOW_ENTITIES_IN_TRACE);
             TradingAgentGroup arb = new TradingAgentGroup();
             arb.addMember(arbitrageur);
-            TradeStatisticCalculator arbStats = new TradeStatisticCalculator(this, "Stats (arbitrageur)",
+            TradeStatisticCalculator arbStats = new TradeStatisticCalculator(this, "arbitrageur",
                     arb, discountRate, getExperiment().getSimClock(), true, false);
             statsObjects.add(arbStats);
             exchange1.lastTradeSupplier.addObserver(arbStats);

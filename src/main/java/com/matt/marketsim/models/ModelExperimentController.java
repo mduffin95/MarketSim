@@ -32,8 +32,8 @@ public class ModelExperimentController {
     static final double LAMBDA = 0.075;
     static final int SIM_LENGTH = 15000;
     static final int SEED_OFFSET = 4;
-    static final int ROUNDS = 1;
-    static final int MAX_DELTA = 1;
+    static final int ROUNDS = 10;
+    static final int MAX_DELTA = 1000;
     static final int NUM_AGENTS = 250; //Make sure this is even
 
     public static ResultDto runOnce(long seed, double delta) {
@@ -100,7 +100,8 @@ public class ModelExperimentController {
                 Path path = Paths.get(dir, t.name);
                 List<String> data = Arrays.asList(  String.valueOf(r.delta),
                                                     String.valueOf(t.totalUtility),
-                                                    String.valueOf(t.totalExecutionTime));
+                                                    String.valueOf(t.totalExecutionTime),
+                                                    String.valueOf(t.totalOrders));
                 String toWrite = String.join(", ", data);
 
                 try {
