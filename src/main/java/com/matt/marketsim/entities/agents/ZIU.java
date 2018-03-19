@@ -2,6 +2,7 @@ package com.matt.marketsim.entities.agents;
 
 import com.matt.marketsim.*;
 import com.matt.marketsim.LimitProvider;
+import com.matt.marketsim.models.MarketSimModel;
 import desmoj.core.dist.DiscreteDist;
 import desmoj.core.dist.DiscreteDistUniform;
 import desmoj.core.dist.Distribution;
@@ -14,7 +15,7 @@ public class ZIU extends TradingAgent {
     private OrderRouter router;
     private DiscreteDist randomPrice;
 
-    public ZIU(Model model, int limit, OrderRouter router, Direction direction, DiscreteDist randomPrice, boolean showInTrace) {
+    public ZIU(MarketSimModel model, int limit, OrderRouter router, Direction direction, DiscreteDist randomPrice, boolean showInTrace) {
         super(model, router, showInTrace);
         this.direction = direction;
         this.limit = limit;

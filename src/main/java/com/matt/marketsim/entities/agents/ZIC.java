@@ -14,8 +14,10 @@ public class ZIC extends TradingAgent {
     private VariableLimit limit;
     private ContDist offsetRange;
 
-    public ZIC(Model model, VariableLimit limit, OrderRouter router, BoolDistBernoulli buyOrSell, ContDist offsetRange, boolean showInTrace) {
+    public ZIC(MarketSimModel model, VariableLimit limit, OrderRouter router, BoolDistBernoulli buyOrSell, ContDist offsetRange, boolean showInTrace) {
         super(model, router, showInTrace);
+
+        model.registerForInitialSchedule(this); //Register so that it is scheduled
         this.limit = limit;
         this.offsetRange = offsetRange;
         if (buyOrSell.sample()) {

@@ -2,6 +2,7 @@ package com.matt.marketsim.entities.agents;
 
 import com.matt.marketsim.*;
 import com.matt.marketsim.LimitProvider;
+import com.matt.marketsim.models.MarketSimModel;
 import desmoj.core.simulator.Model;
 
 import java.util.Random;
@@ -22,8 +23,9 @@ public class ZIP extends TradingAgent {
     private Random generator;
 
 
-    public ZIP(Model model, int limit, OrderRouter router, Direction direction, Random generator, boolean showInTrace) {
+    public ZIP(MarketSimModel model, int limit, OrderRouter router, Direction direction, Random generator, boolean showInTrace) {
         super(model, router, showInTrace);
+        ((MarketSimModel) model).registerForInitialSchedule(this); //Register so that it is scheduled
         this.limit = limit;
         this.direction = direction;
         this.generator = generator;

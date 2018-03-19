@@ -1,6 +1,5 @@
 package com.matt.marketsim;
 
-import com.matt.marketsim.dtos.TradeStatisticDto;
 import desmoj.core.report.Reporter;
 import desmoj.core.simulator.*;
 import desmoj.core.statistic.StatisticObject;
@@ -67,15 +66,6 @@ public class TradeStatisticCalculator extends StatisticObject {
 
     public int getTotalOrders() {
         return totalOrders;
-    }
-
-    public TradeStatisticDto getResults() {
-        TradeStatisticDto result = new TradeStatisticDto();
-        result.name = getName();
-        result.totalUtility = getTotalUtility();
-        result.totalExecutionTime = getTotalExecutionTime().getTimeAsDouble();
-        result.totalOrders = getTotalOrders();
-        return result;
     }
 
     @Override

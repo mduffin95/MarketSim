@@ -64,6 +64,5 @@ public abstract class MarketSimModel extends Model {
         generator.setSeed(s);
     }
 
-    public abstract void writeResultsToFile(Path path);
     public abstract ResultDto getResults();
 }

@@ -6,32 +6,45 @@ import re
 from collections import defaultdict
 from functools import reduce
 
-traders = defaultdict(list)
-arbitrageurs = defaultdict(list) 
-with open("results/tmp/results.csv") as csvfile:
-    results_reader = csv.reader(csvfile)
-    for row in results_reader:
-        traders[float(row[0])].append(float(row[1]))
-        arbitrageurs[float(row[0])].append(float(row[2]))
-
-x_vals = []
-traders_av = []
-arb_av = []
-for key in sorted(traders):
-    x_vals.append(key)
-    l = traders[key]
-    traders_av.append(reduce((lambda x, y: x+y), l) / len(l))
-    l = arbitrageurs[key]
-    arb_av.append(reduce((lambda x, y: x+y), l) / len(l))
-    
-both = [sum(a) for a in zip(traders_av, arb_av)]
-
 import matplotlib.pyplot as plt
 
-fig = plt.figure(figsize=(11,8))
-ax1 = fig.add_subplot(111)
+results ={}
+result_files = glob.glob("results/tmp/*.csv")
+averaged = {}
+for r in result_files:
+    surplus = defaultdict(list)
 
-ax1.plot(x_vals, traders_av, label='Traders')
-ax1.plot(x_vals, both, label='Both')
+    with open(r) as csvfile:
+        results_reader = csv.reader(csvfile)
+        for row in results_reader:
+            surplus[float(row[0])].append(float(row[1]))
+    results[r] = surplus 
 
-plt.savefig('results.png')
+    x_vals = []
+    av = []
+    for key in sorted(surplus):
+        x_vals.append(key)
+        l = surplus[key]
+        av.append(reduce((lambda x, y: x+y), l) / len(l))
+    averaged[r] = av 
+
+print(x_vals)
+print(averaged)
+
+def plot(x, ys, labels):
+    fig = plt.figure(figsize=(11,8))
+    ax1 = fig.add_subplot(111)
+    for y, l in zip(ys, labels):
+        ax1.plot(x_vals, y, label=l)
+
+    plt.savefig('results.png')
+
+
+ys = []
+labels = []
+for key, val in averaged.items():
+    labels.append(key)
+    ys.append(val)
+
+plot(x_vals, ys, labels)
+

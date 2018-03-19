@@ -3,19 +3,21 @@ package com.matt.marketsim;
 import com.matt.marketsim.entities.agents.TradingAgent;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 public class TradingAgentGroup {
-    private ArrayList<TradingAgent> members = new ArrayList<>();
-    private int equilibrium;
-    private boolean equilibriumSet = false;
+    private Set<TradingAgent> members = new HashSet<>();
+//    private int equilibrium;
+//    private boolean equilibriumSet = false;
 
     public TradingAgentGroup() {
 
     }
 
     public TradingAgentGroup(int equilibrium) {
-        this.equilibrium = equilibrium;
-        equilibriumSet = true;
+//        this.equilibrium = equilibrium;
+//        equilibriumSet = true;
     }
 
     public void addMember(TradingAgent ta) {

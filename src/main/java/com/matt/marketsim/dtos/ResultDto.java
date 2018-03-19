@@ -7,5 +7,5 @@ import java.util.Map;
 public class ResultDto {
     public double delta;
     //Map of group names, mapping to data names and values
-    public List<TradeStatisticDto> tradeStatisticDtos = new ArrayList<>();
+    public List<String[]> entries = new ArrayList<>();
 }

@@ -19,7 +19,7 @@ public class Arbitrageur extends TradingAgent {
     @Override
     public void doSomething() {
         return;
-    }
+    } //Shouldn't be called because we don't register to be scheduled
 
     private boolean checkArbitrage() {
         if (null == bestBid || null == bestOffer) return false;

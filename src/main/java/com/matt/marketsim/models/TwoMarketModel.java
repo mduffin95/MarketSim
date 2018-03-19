@@ -10,16 +10,13 @@ import com.matt.marketsim.entities.agents.TradingAgent;
 import com.matt.marketsim.entities.agents.ZIC;
 import com.matt.marketsim.events.TradingAgentDecisionEvent;
 import desmoj.core.dist.*;
+import desmoj.core.report.Reporter;
 import desmoj.core.simulator.SimClock;
 import desmoj.core.simulator.TimeInstant;
 import desmoj.core.simulator.TimeSpan;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleWeightedGraph;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.util.*;
 
 public class TwoMarketModel extends MarketSimModel {
@@ -162,6 +159,7 @@ public class TwoMarketModel extends MarketSimModel {
 
         TradingAgentGroup ex1 = new TradingAgentGroup();
         TradingAgentGroup ex2 = new TradingAgentGroup();
+        TradingAgentGroup tas = new TradingAgentGroup();
         TradingAgentGroup all = new TradingAgentGroup();
 
 
@@ -171,7 +169,7 @@ public class TwoMarketModel extends MarketSimModel {
         TradeTimeSeries e2TradePrices = new TradeTimeSeries(this, "Exchange 2 trade prices", ex2,
                 "e2_trade_prices.txt", new TimeInstant(0.0), new TimeInstant(simLength), true, false);
 
-        TradeStatisticCalculator tradeStats = new TradeStatisticCalculator(this, "trading_agents", all,
+        TradeStatisticCalculator tradeStats = new TradeStatisticCalculator(this, "trading_agents", tas,
                 discountRate, getExperiment().getSimClock(), true, false);
 
         statsObjects.add(tradeStats);
@@ -189,11 +187,17 @@ public class TwoMarketModel extends MarketSimModel {
             TradingAgent arbitrageur = new Arbitrageur(this, ALPHA, SHOW_ENTITIES_IN_TRACE);
             TradingAgentGroup arb = new TradingAgentGroup();
             arb.addMember(arbitrageur);
+            all.addMember(arbitrageur);
             TradeStatisticCalculator arbStats = new TradeStatisticCalculator(this, "arbitrageur",
                     arb, discountRate, getExperiment().getSimClock(), true, false);
+            TradeStatisticCalculator allStats = new TradeStatisticCalculator(this, "all",
+                    all, discountRate, getExperiment().getSimClock(), true, false);
             statsObjects.add(arbStats);
+            statsObjects.add(allStats);
             exchange1.lastTradeSupplier.addObserver(arbStats);
             exchange2.lastTradeSupplier.addObserver(arbStats);
+            exchange1.lastTradeSupplier.addObserver(allStats);
+            exchange2.lastTradeSupplier.addObserver(allStats);
             exchange1.registerPriceObserver(arbitrageur);
             exchange2.registerPriceObserver(arbitrageur);
 
@@ -226,6 +230,8 @@ public class TwoMarketModel extends MarketSimModel {
             //Add to reporting groups
             ex1.addMember(agent1);
             ex2.addMember(agent2);
+            tas.addMember(agent1);
+            tas.addMember(agent2);
             all.addMember(agent1);
             all.addMember(agent2);
 
@@ -246,30 +252,12 @@ public class TwoMarketModel extends MarketSimModel {
     }
 
     @Override
-    public void writeResultsToFile(Path path) {
-        Iterator<TradeStatisticCalculator> iter = statsObjects.iterator();
-        String toWrite = String.valueOf(DELTA) + ", ";
-        while (iter.hasNext()) {
-            TradeStatisticCalculator c = iter.next();
-
-            toWrite += String.valueOf(c.getTotalUtility());
-            if (iter.hasNext()) {
-                toWrite = toWrite + ", ";
-            }
-        }
-        try {
-            Files.write(path, Arrays.asList(toWrite), Files.exists(path) ? StandardOpenOption.APPEND : StandardOpenOption.CREATE);
-        } catch (IOException e) {
-
-        }
-    }
-
-    @Override
     public ResultDto getResults() {
         ResultDto result = new ResultDto();
         result.delta = DELTA;
         for (TradeStatisticCalculator c: statsObjects) {
-            result.tradeStatisticDtos.add(c.getResults());
+            Reporter r = c.createDefaultReporter();
+            result.entries.add(r.getEntries());
         }
         return result;
     }
