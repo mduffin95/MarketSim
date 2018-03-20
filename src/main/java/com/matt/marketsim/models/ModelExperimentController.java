@@ -1,5 +1,6 @@
 package com.matt.marketsim.models;
 
+import com.matt.marketsim.MarketSimCallable;
 import com.matt.marketsim.dtos.ResultDto;
 import desmoj.core.simulator.Experiment;
 import desmoj.core.simulator.TimeInstant;
@@ -11,7 +12,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
+
 import org.apache.commons.io.FileUtils;
 
 /*
@@ -24,13 +26,13 @@ public class ModelExperimentController {
     static final double k = 0.05;
     static final double MEAN_FUNDAMENTAL = 100000;
     static final double ALPHA = 0.001; //Arbitrageur threshold
-    static double DELTA = 0;
     static final double OFFSET_RANGE = 2000;
     static final double LAMBDA = 0.075;
+    static final double DISCOUNT_RATE = 0.0006;
     static final int SIM_LENGTH = 15000;
-    static final int SEED_OFFSET = 4;
-    static final int ROUNDS = 1;
-    static final int MAX_DELTA = 1000;
+    static final int SEED_OFFSET = 1234;
+    static final int ROUNDS = 200;
+    static final int DELTA_STEPS = 11;
     static final int STEP = 100; //How much to increment delta by each time
     static final int NUM_AGENTS = 250; //Make sure this is even
 
@@ -43,7 +45,7 @@ public class ModelExperimentController {
         exp.setReferenceUnit(timeUnit);
 //        NetworkBuilder builder = new ZIPExperiment(50, 0, 200);
         MarketSimModel model = new TwoMarketModel(SIM_LENGTH, NUM_AGENTS, ALPHA, MEAN_FUNDAMENTAL, k, VAR_PV, VAR_SHOCK,
-                OFFSET_RANGE, LAMBDA, delta);
+                OFFSET_RANGE, LAMBDA, DISCOUNT_RATE, delta);
         model.setSeed(seed);
         // and connect them
         model.connectToExperiment(exp);
@@ -68,15 +70,42 @@ public class ModelExperimentController {
      */
     public static void main(String[] args) {
         final String dir = "results/tmp/";
+        double delta;
+        int count = 0;
+        List<ResultDto> allResults = new ArrayList<>(ROUNDS * DELTA_STEPS);
+//        for (int i = 0; i < DELTA_STEPS; i++) {
+//            delta = i*STEP;
+//            for (int j=0; j< ROUNDS; j++) {
+//                count++;
+//                ResultDto result = runOnce(SEED_OFFSET + count, delta);
+//                allResults.add(result);
+//                System.out.println(count);
+//            }
+//        }
 
-        List<ResultDto> allResults = new ArrayList<ResultDto>(ROUNDS * (MAX_DELTA / STEP));
-        for (int i=0; i<=MAX_DELTA; i+= STEP) {
-            DELTA = i;
-            for (int j=0; j< ROUNDS; j++) {
-                ResultDto result = runOnce(SEED_OFFSET + j, DELTA);
-                allResults.add(result);
+        List<Callable<ResultDto>> tasks = new ArrayList<>();
+        for (int i = 0; i < DELTA_STEPS; i++) {
+            delta = i * STEP;
+            for (int j = 0; j < ROUNDS; j++) {
+                count++;
+//                ResultDto result = runOnce(SEED_OFFSET + count, delta);
+//                allResults.add(result);
+                System.out.println(count);
+                MarketSimCallable c = new MarketSimCallable(SEED_OFFSET + count, delta);
+                tasks.add(c);
             }
         }
+
+        ExecutorService EXEC = Executors.newCachedThreadPool();
+        try {
+            List<Future<ResultDto>> results = EXEC.invokeAll(tasks);
+            for (Future<ResultDto> fr : results) {
+                allResults.add(fr.get());
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+
         writeToFile(dir, allResults);
     }
 
@@ -88,7 +117,7 @@ public class ModelExperimentController {
             return;
         }
 
-        for (ResultDto r: results) {
+        for (ResultDto r : results) {
             for (String[] ent : r.entries) {
                 Path path = Paths.get(dir, ent[0] + ".csv");
                 ent[0] = String.valueOf(r.delta);

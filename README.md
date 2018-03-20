@@ -37,3 +37,7 @@ Added a better method for producing graphs after repeated simulation runs. Using
 
 In the paper the way that the NBBO is calculated sounds slightly odd. It says a ProcessQuote activity is entered at a time
 t + delta, however this sounds like it could lead to later quotes being included in the processing.
+
+Initially was using the same seed for all latencies, so that the same stream of orders arrived for each latency setting. 
+However I switched to using to using a fixed seed only at the beginning of the entire experiment. That way there would be 
+a fluctuation between each latency.

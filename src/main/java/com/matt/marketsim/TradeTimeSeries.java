@@ -13,6 +13,11 @@ public class TradeTimeSeries extends TimeSeries {
         this.group = group;
     }
 
+    public TradeTimeSeries(Model model, String s, TradingAgentGroup group, TimeInstant timeInstant, TimeInstant timeInstant1, boolean b, boolean b1) {
+        super(model, s, timeInstant, timeInstant1, b, b1);
+        this.group = group;
+    }
+
     @Override
     public void update(Observable o, Object arg) {
         if (arg instanceof Trade) {

@@ -11,7 +11,7 @@ public class VariableLimitFactory {
     private ContDistNormal normal_shock;
     private ContDistNormal normal_pv;
     private double fundamental_mean;
-    private int n;
+//    private int n;
     private TimeInstant lastTime = null;
 
     public VariableLimitFactory(MarketSimModel model, double sigma_shock, double sigma_pv, double k, double initial_fundamental) {
@@ -24,7 +24,7 @@ public class VariableLimitFactory {
         model.distributionManager.register(this.normal_shock);
         model.distributionManager.register(this.normal_pv);
 
-        this.n = 1;
+//        this.n = 1;
         this.fundamental_mean = initial_fundamental;
         this.fundamental = initial_fundamental;
     }
@@ -50,8 +50,8 @@ public class VariableLimitFactory {
     private void fundamentalIteration() {
         double shock = normal_shock.sample();
         fundamental = Math.max(0, k * fundamental_mean + (1 - k) * fundamental + shock);
-        n++;
-        fundamental_mean = fundamental_mean + (fundamental - fundamental_mean) / n;
+//        n++;
+//        fundamental_mean = fundamental_mean + (fundamental - fundamental_mean) / n;
     }
 
     public VariableLimit create() {

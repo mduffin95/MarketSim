@@ -1,5 +1,6 @@
 package com.matt.marketsim.models;
 
+import com.matt.marketsim.MarketGraph;
 import com.matt.marketsim.dtos.ResultDto;
 import com.matt.marketsim.entities.agents.TradingAgent;
 import desmoj.core.dist.DistributionManager;
@@ -8,7 +9,6 @@ import com.matt.marketsim.entities.NetworkEntity;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleWeightedGraph;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -18,7 +18,7 @@ public abstract class MarketSimModel extends Model {
     int simLength;
     public DistributionManager distributionManager;
     Random generator;
-    SimpleWeightedGraph<NetworkEntity, DefaultWeightedEdge> network;
+    MarketGraph network;
 
     /*
      * Model entities
@@ -34,12 +34,12 @@ public abstract class MarketSimModel extends Model {
     //Agent arrival time.
     public abstract TimeSpan getAgentArrivalTime();
 
-    protected abstract SimpleWeightedGraph<NetworkEntity, DefaultWeightedEdge> getNetwork();
+    protected abstract MarketGraph getNetwork();
 
     public abstract boolean showPacketSendInTrace();
     public abstract boolean showPacketArrivalInTrace();
 
-    abstract SimpleWeightedGraph<NetworkEntity, DefaultWeightedEdge> createNetwork();
+    abstract MarketGraph createNetwork();
 
 
     @Override
@@ -55,9 +55,7 @@ public abstract class MarketSimModel extends Model {
     }
 
     public TimeSpan getLatency(NetworkEntity a, NetworkEntity b) {
-        //TODO: Implement adjacency matrix
-        DefaultWeightedEdge edge = getNetwork().getEdge(a, b);
-        return new TimeSpan(getNetwork().getEdgeWeight(edge));
+        return new TimeSpan(getNetwork().getEdgeWeight(a, b));
     }
 
     public void setSeed(long s) {

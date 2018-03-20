@@ -44,7 +44,7 @@ public class ExchangeTests {
 
     @BeforeEach
     void init() {
-        model = new TwoMarketModel(15000, 250,0,0,0,0,0,0,0,0);
+        model = new TwoMarketModel(15000, 250,0,0,0,0,0,0,0,0, 0);
         exp = new Experiment("Exp1");
         exp.setReferenceUnit(TimeUnit.MILLISECONDS);
         model.connectToExperiment(exp);
