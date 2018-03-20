@@ -31,7 +31,7 @@ public class ModelExperimentController {
     static final double DISCOUNT_RATE = 0.0006;
     static final int SIM_LENGTH = 15000;
     static final int SEED_OFFSET = 1234;
-    static final int ROUNDS = 200;
+    static final int ROUNDS = 50;
     static final int DELTA_STEPS = 11;
     static final int STEP = 100; //How much to increment delta by each time
     static final int NUM_AGENTS = 250; //Make sure this is even
@@ -69,34 +69,24 @@ public class ModelExperimentController {
      * runs the model
      */
     public static void main(String[] args) {
+        long start = System.currentTimeMillis();
         final String dir = "results/tmp/";
         double delta;
         int count = 0;
         List<ResultDto> allResults = new ArrayList<>(ROUNDS * DELTA_STEPS);
-//        for (int i = 0; i < DELTA_STEPS; i++) {
-//            delta = i*STEP;
-//            for (int j=0; j< ROUNDS; j++) {
-//                count++;
-//                ResultDto result = runOnce(SEED_OFFSET + count, delta);
-//                allResults.add(result);
-//                System.out.println(count);
-//            }
-//        }
 
         List<Callable<ResultDto>> tasks = new ArrayList<>();
         for (int i = 0; i < DELTA_STEPS; i++) {
             delta = i * STEP;
             for (int j = 0; j < ROUNDS; j++) {
                 count++;
-//                ResultDto result = runOnce(SEED_OFFSET + count, delta);
-//                allResults.add(result);
                 System.out.println(count);
                 MarketSimCallable c = new MarketSimCallable(SEED_OFFSET + count, delta);
                 tasks.add(c);
             }
         }
 
-        ExecutorService EXEC = Executors.newCachedThreadPool();
+        ExecutorService EXEC = Executors.newFixedThreadPool(8);
         try {
             List<Future<ResultDto>> results = EXEC.invokeAll(tasks);
             for (Future<ResultDto> fr : results) {
@@ -104,9 +94,13 @@ public class ModelExperimentController {
             }
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
+        } finally {
+            EXEC.shutdown();
         }
+        System.out.println(System.currentTimeMillis() - start);
 
         writeToFile(dir, allResults);
+
     }
 
     private static void writeToFile(String dir, List<ResultDto> results) {
