@@ -54,10 +54,11 @@ public class TwoMarketModel extends MarketSimModel {
     private double OFFSET_RANGE;
     private double LAMBDA; //Arrival rate
     private double DISCOUNT_RATE;
-    private int NUM_AGENTS;
+    private int AGENTS_PER_EXCHANGE;
+    private int NUM_EXCHANGES;
 
 
-    public TwoMarketModel(int simLength, int num_agents, double alpha, double mean_fundamental, double k, double var_pv, double var_shock, double range, double lambda, double discountRate, double delta) {
+    public TwoMarketModel(int simLength, int num_exchanges, int agents_per_exchange, double alpha, double mean_fundamental, double k, double var_pv, double var_shock, double range, double lambda, double discountRate, double delta) {
         super(null, "TwoMarketModel", true, true, simLength);
         generator = new Random();
         this.simLength = simLength;
@@ -69,7 +70,8 @@ public class TwoMarketModel extends MarketSimModel {
         this.OFFSET_RANGE = range;
         this.LAMBDA = lambda;
         this.DELTA = delta;
-        this.NUM_AGENTS = num_agents;
+        this.AGENTS_PER_EXCHANGE = agents_per_exchange;
+        this.NUM_EXCHANGES = num_exchanges;
         this.DISCOUNT_RATE = discountRate;
 
         statsObjects = new ArrayList<>();
@@ -141,7 +143,6 @@ public class TwoMarketModel extends MarketSimModel {
     //Create the network of entities
     @Override
     WellmanGraph createNetwork() {
-        int numExchanges = 2;
         boolean la_present = true;
         SecuritiesInformationProcessor sip = new SecuritiesInformationProcessor(this, "Securities Information Processor",
                 SHOW_ENTITIES_IN_TRACE, new TimeSpan(DELTA));
@@ -174,7 +175,7 @@ public class TwoMarketModel extends MarketSimModel {
 
         SimClock clock = this.getExperiment().getSimClock();
         VariableLimitFactory factory = new VariableLimitFactory(this, SIGMA_SHOCK, SIGMA_PV, k, MEAN_FUNDAMENTAL);
-        for (int i = 0; i < numExchanges; i++) {
+        for (int i = 0; i < NUM_EXCHANGES; i++) {
             Exchange exchange = new Exchange(this, "Exchange", sip, SHOW_ENTITIES_IN_TRACE);
             allExchanges.add(exchange);
             TradingAgentGroup group = new TradingAgentGroup();
@@ -192,7 +193,7 @@ public class TwoMarketModel extends MarketSimModel {
                 exchange.registerPriceObserver(arbitrageur);
             }
 
-            for (int j = 0; j < 150; j++) {
+            for (int j = 0; j < AGENTS_PER_EXCHANGE; j++) {
                 OrderRouter router = new BestPriceOrderRouter(clock, exchange);
                 //Market 1
                 TradingAgent agent = new ZIC(this, factory.create(), router, buyOrSell, offsetRangeDist, SHOW_ENTITIES_IN_TRACE);

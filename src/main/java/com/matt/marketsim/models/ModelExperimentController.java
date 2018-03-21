@@ -21,6 +21,8 @@ import org.apache.commons.io.FileUtils;
  * a model to allow results to be averaged.
  */
 public class ModelExperimentController {
+
+    //TODO: Use some sort of parameter object instead
     static final double VAR_SHOCK = 150000000;
     static final double VAR_PV = 100000000;
     static final double k = 0.05;
@@ -31,10 +33,11 @@ public class ModelExperimentController {
     static final double DISCOUNT_RATE = 0.0006;
     static final int SIM_LENGTH = 15000;
     static final int SEED_OFFSET = 1234;
-    static final int ROUNDS = 10;
+    static final int ROUNDS = 200;
     static final int DELTA_STEPS = 11;
     static final int STEP = 100; //How much to increment delta by each time
-    static final int NUM_AGENTS = 250; //Make sure this is even
+    static final int NUM_EXCHANGES = 3; //How much to increment delta by each time
+    static final int AGENTS_PER_EXCHANGE = 100; //Make sure this is even
 
     public static ResultDto runOnce(long seed, double delta) {
 
@@ -44,8 +47,8 @@ public class ModelExperimentController {
         Experiment exp = new Experiment("Exp1");
         exp.setReferenceUnit(timeUnit);
 //        NetworkBuilder builder = new ZIPExperiment(50, 0, 200);
-        MarketSimModel model = new TwoMarketModel(SIM_LENGTH, NUM_AGENTS, ALPHA, MEAN_FUNDAMENTAL, k, VAR_PV, VAR_SHOCK,
-                OFFSET_RANGE, LAMBDA, DISCOUNT_RATE, delta);
+        MarketSimModel model = new TwoMarketModel(SIM_LENGTH, NUM_EXCHANGES, AGENTS_PER_EXCHANGE, ALPHA, MEAN_FUNDAMENTAL,
+                k, VAR_PV, VAR_SHOCK, OFFSET_RANGE, LAMBDA, DISCOUNT_RATE, delta);
         model.setSeed(seed);
         // and connect them
         model.connectToExperiment(exp);
@@ -82,13 +85,13 @@ public class ModelExperimentController {
                 for (int j = 0; j < ROUNDS; j++) {
                     count++;
                     System.out.println(count);
-                    MarketSimCallable c = new MarketSimCallable(SEED_OFFSET + j, delta);
+                    MarketSimCallable c = new MarketSimCallable(SEED_OFFSET + count, delta);
 //                    MarketSimCallable c = new MarketSimCallable(SEED_OFFSET + count, delta);
                     tasks.add(c);
                 }
             }
 
-            ExecutorService EXEC = Executors.newFixedThreadPool(8);
+            ExecutorService EXEC = Executors.newFixedThreadPool(4);
             try {
                 List<Future<ResultDto>> results = EXEC.invokeAll(tasks);
                 for (Future<ResultDto> fr : results) {

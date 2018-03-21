@@ -45,7 +45,7 @@ public class SIPTests {
 
     @BeforeEach
     void init() {
-        model = new TwoMarketModel(15000, 250, 0,0,0,0,0,0,0,0, 0);
+        model = new TwoMarketModel(15000, 2, 150, 0,0,0,0,0,0,0,0, 0);
         exp = new Experiment("Exp1");
         model.connectToExperiment(exp);
 
