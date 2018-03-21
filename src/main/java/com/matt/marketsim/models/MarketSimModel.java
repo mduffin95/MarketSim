@@ -1,13 +1,11 @@
 package com.matt.marketsim.models;
 
-import com.matt.marketsim.MarketGraph;
+import com.matt.marketsim.WellmanGraph;
 import com.matt.marketsim.dtos.ResultDto;
 import com.matt.marketsim.entities.agents.TradingAgent;
 import desmoj.core.dist.DistributionManager;
 import desmoj.core.simulator.*;
 import com.matt.marketsim.entities.NetworkEntity;
-import org.jgrapht.graph.DefaultWeightedEdge;
-import org.jgrapht.graph.SimpleWeightedGraph;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -18,7 +16,7 @@ public abstract class MarketSimModel extends Model {
     int simLength;
     public DistributionManager distributionManager;
     Random generator;
-    MarketGraph network;
+    WellmanGraph network;
 
     /*
      * Model entities
@@ -34,12 +32,12 @@ public abstract class MarketSimModel extends Model {
     //Agent arrival time.
     public abstract TimeSpan getAgentArrivalTime();
 
-    protected abstract MarketGraph getNetwork();
+    protected abstract WellmanGraph getNetwork();
 
     public abstract boolean showPacketSendInTrace();
     public abstract boolean showPacketArrivalInTrace();
 
-    abstract MarketGraph createNetwork();
+    abstract WellmanGraph createNetwork();
 
 
     @Override
