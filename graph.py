@@ -34,6 +34,8 @@ print(averaged)
 def plot(x, ys, labels):
     fig = plt.figure(figsize=(11,8))
     ax1 = fig.add_subplot(111)
+    ax1.set_xlabel('latency')
+    ax1.set_ylabel('surplus')
     for y, l in zip(ys, labels):
         ax1.plot(x_vals, y, label=l)
 

@@ -5,6 +5,9 @@ import com.matt.marketsim.entities.agents.TradingAgent;
 import com.matt.marketsim.models.MarketSimModel;
 import desmoj.core.simulator.SimClock;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /*
  * Route orders to the best exchange. Needs to use the graph to find connected entities.
  */
@@ -12,13 +15,17 @@ public class BestPriceOrderRouter implements OrderRouter {
 //    private MarketSimModel model;
     private MultiMarketView multiMarketView;
     private Exchange primary; //Used when we don't yet have a best bid or offer
-    private SimClock clock;
 
+    private Set<MarketUpdate> previousUpdates;
+//    private SimClock clock;
+
+    //TODO: Clock may not be necessary
     public BestPriceOrderRouter(SimClock clock, Exchange exchange) {
 //        this.model = model;
-        this.clock = clock;
+//        this.clock = clock;
         primary = exchange;
         multiMarketView = new MultiMarketView();
+        previousUpdates = new HashSet<>();
     }
 
     /*
@@ -103,6 +110,10 @@ public class BestPriceOrderRouter implements OrderRouter {
 
     @Override
     public void respond(MarketUpdate update) {
-        multiMarketView.add(update);
+        if (previousUpdates.add(update)) {
+            //Did not already contain this update (so we haven't seen it yet)
+            multiMarketView.add(update);
+        }
+
     }
 }
