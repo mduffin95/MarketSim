@@ -33,11 +33,11 @@ public class ModelExperimentController {
     static final double DISCOUNT_RATE = 0.0006;
     static final int SIM_LENGTH = 15000;
     static final int SEED_OFFSET = 1234;
-    static final int ROUNDS = 200;
+    static final int ROUNDS = 50;
     static final int DELTA_STEPS = 11;
     static final int STEP = 100; //How much to increment delta by each time
-    static final int NUM_EXCHANGES = 3; //How much to increment delta by each time
-    static final int AGENTS_PER_EXCHANGE = 100; //Make sure this is even
+    static final int NUM_EXCHANGES = 2; //How much to increment delta by each time
+    static final int AGENTS_PER_EXCHANGE = 125; //Make sure this is even
 
     public static ResultDto runOnce(long seed, double delta) {
 
@@ -85,7 +85,7 @@ public class ModelExperimentController {
                 for (int j = 0; j < ROUNDS; j++) {
                     count++;
                     System.out.println(count);
-                    MarketSimCallable c = new MarketSimCallable(SEED_OFFSET + count, delta);
+                    MarketSimCallable c = new MarketSimCallable(SEED_OFFSET + j, delta);
 //                    MarketSimCallable c = new MarketSimCallable(SEED_OFFSET + count, delta);
                     tasks.add(c);
                 }

@@ -11,6 +11,7 @@ import com.matt.marketsim.models.TwoMarketModel;
 import desmoj.core.simulator.Experiment;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.SimClock;
+import desmoj.core.simulator.TimeInstant;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -26,25 +27,101 @@ import static org.junit.jupiter.api.Assertions.assertNull;
  */
 public class BestPriceOrderRouterTests {
 
-    TradingAgent tradingAgent;
+    TradingAgent agent1;
+    TradingAgent agent2;
     BestPriceOrderRouter orderRouter;
-    Exchange exchange;
+    Exchange exchange1;
+    Exchange exchange2;
+    SecuritiesInformationProcessor sip;
+    Random generator;
 
     @BeforeEach
     void init() {
-        Model model = new DummyModel();
+        MarketSimModel model = new DummyModel();
+        Experiment exp = new Experiment("TestExperiment");
+        model.connectToExperiment(exp);
 //        tradingAgent = new ZIU(null, );
-        SimClock clock = new SimClock("Clock");
-        exchange = new Exchange(null, "Exchange", null, false);
-        orderRouter = new BestPriceOrderRouter(clock, exchange);
+        exchange1 = new Exchange(model, "Exchange", null, false);
+        exchange2 = new Exchange(model, "Exchange", null, false);
+        generator = new Random();
+        SimClock clock = new SimClock("clock");
+        agent1 = new ZIP(model, 0, new FixedOrderRouter(clock, exchange1), Direction.SELL, generator, false);
+        agent2 = new ZIP(model, 0, new FixedOrderRouter(clock, exchange1), Direction.SELL, generator, false);
+        orderRouter = new BestPriceOrderRouter(null, exchange1);
+
+        sip = new SecuritiesInformationProcessor(model, "TestSIP", false);
     }
 
+    @Test
+    void sendToPrimaryWhenEmpty() {
+        Exchange e = orderRouter.findBestExchange(MessageType.LIMIT_ORDER, Direction.BUY, 105);
+
+        assertEquals(exchange1, e);
+    }
 
     @Test
     void orderRouterTest() {
-        MarketUpdate update = new MarketUpdate(exchange, null, null);
 
-        orderRouter.respond(update);
+        Order o1 = new Order(agent1, exchange1, Direction.SELL, 105, 95);
+        LOBSummary summary1 = new LOBSummary(new TimeInstant(0), null, o1);
+        MarketUpdate update1 = new MarketUpdate(exchange1, null, summary1);
+        orderRouter.respond(update1);
+
+
+        Order o2 = new Order(agent2, exchange1, Direction.SELL, 100, 95);
+        LOBSummary summary2 = new LOBSummary(new TimeInstant(0), null, o2);
+        MarketUpdate update2 = new MarketUpdate(exchange1, null, summary2);
+        orderRouter.respond(update2);
+
+        LOBSummary summary3 = new LOBSummary(new TimeInstant(0), null, o1);
+        MarketUpdate update3 = new MarketUpdate(sip, null, summary3);
+        orderRouter.respond(update3);
+
+//        LOBSummary summary4 = new LOBSummary();
+//        summary4.sellOrder = new Order(null, exchange2, Direction.SELL, 104, 95);
+//        MarketUpdate update4 = new MarketUpdate(sip, null, summary4);
+//        orderRouter.respond(update4);
+
+        Order result = orderRouter.multiMarketView.getBestOffer().order;
+
+        assertEquals(o2, result);
+
+        result = orderRouter.multiMarketView.getBestOffer(exchange1).order;
+
+        assertEquals(o2, result);
+
+    }
+
+    @Test
+    void orderRouterTest2() {
+        //Two offers are sent to an exchange. The better priced one then trades so we send a new update. Then the sip
+        //sends an update with the old traded order due to delay.
+
+        Order o1 = new Order(agent1, exchange1, Direction.SELL, 105, 95);
+        LOBSummary summary1 = new LOBSummary(new TimeInstant(0), null, o1);
+        MarketUpdate update1 = new MarketUpdate(exchange1, null, summary1);
+        orderRouter.respond(update1);
+
+        Order o2 = new Order(agent2, exchange1, Direction.SELL, 100, 95);
+        LOBSummary summary2 = new LOBSummary(new TimeInstant(0), null, o2);
+        MarketUpdate update2 = new MarketUpdate(exchange1, null, summary2);
+        orderRouter.respond(update2);
+
+        //o2 trades so we send this update
+        LOBSummary summary3 = new LOBSummary(new TimeInstant(0), null, o1);
+        Trade t = new Trade(new TimeInstant(0), 100, 1, new Order(null, exchange1, Direction.BUY, 101, 102), o2);
+        MarketUpdate update3 = new MarketUpdate(exchange1, t, summary3);
+        orderRouter.respond(update3);
+
+        //This arrives later from the SIP
+        LOBSummary summary4 = new LOBSummary(new TimeInstant(0), null, o2);
+        MarketUpdate update4 = new MarketUpdate(sip, null, summary4);
+        orderRouter.respond(update4);
+
+//        Exchange e = orderRouter.findBestExchange(MessageType.LIMIT_ORDER, Direction.BUY, 105);
+        Order result = orderRouter.multiMarketView.getBestOffer().order;
+
+        assertEquals(o1, result);
 
     }
 }

@@ -1,5 +1,8 @@
 package com.matt.marketsim;
 
+import desmoj.core.simulator.SimClock;
+import desmoj.core.simulator.TimeInstant;
+
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.PriorityQueue;
@@ -52,21 +55,8 @@ public class OrderBook {
         sellQueue.clear();
     }
 
-    //TODO: Make this more efficient
-    public LOBSummary getSummary(int depth) {
-        Order[] buyArray = buyQueue.toArray(new Order[buyQueue.size()]);
-        Order[] sellArray = sellQueue.toArray(new Order[sellQueue.size()]);
-
-        Arrays.sort(buyArray, Comparator.reverseOrder());
-        Arrays.sort(sellArray);
-
-        LOBSummary summary = new LOBSummary(depth);
-        for(int i=0; i<depth; i++) {
-            summary.buyOrders[i] = i<buyArray.length ? buyArray[i] : null;
-            summary.sellOrders[i] = i<sellArray.length ? sellArray[i] : null;
-        }
-
-        return summary;
+    public LOBSummary getSummary(SimClock clock) {
+        return new LOBSummary(clock.getTime(), getBestBuyOrder(), getBestSellOrder());
     }
 
     public void printOrderBook() {

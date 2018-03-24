@@ -16,8 +16,8 @@ public class SecuritiesInformationProcessor extends NetworkEntity implements Pri
 
     private MultiMarketView multiMarketView;
 
-    private Order bestBid;
-    private Order bestOffer;
+    private OrderTimeStamped bestBid;
+    private OrderTimeStamped bestOffer;
     private TimeSpan delta;
 
     private List<NetworkEntity> observers;
@@ -58,8 +58,8 @@ public class SecuritiesInformationProcessor extends NetworkEntity implements Pri
 
 
         multiMarketView.add(update);
-        Order oldBestBid = bestBid;
-        Order oldBestOffer = bestOffer;
+        OrderTimeStamped oldBestBid = bestBid;
+        OrderTimeStamped oldBestOffer = bestOffer;
         bestBid = multiMarketView.getBestBid();
         bestOffer = multiMarketView.getBestOffer();
 
@@ -86,14 +86,12 @@ public class SecuritiesInformationProcessor extends NetworkEntity implements Pri
     }
 
     private MarketUpdate updateObservers() {
-        String bidString = bestBid == null ? "none" : String.valueOf(bestBid.getPrice());
-        String offerString = bestOffer == null ? "none" : String.valueOf(bestOffer.getPrice());
+        String bidString = bestBid == null ? "none" : String.valueOf(bestBid.order.getPrice());
+        String offerString = bestOffer == null ? "none" : String.valueOf(bestOffer.order.getPrice());
 
         sendTraceNote("NBBO: BUY = " + bidString + ", SELL = " + offerString);
 
-        LOBSummary summary = new LOBSummary(1);
-        summary.buyOrders[0] = bestBid;
-        summary.sellOrders[0] = bestOffer;
+        LOBSummary summary = new LOBSummary(bestBid, bestOffer);
 
         MarketUpdate m = new MarketUpdate(this, null, summary);
 

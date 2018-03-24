@@ -39,7 +39,7 @@ public class Exchange extends NetworkEntity implements PriceProvider {
         String note = "Handling order: " + order.toString();
         sendTraceNote(note);
 
-        LOBSummary original = orderBook.getSummary(1);
+        LOBSummary original = orderBook.getSummary(clock);
         orderBook.add(order);
 
         Order b = orderBook.getBestBuyOrder();
@@ -67,7 +67,7 @@ public class Exchange extends NetworkEntity implements PriceProvider {
             orderBook.pollBestSellOrder();
         }
 
-        LOBSummary newSummary = orderBook.getSummary(1);
+        LOBSummary newSummary = orderBook.getSummary(clock);
         if (newSummary.getBestBuyOrder() != original.getBestBuyOrder() ||
                 newSummary.getBestSellOrder() != original.getBestSellOrder() ||
                 newTrade != null) {

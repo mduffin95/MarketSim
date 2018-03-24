@@ -43,8 +43,8 @@ public class Arbitrageur extends TradingAgent {
 
     @Override
     public void onMarketUpdate(MarketUpdate update) {
-        Order bid = update.summary.getBestBuyOrder();
-        Order offer = update.summary.getBestSellOrder();
+        Order bid = update.summary.getBestBuyOrder().order;
+        Order offer = update.summary.getBestSellOrder().order;
 
         if ((null == bestBid ^ null == bid) ||
                 null != bid &&

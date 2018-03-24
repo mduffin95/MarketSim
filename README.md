@@ -41,3 +41,10 @@ t + delta, however this sounds like it could lead to later quotes being included
 Initially was using the same seed for all latencies, so that the same stream of orders arrived for each latency setting. 
 However I switched to using to using a fixed seed only at the beginning of the entire experiment. That way there would be 
 a fluctuation between each latency.
+
+### Week 7 - March 22nd - March 28th
+Found a small quirk in the way that MarketUpdates (quotes) are handled by trading agents. Take a scenario where a quote is sent simultaneously
+from an exchange to its observers (trading agents) and also the SIP. Imagine an order in this quote makes it into the NBBO.
+Now this order executes on the exchange and a new quote is sent out. However, the NBBO has already been sent to the trading agents.
+Now the stale NBBO will replace the correct quote from the primary exchange. This is something that you wouldn't do in real
+life though because you would trust your data from your primary exchange more than the NBBO.

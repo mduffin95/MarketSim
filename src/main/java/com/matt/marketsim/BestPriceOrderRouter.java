@@ -12,8 +12,8 @@ import java.util.Set;
  * Route orders to the best exchange. Needs to use the graph to find connected entities.
  */
 public class BestPriceOrderRouter implements OrderRouter {
-//    private MarketSimModel model;
-    private MultiMarketView multiMarketView;
+    //public for testing purposes
+    public MultiMarketView multiMarketView;
     private Exchange primary; //Used when we don't yet have a best bid or offer
 
     private Set<MarketUpdate> previousUpdates;
@@ -36,10 +36,20 @@ public class BestPriceOrderRouter implements OrderRouter {
     public Order routeOrder(TradingAgent agent, MessageType type, Direction direction, int price, int limit) {
         //TODO: This still has an issue when an out of date bid from our primary exchange is sent to us from the SIP.
         //We should always trust the individual market info more than the NBBO.
-        Order bestOffer = multiMarketView.getBestOffer();
-        Order bestBid = multiMarketView.getBestBid();
-        Order primaryBestOffer = multiMarketView.getBestOffer(primary);
-        Order primaryBestBid = multiMarketView.getBestBid(primary);
+
+        Exchange e = findBestExchange(type, direction, price);
+
+        Order newOrder = new Order(agent, e, direction, price, limit);
+        e.send(agent, type, newOrder);
+        return newOrder;
+    }
+
+    //Public for testing purposes
+    public Exchange findBestExchange(MessageType type, Direction direction, int price) {
+        Order bestOffer = multiMarketView.getBestOffer().order;
+        Order bestBid = multiMarketView.getBestBid().order;
+        Order primaryBestOffer = multiMarketView.getBestOffer(primary).order;
+        Order primaryBestBid = multiMarketView.getBestBid(primary).order;
         Exchange e;
         if (direction == Direction.BUY) {
             //TODO: Need a better way of comparing these orders which can be null
@@ -72,9 +82,7 @@ public class BestPriceOrderRouter implements OrderRouter {
             }
         }
 
-        Order newOrder = new Order(agent, e, direction, price, limit);
-        e.send(agent, type, newOrder);
-        return newOrder;
+        return e;
     }
 
     private boolean greaterThan(Order a, Order b) {
@@ -96,17 +104,6 @@ public class BestPriceOrderRouter implements OrderRouter {
         }
         return a.getPrice() < b.getPrice();
     }
-
-//    @Override
-//    public void routeOrder(Order order) {
-//        if (order.direction == Direction.BUY) {
-//            order.setExchange()
-//        } else {
-//            newOrder = new Order(agent, bestBid.getExchange(), direction, price);
-//        }
-//        newOrder.getExchange().send(agent, type, newOrder);
-//        return newOrder;
-//    }
 
     @Override
     public void respond(MarketUpdate update) {

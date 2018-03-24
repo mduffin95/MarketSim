@@ -1,21 +1,30 @@
 package com.matt.marketsim;
 
+import desmoj.core.simulator.SimClock;
+import desmoj.core.simulator.TimeInstant;
+
 public class LOBSummary {
-    public int depth;
-    public Order[] buyOrders;
-    public Order[] sellOrders;
+    public OrderTimeStamped buyOrder;
+    public OrderTimeStamped sellOrder;
 
-    public LOBSummary(int depth) {
-        this.depth = depth;
-        buyOrders = new Order[depth];
-        sellOrders = new Order[depth];
+    public LOBSummary() {
     }
 
-    public Order getBestBuyOrder() {
-        return buyOrders[0];
+    public LOBSummary(TimeInstant time, Order buyOrder, Order sellOrder) {
+        this.buyOrder = new OrderTimeStamped(time, buyOrder);
+        this.sellOrder = new OrderTimeStamped(time, sellOrder);
     }
 
-    public Order getBestSellOrder() {
-        return sellOrders[0];
+    public LOBSummary(OrderTimeStamped buyOrder, OrderTimeStamped sellOrder) {
+        this.buyOrder = buyOrder;
+        this.sellOrder = sellOrder;
+    }
+
+    public OrderTimeStamped getBestBuyOrder() {
+        return buyOrder;
+    }
+
+    public OrderTimeStamped getBestSellOrder() {
+        return sellOrder;
     }
 }

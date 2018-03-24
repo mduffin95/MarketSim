@@ -1,16 +1,11 @@
 import com.matt.marketsim.*;
-import com.matt.marketsim.builders.NetworkBuilder;
 import com.matt.marketsim.entities.*;
-import com.matt.marketsim.entities.agents.TradingAgent;
 import com.matt.marketsim.entities.agents.ZIP;
+import com.matt.marketsim.models.DummyModel;
 import com.matt.marketsim.models.TwoMarketModel;
 import desmoj.core.simulator.Experiment;
 import desmoj.core.simulator.SimClock;
-import desmoj.core.simulator.TimeInstant;
-import desmoj.core.simulator.TimeSpan;
 import com.matt.marketsim.models.MarketSimModel;
-import org.jgrapht.graph.DefaultWeightedEdge;
-import org.jgrapht.graph.SimpleWeightedGraph;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -44,7 +39,7 @@ public class ExchangeTests {
 
     @BeforeEach
     void init() {
-        model = new TwoMarketModel(15000, 2, 150,0,0,0,0,0,0,0,0, 0);
+        model = new DummyModel();
         exp = new Experiment("Exp1");
         exp.setReferenceUnit(TimeUnit.MILLISECONDS);
         model.connectToExperiment(exp);
