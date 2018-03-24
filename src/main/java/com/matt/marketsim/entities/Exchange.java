@@ -1,10 +1,8 @@
 package com.matt.marketsim.entities;
 
 import com.matt.marketsim.*;
-import com.matt.marketsim.models.MarketSimModel;
 import desmoj.core.simulator.*;
 import com.matt.marketsim.MessageType;
-import desmoj.core.statistic.ValueSupplier;
 
 import java.util.*;
 
@@ -68,9 +66,7 @@ public class Exchange extends NetworkEntity implements PriceProvider {
         }
 
         LOBSummary newSummary = orderBook.getSummary(clock);
-        if (newSummary.getBestBuyOrder() != original.getBestBuyOrder() ||
-                newSummary.getBestSellOrder() != original.getBestSellOrder() ||
-                newTrade != null) {
+        if (!newSummary.equals(original) || newTrade != null) { //Not sure you will end up in a situation where newtrade != null but the summaries are equal.
             MarketUpdate update = new MarketUpdate(this, newTrade, newSummary);
             MessageType msg;
 

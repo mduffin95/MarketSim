@@ -63,7 +63,7 @@ public class ExchangeTests {
 //        Order orderBuy = new DummyOrder(40, 50, Direction.BUY);
 //        Order orderSell = new DummyOrder(50, 40, Direction.SELL);
 //        exchange.onLimitOrder(orderBuy);
-//        assertEquals(orderBuy, exchange.getOrderBook().getBestBuyOrder(), "Buy order not inserted into order book correctly.");
+//        assertEquals(orderBuy, exchange.getOrderBook().getBuyQuote(), "Buy order not inserted into order book correctly.");
 //
 //        exchange.onLimitOrder(orderSell);
 //        assertEquals(orderSell, exchange.getOrderBook().getBestSellOrder(), "Sell order not inserted into order book correctly");

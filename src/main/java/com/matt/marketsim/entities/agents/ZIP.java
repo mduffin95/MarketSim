@@ -1,9 +1,7 @@
 package com.matt.marketsim.entities.agents;
 
 import com.matt.marketsim.*;
-import com.matt.marketsim.LimitProvider;
 import com.matt.marketsim.models.MarketSimModel;
-import desmoj.core.simulator.Model;
 
 import java.util.Random;
 
@@ -87,10 +85,10 @@ public class ZIP extends TradingAgent {
         Direction lastOrderDirection = null;
         int price;
 
-        Order currentBestBuy = (null == currentSummary) ? null : currentSummary.getBestBuyOrder().order;
-        Order currentBestSell = (null == currentSummary) ? null : currentSummary.getBestSellOrder().order;
+        QuoteData currentBestBuy = (null == currentSummary) ? null : currentSummary.getBuyQuote();
+        QuoteData currentBestSell = (null == currentSummary) ? null : currentSummary.getSellQuote();
 
-        if (currentBestBuy != summary.getBestBuyOrder().order) {
+        if (currentBestBuy != summary.getBuyQuote()) {
             //Either new buy order or trade occurred that cleared with the buy order
             if (deal) {
                 //Most recent order was a sell order
@@ -99,9 +97,9 @@ public class ZIP extends TradingAgent {
             } else {
                 //Most recent order was a buy order
                 lastOrderDirection = Direction.BUY;
-                price = summary.getBestBuyOrder().order.getPrice();
+                price = summary.getBuyQuote().getPrice();
             }
-        } else if (currentBestSell != summary.getBestSellOrder().order) {
+        } else if (currentBestSell != summary.getSellQuote()) {
             //Either new sell order or trade occurred that cleared with the sell order
             if (deal) {
                 //Most recent order was a buy order
@@ -110,7 +108,7 @@ public class ZIP extends TradingAgent {
             } else {
                 //Most recent order was a sell order
                 lastOrderDirection = Direction.SELL;
-                price = summary.getBestSellOrder().order.getPrice();
+                price = summary.getSellQuote().getPrice();
             }
         } else {
             //Nothing has changed

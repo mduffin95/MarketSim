@@ -1,25 +1,18 @@
 import com.matt.marketsim.*;
 import com.matt.marketsim.entities.Exchange;
-import com.matt.marketsim.entities.Packet;
 import com.matt.marketsim.entities.SecuritiesInformationProcessor;
 import com.matt.marketsim.entities.agents.TradingAgent;
 import com.matt.marketsim.entities.agents.ZIP;
-import com.matt.marketsim.entities.agents.ZIU;
 import com.matt.marketsim.models.DummyModel;
 import com.matt.marketsim.models.MarketSimModel;
-import com.matt.marketsim.models.TwoMarketModel;
 import desmoj.core.simulator.Experiment;
-import desmoj.core.simulator.Model;
 import desmoj.core.simulator.SimClock;
 import desmoj.core.simulator.TimeInstant;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Random;
-import java.util.concurrent.TimeUnit;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 
 /*
@@ -54,7 +47,7 @@ public class BestPriceOrderRouterTests {
 
     @Test
     void sendToPrimaryWhenEmpty() {
-        Exchange e = orderRouter.findBestExchange(MessageType.LIMIT_ORDER, Direction.BUY, 105);
+        Exchange e = orderRouter.findBestExchange(Direction.BUY, 105);
 
         assertEquals(exchange1, e);
     }
@@ -69,7 +62,7 @@ public class BestPriceOrderRouterTests {
 
 
         Order o2 = new Order(agent2, exchange1, Direction.SELL, 100, 95);
-        LOBSummary summary2 = new LOBSummary(new TimeInstant(0), null, o2);
+        LOBSummary summary2 = new LOBSummary(new TimeInstant(1), null, o2);
         MarketUpdate update2 = new MarketUpdate(exchange1, null, summary2);
         orderRouter.respond(update2);
 
@@ -78,17 +71,17 @@ public class BestPriceOrderRouterTests {
         orderRouter.respond(update3);
 
 //        LOBSummary summary4 = new LOBSummary();
-//        summary4.sellOrder = new Order(null, exchange2, Direction.SELL, 104, 95);
+//        summary4.sellQuote = new Order(null, exchange2, Direction.SELL, 104, 95);
 //        MarketUpdate update4 = new MarketUpdate(sip, null, summary4);
 //        orderRouter.respond(update4);
 
-        Order result = orderRouter.multiMarketView.getBestOffer().order;
+        QuoteData result = orderRouter.multiMarketView.getBestOffer();
 
-        assertEquals(o2, result);
+        assertEquals(o2.getQuote(new TimeInstant(0)), result);
 
-        result = orderRouter.multiMarketView.getBestOffer(exchange1).order;
+        result = orderRouter.multiMarketView.getBestOffer(exchange1);
 
-        assertEquals(o2, result);
+        assertEquals(o2.getQuote(new TimeInstant(0)), result);
 
     }
 
@@ -103,25 +96,27 @@ public class BestPriceOrderRouterTests {
         orderRouter.respond(update1);
 
         Order o2 = new Order(agent2, exchange1, Direction.SELL, 100, 95);
-        LOBSummary summary2 = new LOBSummary(new TimeInstant(0), null, o2);
+        LOBSummary summary2 = new LOBSummary(new TimeInstant(1), null, o2);
         MarketUpdate update2 = new MarketUpdate(exchange1, null, summary2);
         orderRouter.respond(update2);
 
         //o2 trades so we send this update
-        LOBSummary summary3 = new LOBSummary(new TimeInstant(0), null, o1);
-        Trade t = new Trade(new TimeInstant(0), 100, 1, new Order(null, exchange1, Direction.BUY, 101, 102), o2);
+        LOBSummary summary3 = new LOBSummary(new TimeInstant(2), null, o1);
+        Trade t = new Trade(new TimeInstant(2), 100, 1, new Order(null, exchange1, Direction.BUY, 101, 102), o2);
         MarketUpdate update3 = new MarketUpdate(exchange1, t, summary3);
         orderRouter.respond(update3);
 
         //This arrives later from the SIP
-        LOBSummary summary4 = new LOBSummary(new TimeInstant(0), null, o2);
+        LOBSummary summary4 = new LOBSummary(new TimeInstant(1), null, o2);
         MarketUpdate update4 = new MarketUpdate(sip, null, summary4);
         orderRouter.respond(update4);
 
 //        Exchange e = orderRouter.findBestExchange(MessageType.LIMIT_ORDER, Direction.BUY, 105);
-        Order result = orderRouter.multiMarketView.getBestOffer().order;
+        QuoteData result = orderRouter.multiMarketView.getBestOffer();
 
-        assertEquals(o1, result);
+        QuoteData q = o1.getQuote(new TimeInstant(2));
+
+        assertEquals(q, result);
 
     }
 }

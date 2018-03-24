@@ -7,8 +7,8 @@ import desmoj.core.simulator.Model;
  * Doesn't use and order router. Instead handles the submission of orders itself.
  */
 public class Arbitrageur extends TradingAgent {
-    private Order bestBid;
-    private Order bestOffer;
+    private QuoteData bestBid;
+    private QuoteData bestOffer;
     private double alpha;
 
     public Arbitrageur(Model model, double alpha, boolean showInTrace) {
@@ -17,9 +17,9 @@ public class Arbitrageur extends TradingAgent {
     }
 
     @Override
-    public void doSomething() {
-        return;
-    } //Shouldn't be called because we don't register to be scheduled
+    public void doSomething() { //Shouldn't be called because we don't register to be scheduled
+        throw new UnsupportedOperationException();
+    }
 
     private boolean checkArbitrage() {
         if (null == bestBid || null == bestOffer) return false;
@@ -43,19 +43,19 @@ public class Arbitrageur extends TradingAgent {
 
     @Override
     public void onMarketUpdate(MarketUpdate update) {
-        Order bid = update.summary.getBestBuyOrder().order;
-        Order offer = update.summary.getBestSellOrder().order;
+        QuoteData bid = update.summary.getBuyQuote();
+        QuoteData offer = update.summary.getSellQuote();
 
         if ((null == bestBid ^ null == bid) ||
                 null != bid &&
                         (bid.getPrice() > bestBid.getPrice() ||
-                                (bid.getExchange() == bestBid.getExchange() && bid != bestBid))) {
+                                (bid.getExchange().equals(bestBid.getExchange()) && !bid.equals(bestBid)))) {
             bestBid = bid;
         }
         if ((null == bestOffer ^ null == offer) ||
                 null != offer &&
                         (offer.getPrice() < bestOffer.getPrice() ||
-                                (offer.getExchange() == bestOffer.getExchange() && offer != bestOffer))) {
+                                (offer.getExchange().equals(bestOffer.getExchange()) && !offer.equals(bestOffer)))) {
             bestOffer = offer;
         }
 

@@ -5,19 +5,16 @@ import com.matt.marketsim.*;
 
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeSpan;
-import desmoj.core.statistic.TimeSeries;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class SecuritiesInformationProcessor extends NetworkEntity implements PriceProvider {
 
     private MultiMarketView multiMarketView;
 
-    private OrderTimeStamped bestBid;
-    private OrderTimeStamped bestOffer;
+    private QuoteData bestBid;
+    private QuoteData bestOffer;
     private TimeSpan delta;
 
     private List<NetworkEntity> observers;
@@ -54,17 +51,20 @@ public class SecuritiesInformationProcessor extends NetworkEntity implements Pri
     }
 
     public MarketUpdate marketUpdateHelper(MarketUpdate update) {
-//        sendTraceNote("SIP quote: BUY = " + quote.getBestBuyOrder().price + ", SELL = " + quote.getBestSellOrder().price);
+//        sendTraceNote("SIP quote: BUY = " + quote.getBuyQuote().price + ", SELL = " + quote.getBestSellOrder().price);
 
 
         multiMarketView.add(update);
-        OrderTimeStamped oldBestBid = bestBid;
-        OrderTimeStamped oldBestOffer = bestOffer;
+        QuoteData oldBestBid = bestBid;
+        QuoteData oldBestOffer = bestOffer;
         bestBid = multiMarketView.getBestBid();
         bestOffer = multiMarketView.getBestOffer();
 
         MarketUpdate m = null;
-        if (bestBid != oldBestBid || bestOffer != oldBestOffer) {
+        if ((null == bestBid) ? (null == oldBestBid) : (bestBid.equals(oldBestBid))) {
+            m = updateObservers();
+        }
+        if ((null == bestOffer) ? (null == oldBestOffer) : (bestOffer.equals(oldBestOffer))) {
             m = updateObservers();
         }
         return m;
@@ -86,8 +86,8 @@ public class SecuritiesInformationProcessor extends NetworkEntity implements Pri
     }
 
     private MarketUpdate updateObservers() {
-        String bidString = bestBid == null ? "none" : String.valueOf(bestBid.order.getPrice());
-        String offerString = bestOffer == null ? "none" : String.valueOf(bestOffer.order.getPrice());
+        String bidString = bestBid == null ? "none" : String.valueOf(bestBid.getPrice());
+        String offerString = bestOffer == null ? "none" : String.valueOf(bestOffer.getPrice());
 
         sendTraceNote("NBBO: BUY = " + bidString + ", SELL = " + offerString);
 
