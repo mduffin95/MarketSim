@@ -59,7 +59,7 @@ public class SIPTests {
 
     @Test
     void emptyNBBO_SingleNewBuyOrder() {
-        LOBSummary lobSummary = new LOBSummary(new TimeInstant(0), buyOrder, null);
+        LOBSummary lobSummary = new LOBSummary(new TimeInstant(0), exchange1, buyOrder, null);
         MarketUpdate marketUpdate = new MarketUpdate(exchange1,null, lobSummary);
         MarketUpdate update = sip.marketUpdateHelper(marketUpdate);
 
@@ -68,7 +68,7 @@ public class SIPTests {
 
     @Test
     void emptyNBBO_SingleNewSellOrder() {
-        LOBSummary lobSummary = new LOBSummary(new TimeInstant(0), null, sellOrder);
+        LOBSummary lobSummary = new LOBSummary(new TimeInstant(0), exchange1, null, sellOrder);
         MarketUpdate marketUpdate = new MarketUpdate(exchange1,null, lobSummary);
         MarketUpdate update = sip.marketUpdateHelper(marketUpdate);
 
@@ -86,9 +86,9 @@ public class SIPTests {
         Order buyOrder1 = new Order(agent1, exchange1, agent1.direction, 100, 100);
         Order buyOrder2 = new Order(agent1, exchange2, agent1.direction, 95, 100);
         Order buyOrder3 = new Order(agent2, exchange1, agent1.direction, 90, 100);
-        LOBSummary lobSummary1 = new LOBSummary(new TimeInstant(0), buyOrder1, null);
-        LOBSummary lobSummary2 = new LOBSummary(new TimeInstant(0), buyOrder2, null);
-        LOBSummary lobSummary3 = new LOBSummary(new TimeInstant(0), buyOrder3, null);
+        LOBSummary lobSummary1 = new LOBSummary(new TimeInstant(0), exchange1, buyOrder1, null);
+        LOBSummary lobSummary2 = new LOBSummary(new TimeInstant(0), exchange2, buyOrder2, null);
+        LOBSummary lobSummary3 = new LOBSummary(new TimeInstant(0), exchange1, buyOrder3, null);
         MarketUpdate marketUpdate1 = new MarketUpdate(exchange1,null, lobSummary1);
         MarketUpdate marketUpdate2 = new MarketUpdate(exchange2,null, lobSummary2);
         MarketUpdate marketUpdate3 = new MarketUpdate(exchange1,null, lobSummary3);
@@ -104,9 +104,9 @@ public class SIPTests {
         Order buyOrder1 = new Order(agent1, exchange1, agent1.direction, 95, 100);
         Order buyOrder2 = new Order(agent1, exchange2, agent1.direction, 90, 100);
         Order buyOrder3 = new Order(agent2, exchange1, agent1.direction, 100, 100);
-        LOBSummary lobSummary1 = new LOBSummary(new TimeInstant(0), buyOrder1, null);
-        LOBSummary lobSummary2 = new LOBSummary(new TimeInstant(1), buyOrder2, null);
-        LOBSummary lobSummary3 = new LOBSummary(new TimeInstant(2), buyOrder3, null);
+        LOBSummary lobSummary1 = new LOBSummary(new TimeInstant(0), exchange1, buyOrder1, null);
+        LOBSummary lobSummary2 = new LOBSummary(new TimeInstant(1), exchange2, buyOrder2, null);
+        LOBSummary lobSummary3 = new LOBSummary(new TimeInstant(2), exchange1, buyOrder3, null);
         MarketUpdate marketUpdate1 = new MarketUpdate(exchange1,null, lobSummary1);
         MarketUpdate marketUpdate2 = new MarketUpdate(exchange2,null, lobSummary2);
         MarketUpdate marketUpdate3 = new MarketUpdate(exchange1,null, lobSummary3);
@@ -122,9 +122,9 @@ public class SIPTests {
         Order buyOrder1 = new Order(agent1, exchange1, agent1.direction, 100, 100);
         Order buyOrder2 = new Order(agent1, exchange2, agent1.direction, 90, 100);
         Order buyOrder3 = new Order(agent2, exchange1, agent1.direction, 95, 100);
-        LOBSummary lobSummary1 = new LOBSummary(new TimeInstant(0), buyOrder1, null);
-        LOBSummary lobSummary2 = new LOBSummary(new TimeInstant(0), buyOrder2, null);
-        LOBSummary lobSummary3 = new LOBSummary(new TimeInstant(0), buyOrder3, null);
+        LOBSummary lobSummary1 = new LOBSummary(new TimeInstant(0), exchange1, buyOrder1, null);
+        LOBSummary lobSummary2 = new LOBSummary(new TimeInstant(0), exchange2, buyOrder2, null);
+        LOBSummary lobSummary3 = new LOBSummary(new TimeInstant(0), exchange1, buyOrder3, null);
         MarketUpdate marketUpdate1 = new MarketUpdate(exchange1,null, lobSummary1);
         MarketUpdate marketUpdate2 = new MarketUpdate(exchange2,null, lobSummary2);
         MarketUpdate marketUpdate3 = new MarketUpdate(exchange1,null, lobSummary3);

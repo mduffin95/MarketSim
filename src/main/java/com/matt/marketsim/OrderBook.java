@@ -1,5 +1,6 @@
 package com.matt.marketsim;
 
+import com.matt.marketsim.entities.Exchange;
 import desmoj.core.simulator.SimClock;
 import desmoj.core.simulator.TimeInstant;
 
@@ -55,8 +56,8 @@ public class OrderBook {
         sellQueue.clear();
     }
 
-    public LOBSummary getSummary(SimClock clock) {
-        return new LOBSummary(clock.getTime(), getBestBuyOrder(), getBestSellOrder());
+    public LOBSummary getSummary(SimClock clock, Exchange e) {
+        return new LOBSummary(clock.getTime(), e, getBestBuyOrder(), getBestSellOrder());
     }
 
     public void printOrderBook() {

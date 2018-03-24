@@ -64,7 +64,7 @@ public class Order implements Comparable<Order> {
     }
 
     public QuoteData getQuote(TimeInstant time) {
-        return new QuoteData(time, this);
+        return new QuoteData(time, exchange, this);
     }
 
 }

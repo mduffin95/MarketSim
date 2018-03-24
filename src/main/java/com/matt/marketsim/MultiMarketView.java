@@ -27,29 +27,27 @@ public class MultiMarketView {
             return;
 
         QuoteData bid = summary.getBuyQuote();
-        checkAndUpdate(bid);
+        checkAndUpdate(bid, bidSummaryMap);
         QuoteData offer = summary.getSellQuote();
-        checkAndUpdate(offer);
+        checkAndUpdate(offer, offerSummaryMap);
     }
 
-    private void checkAndUpdate(QuoteData newQuote) {
+    private void checkAndUpdate(QuoteData newQuote, Map<Exchange, QuoteData> map) {
         if (null != newQuote) {
-            QuoteData oldQuote;
-            Map<Exchange, QuoteData> map;
-            if (newQuote.direction == Direction.BUY){
-                map = bidSummaryMap;
-            } else {
-                map = offerSummaryMap;
+            if (newQuote.isEmpty()) {
+                //Always supersedes whatever is already present
+                map.put(newQuote.exchange, newQuote);
+                return;
             }
-            oldQuote = map.get(newQuote.exchange);
+            QuoteData oldQuote = map.get(newQuote.exchange);
             if (null == oldQuote) {
                 map.put(newQuote.exchange, newQuote);
-            } else {
-                if (!newQuote.getExchange().equals(oldQuote.getExchange()) || newQuote.moreRecentThan(oldQuote)) {
-                    //Either quotes are from different exchanges, or they are from the same exchange and the new one is more recent
-                    map.put(newQuote.exchange, newQuote);
-                }
+            } else if (!newQuote.getExchange().equals(oldQuote.getExchange()) || newQuote.moreRecentThan(oldQuote)) {
+                //Either quotes are from different exchanges, or they are from the same exchange and the new one is more recent
+                map.put(newQuote.exchange, newQuote);
             }
+        } else {
+            throw new RuntimeException("Quotes should not be null."); //This shouldn't happen
         }
     }
 
@@ -60,7 +58,7 @@ public class MultiMarketView {
             if (null == bid) {
                 continue;
             }
-            if (null == bestBid || bid.getPrice() > bestBid.getPrice()) {
+            if (null == bestBid || bestBid.isEmpty() || (!bid.isEmpty() && bid.getPrice() > bestBid.getPrice())) {
                 bestBid = bid;
             }
         }
@@ -74,7 +72,7 @@ public class MultiMarketView {
             if (null == offer) {
                 continue;
             }
-            if (null == bestOffer || offer.getPrice() < bestOffer.getPrice()) {
+            if (null == bestOffer || bestOffer.isEmpty() || (!offer.isEmpty() && offer.getPrice() < bestOffer.getPrice())) {
                 bestOffer = offer;
             }
         }

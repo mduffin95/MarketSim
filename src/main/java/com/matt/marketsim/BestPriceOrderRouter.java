@@ -50,9 +50,10 @@ public class BestPriceOrderRouter implements OrderRouter {
         Exchange e;
         if (direction == Direction.BUY) {
             //TODO: Need a better way of comparing these orders which can be null
-            if ((null != bestOffer && null == primaryBestOffer) || QuoteData.lessThan(bestOffer, primaryBestOffer)) {
+            if (null != bestOffer && !bestOffer.isEmpty() && (null == primaryBestOffer || primaryBestOffer.isEmpty()) ||
+                    QuoteData.lessThan(bestOffer, primaryBestOffer)) {
                 //NBBO price is better than the primary market.
-                if (bestOffer.getPrice() < price) {
+                if (!bestOffer.isEmpty() && bestOffer.getPrice() < price) {
                     //Trade will transact immediately so send to other market.
                     e = bestOffer.getExchange();
                 } else {
@@ -65,7 +66,7 @@ public class BestPriceOrderRouter implements OrderRouter {
         } else {
             if (QuoteData.greaterThan(bestBid, primaryBestBid)) {
                 //NBBO price is better than primary market.
-                if (bestBid.getPrice() > price) {
+                if (!bestBid.isEmpty() && bestBid.getPrice() > price) {
                     //Trade will transact immediately so send to other market.
                     e = bestBid.getExchange();
                 } else {

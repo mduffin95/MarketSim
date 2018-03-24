@@ -2,28 +2,36 @@ package com.matt.marketsim;
 
 import com.matt.marketsim.entities.Exchange;
 import desmoj.core.simulator.TimeInstant;
+import desmoj.extensions.experimentation.util.Run;
 
 //An Order/Time pair used for quotes/updates
 public class QuoteData {
     public Exchange exchange;
-    public Direction direction;
     public int price;
     public TimeInstant validTime;
+    private boolean empty;
 
     public QuoteData(Exchange exchange, Direction direction, int price, TimeInstant validTime) {
         this.exchange = exchange;
-        this.direction = direction;
         this.price = price;
         this.validTime = validTime;
+        this.empty = false;
     }
 
-    public QuoteData(TimeInstant validTime, Order order) {
-        if (null != order) {
+    public QuoteData(TimeInstant validTime, Exchange e, Order order) {
+        this.exchange = e;
+        if (null == order) {
+            empty = true;
+        } else {
+            empty = false;
             this.exchange = order.getExchange();
-            this.direction = order.getDirection();
             this.price = order.getPrice();
         }
         this.validTime = validTime;
+    }
+
+    public boolean isEmpty() {
+        return empty;
     }
 
     @Override
@@ -35,7 +43,7 @@ public class QuoteData {
             return false;
         }
         final QuoteData other = (QuoteData) obj;
-        if (this.exchange == other.exchange && this.direction == other.direction && this.price == other.price) {
+        if (this.exchange == other.exchange && this.price == other.price) {
             return true;
         }
         return false;
@@ -45,11 +53,9 @@ public class QuoteData {
         return exchange;
     }
 
-    public Direction getDirection() {
-        return direction;
-    }
-
     public int getPrice() {
+        if (isEmpty())
+            throw new RuntimeException("No price - empty quote.");
         return price;
     }
 
@@ -68,6 +74,12 @@ public class QuoteData {
         if (null == a) {
             return false;
         }
+        if (a.isEmpty()) {
+            return false;
+        }
+        if (b.isEmpty()) {
+            return true;
+        }
         return a.getPrice() > b.getPrice();
     }
 
@@ -76,6 +88,12 @@ public class QuoteData {
             return true;
         }
         if (null == b) {
+            return false;
+        }
+        if (a.isEmpty()) {
+            return true;
+        }
+        if (b.isEmpty()) {
             return false;
         }
         return a.getPrice() < b.getPrice();

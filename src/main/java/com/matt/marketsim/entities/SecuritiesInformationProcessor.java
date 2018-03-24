@@ -61,10 +61,10 @@ public class SecuritiesInformationProcessor extends NetworkEntity implements Pri
         bestOffer = multiMarketView.getBestOffer();
 
         MarketUpdate m = null;
-        if ((null == bestBid) ? (null == oldBestBid) : (bestBid.equals(oldBestBid))) {
+        if ((null == bestBid) ? (null != oldBestBid) : (!bestBid.equals(oldBestBid))) {
             m = updateObservers();
         }
-        if ((null == bestOffer) ? (null == oldBestOffer) : (bestOffer.equals(oldBestOffer))) {
+        if ((null == bestOffer) ? (null != oldBestOffer) : (!bestOffer.equals(oldBestOffer))) {
             m = updateObservers();
         }
         return m;
@@ -86,8 +86,8 @@ public class SecuritiesInformationProcessor extends NetworkEntity implements Pri
     }
 
     private MarketUpdate updateObservers() {
-        String bidString = bestBid == null ? "none" : String.valueOf(bestBid.getPrice());
-        String offerString = bestOffer == null ? "none" : String.valueOf(bestOffer.getPrice());
+        String bidString = (bestBid == null || bestBid.isEmpty()) ? "none" : String.valueOf(bestBid.getPrice());
+        String offerString = (bestOffer == null || bestOffer.isEmpty()) ? "none" : String.valueOf(bestOffer.getPrice());
 
         sendTraceNote("NBBO: BUY = " + bidString + ", SELL = " + offerString);
 

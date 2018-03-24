@@ -37,7 +37,7 @@ public class Exchange extends NetworkEntity implements PriceProvider {
         String note = "Handling order: " + order.toString();
         sendTraceNote(note);
 
-        LOBSummary original = orderBook.getSummary(clock);
+        LOBSummary original = orderBook.getSummary(clock, this);
         orderBook.add(order);
 
         Order b = orderBook.getBestBuyOrder();
@@ -65,7 +65,7 @@ public class Exchange extends NetworkEntity implements PriceProvider {
             orderBook.pollBestSellOrder();
         }
 
-        LOBSummary newSummary = orderBook.getSummary(clock);
+        LOBSummary newSummary = orderBook.getSummary(clock, this);
         if (!newSummary.equals(original) || newTrade != null) { //Not sure you will end up in a situation where newtrade != null but the summaries are equal.
             MarketUpdate update = new MarketUpdate(this, newTrade, newSummary);
             MessageType msg;

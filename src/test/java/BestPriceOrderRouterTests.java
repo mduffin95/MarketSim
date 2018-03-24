@@ -56,17 +56,17 @@ public class BestPriceOrderRouterTests {
     void orderRouterTest() {
 
         Order o1 = new Order(agent1, exchange1, Direction.SELL, 105, 95);
-        LOBSummary summary1 = new LOBSummary(new TimeInstant(0), null, o1);
+        LOBSummary summary1 = new LOBSummary(new TimeInstant(0), exchange1, null, o1);
         MarketUpdate update1 = new MarketUpdate(exchange1, null, summary1);
         orderRouter.respond(update1);
 
 
         Order o2 = new Order(agent2, exchange1, Direction.SELL, 100, 95);
-        LOBSummary summary2 = new LOBSummary(new TimeInstant(1), null, o2);
+        LOBSummary summary2 = new LOBSummary(new TimeInstant(1), exchange1, null, o2);
         MarketUpdate update2 = new MarketUpdate(exchange1, null, summary2);
         orderRouter.respond(update2);
 
-        LOBSummary summary3 = new LOBSummary(new TimeInstant(0), null, o1);
+        LOBSummary summary3 = new LOBSummary(new TimeInstant(0), exchange1, null, o1);
         MarketUpdate update3 = new MarketUpdate(sip, null, summary3);
         orderRouter.respond(update3);
 
@@ -91,23 +91,23 @@ public class BestPriceOrderRouterTests {
         //sends an update with the old traded order due to delay.
 
         Order o1 = new Order(agent1, exchange1, Direction.SELL, 105, 95);
-        LOBSummary summary1 = new LOBSummary(new TimeInstant(0), null, o1);
+        LOBSummary summary1 = new LOBSummary(new TimeInstant(0), exchange1, null, o1);
         MarketUpdate update1 = new MarketUpdate(exchange1, null, summary1);
         orderRouter.respond(update1);
 
         Order o2 = new Order(agent2, exchange1, Direction.SELL, 100, 95);
-        LOBSummary summary2 = new LOBSummary(new TimeInstant(1), null, o2);
+        LOBSummary summary2 = new LOBSummary(new TimeInstant(1), exchange1, null, o2);
         MarketUpdate update2 = new MarketUpdate(exchange1, null, summary2);
         orderRouter.respond(update2);
 
         //o2 trades so we send this update
-        LOBSummary summary3 = new LOBSummary(new TimeInstant(2), null, o1);
+        LOBSummary summary3 = new LOBSummary(new TimeInstant(2), exchange1, null, o1);
         Trade t = new Trade(new TimeInstant(2), 100, 1, new Order(null, exchange1, Direction.BUY, 101, 102), o2);
         MarketUpdate update3 = new MarketUpdate(exchange1, t, summary3);
         orderRouter.respond(update3);
 
         //This arrives later from the SIP
-        LOBSummary summary4 = new LOBSummary(new TimeInstant(1), null, o2);
+        LOBSummary summary4 = new LOBSummary(new TimeInstant(1), exchange1, null, o2);
         MarketUpdate update4 = new MarketUpdate(sip, null, summary4);
         orderRouter.respond(update4);
 

@@ -33,8 +33,8 @@ public class ModelExperimentController {
     static final double DISCOUNT_RATE = 0.0006;
     static final int SIM_LENGTH = 15000;
     static final int SEED_OFFSET = 1234;
-    static final int ROUNDS = 50;
-    static final int DELTA_STEPS = 11;
+    static final int ROUNDS = 1;
+    static final int DELTA_STEPS = 1;
     static final int STEP = 100; //How much to increment delta by each time
     static final int NUM_EXCHANGES = 2; //How much to increment delta by each time
     static final int AGENTS_PER_EXCHANGE = 125; //Make sure this is even
@@ -77,7 +77,7 @@ public class ModelExperimentController {
         double delta;
         int count = 0;
         List<ResultDto> allResults = new ArrayList<>(ROUNDS * DELTA_STEPS);
-        boolean parallel = true;
+        boolean parallel = false;
         if (parallel) {
             List<Callable<ResultDto>> tasks = new ArrayList<>();
             for (int i = 0; i < DELTA_STEPS; i++) {

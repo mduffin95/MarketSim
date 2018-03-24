@@ -1,12 +1,14 @@
 package com.matt.marketsim.entities.agents;
 
 import com.matt.marketsim.*;
+import com.sun.org.apache.xpath.internal.operations.Quo;
 import desmoj.core.simulator.Model;
 
 /*
  * Doesn't use and order router. Instead handles the submission of orders itself.
  */
 public class Arbitrageur extends TradingAgent {
+    private MultiMarketView multiMarketView;
     private QuoteData bestBid;
     private QuoteData bestOffer;
     private double alpha;
@@ -14,6 +16,7 @@ public class Arbitrageur extends TradingAgent {
     public Arbitrageur(Model model, double alpha, boolean showInTrace) {
         super(model, null, showInTrace);
         this.alpha = alpha;
+        this.multiMarketView = new MultiMarketView();
     }
 
     @Override
@@ -22,7 +25,7 @@ public class Arbitrageur extends TradingAgent {
     }
 
     private boolean checkArbitrage() {
-        if (null == bestBid || null == bestOffer) return false;
+        if (null == bestBid || null == bestOffer || bestBid.isEmpty() || bestOffer.isEmpty()) return false;
 
         if (bestBid.getPrice() > (1.0 + alpha) * bestOffer.getPrice()) {
             if (bestBid.getExchange() != bestOffer.getExchange()) {
@@ -43,21 +46,9 @@ public class Arbitrageur extends TradingAgent {
 
     @Override
     public void onMarketUpdate(MarketUpdate update) {
-        QuoteData bid = update.summary.getBuyQuote();
-        QuoteData offer = update.summary.getSellQuote();
-
-        if ((null == bestBid ^ null == bid) ||
-                null != bid &&
-                        (bid.getPrice() > bestBid.getPrice() ||
-                                (bid.getExchange().equals(bestBid.getExchange()) && !bid.equals(bestBid)))) {
-            bestBid = bid;
-        }
-        if ((null == bestOffer ^ null == offer) ||
-                null != offer &&
-                        (offer.getPrice() < bestOffer.getPrice() ||
-                                (offer.getExchange().equals(bestOffer.getExchange()) && !offer.equals(bestOffer)))) {
-            bestOffer = offer;
-        }
+        multiMarketView.add(update);
+        bestBid = multiMarketView.getBestBid();
+        bestOffer = multiMarketView.getBestOffer();
 
         if(checkArbitrage()) {
             int midpoint = (int)Math.floor((bestBid.getPrice() + bestOffer.getPrice()) / 2.0);

@@ -1,5 +1,6 @@
 package com.matt.marketsim;
 
+import com.matt.marketsim.entities.Exchange;
 import desmoj.core.simulator.TimeInstant;
 
 public class LOBSummary {
@@ -9,11 +10,9 @@ public class LOBSummary {
     public LOBSummary() {
     }
 
-    public LOBSummary(TimeInstant time, Order buyQuote, Order sellQuote) {
-        if (null != buyQuote)
-            this.buyQuote = new QuoteData(time, buyQuote);
-        if (null != sellQuote)
-            this.sellQuote = new QuoteData(time, sellQuote);
+    public LOBSummary(TimeInstant time, Exchange e,  Order buyQuote, Order sellQuote) {
+        this.buyQuote = new QuoteData(time, e, buyQuote);
+        this.sellQuote = new QuoteData(time, e, sellQuote);
     }
 
     public LOBSummary(QuoteData buyQuote, QuoteData sellQuote) {
