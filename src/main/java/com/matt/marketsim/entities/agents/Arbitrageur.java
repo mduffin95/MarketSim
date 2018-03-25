@@ -25,7 +25,7 @@ public class Arbitrageur extends TradingAgent {
     }
 
     private boolean checkArbitrage() {
-        if (null == bestBid || null == bestOffer || bestBid.isEmpty() || bestOffer.isEmpty()) return false;
+        if (null == bestBid || null == bestOffer) return false;
 
         if (bestBid.getPrice() > (1.0 + alpha) * bestOffer.getPrice()) {
             if (bestBid.getExchange() != bestOffer.getExchange()) {

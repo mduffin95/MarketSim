@@ -48,3 +48,6 @@ from an exchange to its observers (trading agents) and also the SIP. Imagine an 
 Now this order executes on the exchange and a new quote is sent out. However, the NBBO has already been sent to the trading agents.
 Now the stale NBBO will replace the correct quote from the primary exchange. This is something that you wouldn't do in real
 life though because you would trust your data from your primary exchange more than the NBBO.
+
+Need to plan this out properly. Need a QuoteData object that represents nothing on the exchange, but still allows us to 
+reference the exchange itself. 

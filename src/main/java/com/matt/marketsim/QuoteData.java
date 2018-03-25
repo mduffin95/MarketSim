@@ -4,35 +4,33 @@ import com.matt.marketsim.entities.Exchange;
 import desmoj.core.simulator.TimeInstant;
 import desmoj.extensions.experimentation.util.Run;
 
+import java.util.Objects;
+
 //An Order/Time pair used for quotes/updates
 public class QuoteData {
     public Exchange exchange;
     public int price;
     public TimeInstant validTime;
-    private boolean empty;
+//    private boolean empty;
 
-    public QuoteData(Exchange exchange, Direction direction, int price, TimeInstant validTime) {
+    public QuoteData(Exchange exchange, int price, TimeInstant validTime) {
         this.exchange = exchange;
         this.price = price;
         this.validTime = validTime;
-        this.empty = false;
+//        this.empty = false;
     }
 
     public QuoteData(TimeInstant validTime, Exchange e, Order order) {
-        this.exchange = e;
-        if (null == order) {
-            empty = true;
-        } else {
-            empty = false;
-            this.exchange = order.getExchange();
-            this.price = order.getPrice();
-        }
-        this.validTime = validTime;
+        this.exchange = Objects.requireNonNull(e, "Exchange must not be null.");
+        this.validTime = Objects.requireNonNull(validTime, "Time must not be null.");
+        Objects.requireNonNull(order, "Order must not be null.");
+        this.exchange = order.getExchange();
+        this.price = order.getPrice();
     }
 
-    public boolean isEmpty() {
-        return empty;
-    }
+//    public boolean isEmpty() {
+//        return empty;
+//    }
 
     @Override
     public boolean equals(Object obj) {
@@ -54,8 +52,6 @@ public class QuoteData {
     }
 
     public int getPrice() {
-        if (isEmpty())
-            throw new RuntimeException("No price - empty quote.");
         return price;
     }
 
@@ -74,12 +70,6 @@ public class QuoteData {
         if (null == a) {
             return false;
         }
-        if (a.isEmpty()) {
-            return false;
-        }
-        if (b.isEmpty()) {
-            return true;
-        }
         return a.getPrice() > b.getPrice();
     }
 
@@ -88,12 +78,6 @@ public class QuoteData {
             return true;
         }
         if (null == b) {
-            return false;
-        }
-        if (a.isEmpty()) {
-            return true;
-        }
-        if (b.isEmpty()) {
             return false;
         }
         return a.getPrice() < b.getPrice();

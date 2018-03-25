@@ -3,12 +3,11 @@ package com.matt.marketsim;
 import com.matt.marketsim.entities.Exchange;
 import desmoj.core.simulator.TimeInstant;
 
+import java.util.Optional;
+
 public class LOBSummary {
     private QuoteData buyQuote;
     private QuoteData sellQuote;
-
-    public LOBSummary() {
-    }
 
     public LOBSummary(TimeInstant time, Exchange e,  Order buyQuote, Order sellQuote) {
         this.buyQuote = new QuoteData(time, e, buyQuote);
@@ -20,12 +19,12 @@ public class LOBSummary {
         this.sellQuote = sellQuote;
     }
 
-    public QuoteData getBuyQuote() {
-        return buyQuote;
+    public Optional<QuoteData> getBuyQuote() {
+        return Optional.ofNullable(buyQuote);
     }
 
-    public QuoteData getSellQuote() {
-        return sellQuote;
+    public Optional<QuoteData> getSellQuote() {
+        return Optional.ofNullable(sellQuote);
     }
 
     public void setBuyQuote(QuoteData quote) {

@@ -7,6 +7,7 @@ import com.sun.org.apache.xpath.internal.operations.Quo;
 import desmoj.core.simulator.SimClock;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 /*
@@ -43,19 +44,18 @@ public class BestPriceOrderRouter implements OrderRouter {
 
     //Public for testing purposes
     public Exchange findBestExchange(Direction direction, int price) {
-        QuoteData bestOffer = multiMarketView.getBestOffer();
-        QuoteData bestBid = multiMarketView.getBestBid();
-        QuoteData primaryBestOffer = multiMarketView.getBestOffer(primary);
-        QuoteData primaryBestBid = multiMarketView.getBestBid(primary);
+        Optional<QuoteData> bestOfferOpt = multiMarketView.getBestOffer();
+        Optional<QuoteData> bestBidOpt = multiMarketView.getBestBid();
+        Optional<QuoteData> primaryBestOfferOpt = multiMarketView.getBestOffer(primary);
+        Optional<QuoteData> primaryBestBidOpt = multiMarketView.getBestBid(primary);
         Exchange e;
         if (direction == Direction.BUY) {
             //TODO: Need a better way of comparing these orders which can be null
-            if (null != bestOffer && !bestOffer.isEmpty() && (null == primaryBestOffer || primaryBestOffer.isEmpty()) ||
-                    QuoteData.lessThan(bestOffer, primaryBestOffer)) {
+            if ((bestOfferOpt.isPresent() && !primaryBestOfferOpt.isPresent()) || QuoteData.lessThan(bestOfferOpt.get(), primaryBestOfferOpt.get())) {
                 //NBBO price is better than the primary market.
-                if (!bestOffer.isEmpty() && bestOffer.getPrice() < price) {
+                if (bestOfferOpt.get().getPrice() < price) {
                     //Trade will transact immediately so send to other market.
-                    e = bestOffer.getExchange();
+                    e = bestOfferOpt.get().getExchange();
                 } else {
                     //Trade will not transact immediately so send to primary market.
                     e = primary;
@@ -64,22 +64,20 @@ public class BestPriceOrderRouter implements OrderRouter {
                 e = primary;
             }
         } else {
-            if (QuoteData.greaterThan(bestBid, primaryBestBid)) {
+            if (QuoteData.greaterThan(bestBidOpt.get(), primaryBestBidOpt.get())) {
                 //NBBO price is better than primary market.
-                if (!bestBid.isEmpty() && bestBid.getPrice() > price) {
+                if (bestBidOpt.get().getPrice() > price) {
                     //Trade will transact immediately so send to other market.
-                    e = bestBid.getExchange();
+                    e = bestBidOpt.get().getExchange();
                 } else {
                     //Trade will not transact immediately so send to primary market.
                     e = primary;
                 }
-
             } else {
                 //Send to primary market
                 e = primary;
             }
         }
-
         return e;
     }
 

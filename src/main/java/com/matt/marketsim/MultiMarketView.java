@@ -4,9 +4,7 @@ import com.matt.marketsim.entities.Exchange;
 import com.matt.marketsim.entities.NetworkEntity;
 import desmoj.core.simulator.TimeInstant;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.*;
 
 public class MultiMarketView {
     private Map<Exchange, QuoteData> bidSummaryMap;
@@ -19,71 +17,65 @@ public class MultiMarketView {
 
     //TODO: should not be source of update, but exchange within order.
     public void add(MarketUpdate update) {
-        if (null == update)
-            return;
+        Objects.requireNonNull(update, "MarketUpdate can't be null.");
         LOBSummary summary = update.summary;
+        Objects.requireNonNull(summary);
 
-        if (null == summary)
-            return;
-
-        QuoteData bid = summary.getBuyQuote();
-        checkAndUpdate(bid, bidSummaryMap);
-        QuoteData offer = summary.getSellQuote();
-        checkAndUpdate(offer, offerSummaryMap);
+        Optional<QuoteData> bid = summary.getBuyQuote();
+        if (bid.isPresent()) {
+            checkAndUpdate(bid.get(), bidSummaryMap);
+        } else {
+            //TODO: issue here because we have no reference to the exchange.
+            //QuoteData could contain another object to represent a price quote. This could be nullable.
+        }
+        bid.ifPresent(x -> );
+        Optional<QuoteData> offer = summary.getSellQuote();
+        offer.ifPresent(x -> checkAndUpdate(x, offerSummaryMap));
     }
 
     private void checkAndUpdate(QuoteData newQuote, Map<Exchange, QuoteData> map) {
-        if (null != newQuote) {
-            if (newQuote.isEmpty()) {
-                //Always supersedes whatever is already present
-                map.put(newQuote.exchange, newQuote);
-                return;
-            }
-            QuoteData oldQuote = map.get(newQuote.exchange);
-            if (null == oldQuote) {
-                map.put(newQuote.exchange, newQuote);
-            } else if (!newQuote.getExchange().equals(oldQuote.getExchange()) || newQuote.moreRecentThan(oldQuote)) {
-                //Either quotes are from different exchanges, or they are from the same exchange and the new one is more recent
-                map.put(newQuote.exchange, newQuote);
-            }
-        } else {
-            throw new RuntimeException("Quotes should not be null."); //This shouldn't happen
+        QuoteData oldQuote = map.get(newQuote.exchange);
+        if (null == oldQuote) {
+            map.put(newQuote.exchange, newQuote);
+        } else if (newQuote.moreRecentThan(oldQuote)) {
+            //New quote is more recent
+            map.put(newQuote.exchange, newQuote);
         }
     }
 
-    public QuoteData getBestBid() {
+    public Optional<QuoteData> getBestBid() {
         QuoteData bestBid = null;
         for (Map.Entry<Exchange, QuoteData> entry : bidSummaryMap.entrySet()) {
             QuoteData bid = entry.getValue();
             if (null == bid) {
                 continue;
             }
-            if (null == bestBid || bestBid.isEmpty() || (!bid.isEmpty() && bid.getPrice() > bestBid.getPrice())) {
+            if (null == bestBid || bid.getPrice() > bestBid.getPrice()) {
                 bestBid = bid;
             }
         }
-        return bestBid;
+        return Optional.ofNullable(bestBid);
     }
 
-    public QuoteData getBestOffer() {
+    public Optional<QuoteData> getBestOffer() {
         QuoteData bestOffer = null;
         for (Map.Entry<Exchange, QuoteData> entry : offerSummaryMap.entrySet()) {
             QuoteData offer = entry.getValue();
             if (null == offer) {
                 continue;
             }
-            if (null == bestOffer || bestOffer.isEmpty() || (!offer.isEmpty() && offer.getPrice() < bestOffer.getPrice())) {
+            if (null == bestOffer || offer.getPrice() < bestOffer.getPrice()) {
                 bestOffer = offer;
             }
         }
-        return bestOffer;
+        return Optional.ofNullable(bestOffer);
     }
 
-    public QuoteData getBestBid(Exchange e) {
-        return bidSummaryMap.get(e);
+    public Optional<QuoteData> getBestBid(Exchange e) {
+        return Optional.ofNullable(bidSummaryMap.get(e));
     }
 
-    public QuoteData getBestOffer(Exchange e) {
-        return offerSummaryMap.get(e);
+    public Optional<QuoteData> getBestOffer(Exchange e) {
+        return Optional.ofNullable(offerSummaryMap.get(e));
     }
 }
