@@ -52,32 +52,24 @@ public class SecuritiesInformationProcessor extends NetworkEntity implements Pri
         marketUpdateHelper(update);
     }
 
-    public Optional<OrderTimeStamped> getBestBid() {
-        return Optional.ofNullable(bestBid);
-    }
-
-    public Optional<OrderTimeStamped> getBestOffer() {
-        return Optional.ofNullable(bestOffer);
-    }
-
     public Optional<MarketUpdate> marketUpdateHelper(MarketUpdate update) {
 //        sendTraceNote("SIP quote: BUY = " + quote.getBuyOrder().price + ", SELL = " + quote.getBestSellOrder().price);
 
         Objects.requireNonNull(update);
 
         multiMarketView.add(update);
-        Optional<OrderTimeStamped> oldBestBid = getBestBid();
-        Optional<OrderTimeStamped> oldBestOffer = getBestOffer();
 
         Optional<OrderTimeStamped> newBestBid = multiMarketView.getBestBid();
         Optional<OrderTimeStamped> newBestOffer = multiMarketView.getBestOffer();
 
 
-        if (newBestBid.isPresent() && (!oldBestBid.isPresent() || !newBestBid.get().equals(oldBestBid.get()))) {
+        if (newBestBid.isPresent() && (null == bestBid || !newBestBid.get().equals(bestBid))) {
+            bestBid = newBestBid.get();
             return Optional.of(updateObservers());
         }
 
-        if (newBestOffer.isPresent() && (!oldBestOffer.isPresent() || !newBestOffer.get().equals(oldBestOffer.get()))) {
+        if (newBestOffer.isPresent() && (null == bestOffer || !newBestOffer.get().equals(bestOffer))) {
+            bestOffer = newBestOffer.get();
             return Optional.of(updateObservers());
         }
         return Optional.empty();

@@ -3,19 +3,15 @@ package com.matt.marketsim;
 import com.matt.marketsim.entities.Exchange;
 import com.matt.marketsim.entities.NetworkEntity;
 import com.matt.marketsim.entities.SecuritiesInformationProcessor;
+import sun.nio.ch.Net;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 public class MultiMarketView {
-    private Map<Exchange, LOBSummary> exchangeSummaries;
-    private Map<SecuritiesInformationProcessor, LOBSummary> sipSummaries;
+    private Map<NetworkEntity, LOBSummary> summaries;
 
     public MultiMarketView() {
-        exchangeSummaries = new HashMap<>();
-        sipSummaries = new HashMap<>();
+        summaries = new HashMap<>();
     }
 
 
@@ -25,21 +21,13 @@ public class MultiMarketView {
 
         OrderTimeStamped buy = summary.getBuyOrder();
         OrderTimeStamped sell = summary.getSellOrder();
-        if (update.getSource() instanceof Exchange) {
-            LOBSummary oldSummary = exchangeSummaries.get(update.getSource());
-            if (null == oldSummary) {
-                exchangeSummaries.put((Exchange)update.getSource(), summary);
-                return;
-            }
-            updateSummary(buy, sell, oldSummary);
-        } else if (update.getSource() instanceof SecuritiesInformationProcessor) {
-            LOBSummary oldSummary = sipSummaries.get(update.getSource());
-            if (null == oldSummary) {
-                sipSummaries.put((SecuritiesInformationProcessor) update.getSource(), summary);
-                return;
-            }
-            updateSummary(buy, sell, oldSummary);
+
+        LOBSummary oldSummary = summaries.get(update.getSource());
+        if (null == oldSummary) {
+            summaries.put(update.getSource(), summary);
+            return;
         }
+        updateSummary(buy, sell, oldSummary);
     }
 
     /**
@@ -58,44 +46,74 @@ public class MultiMarketView {
         }
     }
 
+    /**
+     *
+     * @return
+     */
     public Optional<OrderTimeStamped> getBestBid() {
-        OrderTimeStamped bestBid = null;
-        for (Map.Entry<Exchange, LOBSummary> entry : exchangeSummaries.entrySet()) {
+        Map<Exchange, OrderTimeStamped> orderMap = new HashMap<>();
+
+        for (Map.Entry<NetworkEntity, LOBSummary> entry : summaries.entrySet()) {
             LOBSummary summary = entry.getValue();
-            Optional<Order> bid = summary.getBuyOrder().getOrder();
-//            if (null == summary) {
-//                continue;
-//            }
-            if (null == bestBid || !bestBid.getOrder().isPresent() || (bid.isPresent() && bid.get().getPrice() > bestBid.getOrder().get().getPrice())) {
-                bestBid = summary.getBuyOrder();
+            OrderTimeStamped newOts = summary.getBuyOrder();
+            Optional<Order> bid = newOts.getOrder();
+            if (bid.isPresent()) {
+                Exchange e = bid.get().getExchange();
+                OrderTimeStamped currentOts = orderMap.get(e);
+                if (null == currentOts || newOts.moreRecentThan(currentOts)) {
+                    orderMap.put(e, newOts);
+                }
             }
         }
+        //We now have the most recent order from each exchange in a map
+        //Every OrderTimeStamped in the map has an Order, as otherwise it would not have been entered
+
+        OrderTimeStamped bestBid = null;
+        for (Map.Entry<Exchange, OrderTimeStamped> entry : orderMap.entrySet()) {
+            OrderTimeStamped ots = entry.getValue();
+            Order bid = ots.getOrder().get();
+            if (null == bestBid || (bid.getPrice() > bestBid.getOrder().get().getPrice())) {
+                bestBid = ots;
+            }
+        }
+
         return Optional.ofNullable(bestBid);
     }
 
     public Optional<OrderTimeStamped> getBestOffer() {
-        OrderTimeStamped bestOffer = null;
-        for (Map.Entry<SecuritiesInformationProcessor, LOBSummary> entry : sipSummaries.entrySet()) {
+        Map<Exchange, OrderTimeStamped> orderMap = new HashMap<>();
+
+        for (Map.Entry<NetworkEntity, LOBSummary> entry : summaries.entrySet()) {
             LOBSummary summary = entry.getValue();
-            Optional<Order> offer = summary.getSellOrder().getOrder();
-//            if (null == summary) {
-//                continue;
-//            }
-            if (null == bestOffer || !bestOffer.getOrder().isPresent() || (offer.isPresent() && offer.get().getPrice() > bestOffer.getOrder().get().getPrice())) {
-                bestOffer = summary.getSellOrder();
+            OrderTimeStamped newOts = summary.getSellOrder();
+            Optional<Order> offer = newOts.getOrder();
+            if (offer.isPresent()) {
+                Exchange e = offer.get().getExchange();
+                OrderTimeStamped currentOts = orderMap.get(e);
+                if (null == currentOts || newOts.moreRecentThan(currentOts)) {
+                    orderMap.put(e, newOts);
+                }
             }
         }
+        //We now have the most recent order from each exchange in a map
+        //Every OrderTimeStamped in the map has an Order, as otherwise it would not have been entered
+
+        OrderTimeStamped bestOffer = null;
+        for (Map.Entry<Exchange, OrderTimeStamped> entry : orderMap.entrySet()) {
+            OrderTimeStamped ots = entry.getValue();
+            Order bid = ots.getOrder().get();
+            if (null == bestOffer || (bid.getPrice() > bestOffer.getOrder().get().getPrice())) {
+                bestOffer = ots;
+            }
+        }
+
         return Optional.ofNullable(bestOffer);
     }
 
     public Optional<OrderTimeStamped> getBestBid(NetworkEntity e) {
         //Shouldn't be a key in both maps
-        LOBSummary summary = exchangeSummaries.get(e);
+        LOBSummary summary = summaries.get(e);
 
-        if (null != summary)
-            return Optional.of(summary.getBuyOrder());
-
-        summary = sipSummaries.get(e);
         if (null != summary)
             return Optional.of(summary.getBuyOrder());
 
@@ -104,12 +122,8 @@ public class MultiMarketView {
 
     public Optional<OrderTimeStamped> getBestOffer(NetworkEntity e) {
         //Shouldn't be a key in both maps
-        LOBSummary summary = exchangeSummaries.get(e);
+        LOBSummary summary = summaries.get(e);
 
-        if (null != summary)
-            return Optional.of(summary.getSellOrder());
-
-        summary = sipSummaries.get(e);
         if (null != summary)
             return Optional.of(summary.getSellOrder());
 

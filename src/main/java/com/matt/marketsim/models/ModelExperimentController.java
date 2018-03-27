@@ -32,7 +32,7 @@ public class ModelExperimentController {
     static final double LAMBDA = 0.075;
     static final double DISCOUNT_RATE = 0.0006;
     static final int SIM_LENGTH = 15000;
-    static final int SEED_OFFSET = 1234;
+    static final int SEED_OFFSET = 1235;
     static final int ROUNDS = 1;
     static final int DELTA_STEPS = 1;
     static final int STEP = 100; //How much to increment delta by each time
@@ -85,7 +85,7 @@ public class ModelExperimentController {
                 for (int j = 0; j < ROUNDS; j++) {
                     count++;
                     System.out.println(count);
-                    MarketSimCallable c = new MarketSimCallable(SEED_OFFSET + j, 100);
+                    MarketSimCallable c = new MarketSimCallable(SEED_OFFSET + j, delta);
 //                    MarketSimCallable c = new MarketSimCallable(SEED_OFFSET + count, delta);
                     tasks.add(c);
                 }

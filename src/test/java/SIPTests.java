@@ -83,12 +83,15 @@ public class SIPTests {
      */
     @Test
     void newTransactionChangesBestBidExchange() {
+        //After the first buy order, exchange 1 has the best bid. After the 2nd it's still exchange 1. However, after
+        //the 3rd buy order it switches to exchange 2 because the 3rd 'overwrites' the 1st, effectively notifying that
+        //a trade has occurred.
         Order buyOrder1 = new Order(agent1, exchange1, agent1.direction, 100, 100);
         Order buyOrder2 = new Order(agent1, exchange2, agent1.direction, 95, 100);
         Order buyOrder3 = new Order(agent2, exchange1, agent1.direction, 90, 100);
         LOBSummary lobSummary1 = new LOBSummary(new TimeInstant(0), buyOrder1, null);
-        LOBSummary lobSummary2 = new LOBSummary(new TimeInstant(0), buyOrder2, null);
-        LOBSummary lobSummary3 = new LOBSummary(new TimeInstant(0), buyOrder3, null);
+        LOBSummary lobSummary2 = new LOBSummary(new TimeInstant(1), buyOrder2, null);
+        LOBSummary lobSummary3 = new LOBSummary(new TimeInstant(2), buyOrder3, null);
         MarketUpdate marketUpdate1 = new MarketUpdate(exchange1,null, lobSummary1);
         MarketUpdate marketUpdate2 = new MarketUpdate(exchange2,null, lobSummary2);
         MarketUpdate marketUpdate3 = new MarketUpdate(exchange1,null, lobSummary3);
@@ -96,7 +99,7 @@ public class SIPTests {
         sip.marketUpdateHelper(marketUpdate2); //From exchange 2
         MarketUpdate update = sip.marketUpdateHelper(marketUpdate3).get(); //From exchange 1. Should lead to buyOrder2 being best.
 
-        assertEquals(buyOrder2.getTimeStampedOrder(new TimeInstant(0)), update.getSummary().getBuyOrder());
+        assertEquals(buyOrder2.getTimeStampedOrder(new TimeInstant(1)), update.getSummary().getBuyOrder());
     }
 
     @Test
@@ -112,9 +115,9 @@ public class SIPTests {
         MarketUpdate marketUpdate3 = new MarketUpdate(exchange1,null, lobSummary3);
         sip.marketUpdateHelper(marketUpdate1); //From exchange 1
         sip.marketUpdateHelper(marketUpdate2); //From exchange 2
-        MarketUpdate update = sip.marketUpdateHelper(marketUpdate3).get(); //From exchange 1. Should lead to buyOrder2 being best.
+        MarketUpdate update = sip.marketUpdateHelper(marketUpdate3).get(); //From exchange 1. Should lead to buyOrder3 being best.
 
-        assertEquals(buyOrder3.getTimeStampedOrder(new TimeInstant(0)), update.getSummary().getBuyOrder());
+        assertEquals(buyOrder3.getTimeStampedOrder(new TimeInstant(2)), update.getSummary().getBuyOrder());
     }
 
     @Test

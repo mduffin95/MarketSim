@@ -54,6 +54,7 @@ public class BestPriceOrderRouterTests {
 
     @Test
     void orderRouterTest() {
+        //Making sure delayed update from SIP doesn't remove legitimate summary
 
         Order o1 = new Order(agent1, exchange1, Direction.SELL, 105, 95);
         LOBSummary summary1 = new LOBSummary(new TimeInstant(0), null, o1);
@@ -77,11 +78,11 @@ public class BestPriceOrderRouterTests {
 
         OrderTimeStamped result = orderRouter.multiMarketView.getBestOffer().get();
 
-        assertEquals(o2.getTimeStampedOrder(new TimeInstant(0)), result);
+        assertEquals(o2.getTimeStampedOrder(new TimeInstant(1)), result);
 
         result = orderRouter.multiMarketView.getBestOffer(exchange1).get();
 
-        assertEquals(o2.getTimeStampedOrder(new TimeInstant(0)), result);
+        assertEquals(o2.getTimeStampedOrder(new TimeInstant(1)), result);
 
     }
 
