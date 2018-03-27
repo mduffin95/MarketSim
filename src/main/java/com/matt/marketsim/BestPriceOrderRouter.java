@@ -7,6 +7,7 @@ import com.sun.org.apache.xpath.internal.operations.Quo;
 import desmoj.core.simulator.SimClock;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 /*
@@ -43,43 +44,60 @@ public class BestPriceOrderRouter implements OrderRouter {
 
     //Public for testing purposes
     public Exchange findBestExchange(Direction direction, int price) {
-        QuoteData bestOffer = multiMarketView.getBestOffer();
-        QuoteData bestBid = multiMarketView.getBestBid();
-        QuoteData primaryBestOffer = multiMarketView.getBestOffer(primary);
-        QuoteData primaryBestBid = multiMarketView.getBestBid(primary);
-        Exchange e;
-        if (direction == Direction.BUY) {
-            //TODO: Need a better way of comparing these orders which can be null
-            if ((null != bestOffer && null == primaryBestOffer) || QuoteData.lessThan(bestOffer, primaryBestOffer)) {
-                //NBBO price is better than the primary market.
-                if (bestOffer.getPrice() < price) {
-                    //Trade will transact immediately so send to other market.
-                    e = bestOffer.getExchange();
-                } else {
-                    //Trade will not transact immediately so send to primary market.
-                    e = primary;
-                }
-            } else {
-                e = primary;
-            }
+        Optional<Order> bestBid;
+        Optional<Order> bestOffer;
+        Optional<Order> primaryBestBid;
+        Optional<Order> primaryBestOffer;
+        if (multiMarketView.getBestBid().isPresent()) {
+            bestBid = multiMarketView.getBestBid().get().getOrder();
         } else {
-            if (QuoteData.greaterThan(bestBid, primaryBestBid)) {
-                //NBBO price is better than primary market.
-                if (bestBid.getPrice() > price) {
-                    //Trade will transact immediately so send to other market.
-                    e = bestBid.getExchange();
-                } else {
-                    //Trade will not transact immediately so send to primary market.
-                    e = primary;
-                }
-
-            } else {
-                //Send to primary market
-                e = primary;
-            }
+            bestBid = Optional.empty();
+        }
+        if (multiMarketView.getBestOffer().isPresent()) {
+            bestOffer =  multiMarketView.getBestOffer().get().getOrder();
+        } else {
+            bestOffer = Optional.empty();
         }
 
-        return e;
+        if (multiMarketView.getBestBid(primary).isPresent()) {
+            primaryBestBid = multiMarketView.getBestBid(primary).get().getOrder();
+        } else {
+            primaryBestBid = Optional.empty();
+        }
+        if (multiMarketView.getBestOffer(primary).isPresent()) {
+            primaryBestOffer =  multiMarketView.getBestOffer(primary).get().getOrder();
+        } else {
+            primaryBestOffer = Optional.empty();
+        }
+
+        if (direction == Direction.BUY) {
+            if ((bestOffer.isPresent() && !primaryBestOffer.isPresent()) ||
+                    (bestOffer.isPresent() && primaryBestOffer.isPresent() && bestOffer.get().getPrice() < primaryBestOffer.get().getPrice())) {
+                //other price (usually NBBO) is better than the primary market.
+                if (bestOffer.get().getPrice() < price) {
+                    //Trade will transact immediately so send to other market.
+                    return bestOffer.get().getExchange();
+                } else {
+                    //Trade will not transact immediately so send to primary market.
+                    return primary;
+                }
+            } else {
+                return primary;
+            }
+        } else {
+            if (bestBid.isPresent() && primaryBestBid.isPresent() && bestBid.get().getPrice() > primaryBestBid.get().getPrice()) {
+                //other price (usually NBBO) is better than primary market.
+                if (bestBid.get().getPrice() > price) {
+                    //Trade will transact immediately so send to other market.
+                    return bestBid.get().getExchange();
+                } else {
+                    //Trade will not transact immediately so send to primary market.
+                    return primary;
+                }
+            } else {
+                return primary;
+            }
+        }
     }
 
     @Override

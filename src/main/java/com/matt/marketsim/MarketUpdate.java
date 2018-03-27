@@ -2,14 +2,29 @@ package com.matt.marketsim;
 
 import com.matt.marketsim.entities.NetworkEntity;
 
+import java.util.Objects;
+import java.util.Optional;
+
 public class MarketUpdate {
-    public NetworkEntity source;
-    public Trade trade;
-    public LOBSummary summary;
+    private NetworkEntity source;
+    private Trade trade; //Optional
+    private LOBSummary summary;
 
     public MarketUpdate(NetworkEntity source, Trade trade, LOBSummary summary) {
-        this.source = source;
+        this.source = Objects.requireNonNull(source, "The source must not be null.");
         this.trade = trade;
-        this.summary = summary;
+        this.summary = Objects.requireNonNull(summary, "The summary must not be null.");
+    }
+
+    public NetworkEntity getSource() {
+        return source;
+    }
+
+    public Optional<Trade> getTrade() {
+        return Optional.ofNullable(trade);
+    }
+
+    public LOBSummary getSummary() {
+        return summary;
     }
 }

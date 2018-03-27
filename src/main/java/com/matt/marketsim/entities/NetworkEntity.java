@@ -25,7 +25,7 @@ public abstract class NetworkEntity extends Entity {
             case MARKET_UPDATE: //Determine whether it is my trade
                 MarketUpdate update = (MarketUpdate)packet.getPayload();
 
-                if (isMyTrade(update.trade)) {
+                if (update.getTrade().isPresent() && isMyTrade(update.getTrade().get())) {
                     onOwnCompleted(update);
                 } else {
                     onMarketUpdate(update);

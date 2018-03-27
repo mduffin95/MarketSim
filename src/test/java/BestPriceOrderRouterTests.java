@@ -75,13 +75,13 @@ public class BestPriceOrderRouterTests {
 //        MarketUpdate update4 = new MarketUpdate(sip, null, summary4);
 //        orderRouter.respond(update4);
 
-        QuoteData result = orderRouter.multiMarketView.getBestOffer();
+        OrderTimeStamped result = orderRouter.multiMarketView.getBestOffer().get();
 
-        assertEquals(o2.getQuote(new TimeInstant(0)), result);
+        assertEquals(o2.getTimeStampedOrder(new TimeInstant(0)), result);
 
-        result = orderRouter.multiMarketView.getBestOffer(exchange1);
+        result = orderRouter.multiMarketView.getBestOffer(exchange1).get();
 
-        assertEquals(o2.getQuote(new TimeInstant(0)), result);
+        assertEquals(o2.getTimeStampedOrder(new TimeInstant(0)), result);
 
     }
 
@@ -112,9 +112,9 @@ public class BestPriceOrderRouterTests {
         orderRouter.respond(update4);
 
 //        Exchange e = orderRouter.findBestExchange(MessageType.LIMIT_ORDER, Direction.BUY, 105);
-        QuoteData result = orderRouter.multiMarketView.getBestOffer();
+        OrderTimeStamped result = orderRouter.multiMarketView.getBestOffer().get();
 
-        QuoteData q = o1.getQuote(new TimeInstant(2));
+        OrderTimeStamped q = o1.getTimeStampedOrder(new TimeInstant(2));
 
         assertEquals(q, result);
 

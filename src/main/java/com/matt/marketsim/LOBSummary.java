@@ -2,39 +2,42 @@ package com.matt.marketsim;
 
 import desmoj.core.simulator.TimeInstant;
 
+import java.util.Objects;
+import java.util.Optional;
+
 public class LOBSummary {
-    private QuoteData buyQuote;
-    private QuoteData sellQuote;
+
+    //These are always present, although the orders within them may not be.
+    private OrderTimeStamped buyOrder;
+    private OrderTimeStamped sellOrder;
 
     public LOBSummary() {
     }
 
-    public LOBSummary(TimeInstant time, Order buyQuote, Order sellQuote) {
-        if (null != buyQuote)
-            this.buyQuote = new QuoteData(time, buyQuote);
-        if (null != sellQuote)
-            this.sellQuote = new QuoteData(time, sellQuote);
+    public LOBSummary(TimeInstant time, Order buyOrder, Order sellOrder) {
+        this.buyOrder = new OrderTimeStamped(time, buyOrder);
+        this.sellOrder = new OrderTimeStamped(time, sellOrder);
     }
 
-    public LOBSummary(QuoteData buyQuote, QuoteData sellQuote) {
-        this.buyQuote = buyQuote;
-        this.sellQuote = sellQuote;
+    public LOBSummary(OrderTimeStamped buyOrder, OrderTimeStamped sellOrder) {
+        this.buyOrder = Objects.requireNonNull(buyOrder);
+        this.sellOrder = Objects.requireNonNull(sellOrder);
     }
 
-    public QuoteData getBuyQuote() {
-        return buyQuote;
+    public OrderTimeStamped getBuyOrder() {
+        return buyOrder;
     }
 
-    public QuoteData getSellQuote() {
-        return sellQuote;
+    public OrderTimeStamped getSellOrder() {
+        return sellOrder;
     }
 
-    public void setBuyQuote(QuoteData quote) {
-        buyQuote = quote;
+    public void setBuyOrder(OrderTimeStamped ots) {
+        this.buyOrder = ots;
     }
 
-    public void setSellQuote(QuoteData quote) {
-        sellQuote = quote;
+    public void setSellOrder(OrderTimeStamped ots) {
+        this.sellOrder = ots;
     }
 
     @Override
@@ -46,10 +49,10 @@ public class LOBSummary {
             return false;
         }
         final LOBSummary other = (LOBSummary) obj;
-        if ((this.buyQuote == null) ? (other.buyQuote != null) : !this.buyQuote.equals(other.buyQuote)) {
+        if ((this.buyOrder == null) ? (other.buyOrder != null) : !this.buyOrder.equals(other.buyOrder)) {
             return false;
         }
-        if ((this.sellQuote == null) ? (other.sellQuote != null) : !this.sellQuote.equals(other.sellQuote)) {
+        if ((this.sellOrder == null) ? (other.sellOrder != null) : !this.sellOrder.equals(other.sellOrder)) {
             return false;
         }
         return true;

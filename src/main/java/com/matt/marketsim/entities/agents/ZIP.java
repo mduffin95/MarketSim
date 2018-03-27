@@ -3,6 +3,7 @@ package com.matt.marketsim.entities.agents;
 import com.matt.marketsim.*;
 import com.matt.marketsim.models.MarketSimModel;
 
+import java.util.Optional;
 import java.util.Random;
 
 public class ZIP extends TradingAgent {
@@ -78,17 +79,17 @@ public class ZIP extends TradingAgent {
     public void onMarketUpdate(MarketUpdate update) {
         super.onMarketUpdate(update);
         //TODO: Make sure it only responds to price changes once (not duplicates from SIP).
-        Trade trade = update.trade;
-        LOBSummary summary = update.summary;
+        Trade trade = update.getTrade().orElse(new Trade());
+        LOBSummary summary = update.getSummary();
 
-        boolean deal = trade != null;
-        Direction lastOrderDirection = null;
+        boolean deal = update.getTrade().isPresent();
+        Direction lastOrderDirection;
         int price;
 
-        QuoteData currentBestBuy = (null == currentSummary) ? null : currentSummary.getBuyQuote();
-        QuoteData currentBestSell = (null == currentSummary) ? null : currentSummary.getSellQuote();
+        OrderTimeStamped currentBestBuy = (null == currentSummary) ? null : currentSummary.getBuyOrder();
+        OrderTimeStamped currentBestSell = (null == currentSummary) ? null : currentSummary.getSellOrder();
 
-        if (currentBestBuy != summary.getBuyQuote()) {
+        if (currentBestBuy != summary.getBuyOrder()) {
             //Either new buy order or trade occurred that cleared with the buy order
             if (deal) {
                 //Most recent order was a sell order
@@ -97,9 +98,9 @@ public class ZIP extends TradingAgent {
             } else {
                 //Most recent order was a buy order
                 lastOrderDirection = Direction.BUY;
-                price = summary.getBuyQuote().getPrice();
+                price = summary.getBuyOrder().getOrder().get().getPrice();
             }
-        } else if (currentBestSell != summary.getSellQuote()) {
+        } else if (currentBestSell != summary.getSellOrder()) {
             //Either new sell order or trade occurred that cleared with the sell order
             if (deal) {
                 //Most recent order was a buy order
@@ -108,7 +109,7 @@ public class ZIP extends TradingAgent {
             } else {
                 //Most recent order was a sell order
                 lastOrderDirection = Direction.SELL;
-                price = summary.getSellQuote().getPrice();
+                price = summary.getSellOrder().getOrder().get().getPrice();
             }
         } else {
             //Nothing has changed

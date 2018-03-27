@@ -61,18 +61,18 @@ public class SIPTests {
     void emptyNBBO_SingleNewBuyOrder() {
         LOBSummary lobSummary = new LOBSummary(new TimeInstant(0), buyOrder, null);
         MarketUpdate marketUpdate = new MarketUpdate(exchange1,null, lobSummary);
-        MarketUpdate update = sip.marketUpdateHelper(marketUpdate);
+        MarketUpdate update = sip.marketUpdateHelper(marketUpdate).get();
 
-        assertEquals(buyOrder.getQuote(new TimeInstant(0)), update.summary.getBuyQuote());
+        assertEquals(buyOrder.getTimeStampedOrder(new TimeInstant(0)), update.getSummary().getBuyOrder());
     }
 
     @Test
     void emptyNBBO_SingleNewSellOrder() {
         LOBSummary lobSummary = new LOBSummary(new TimeInstant(0), null, sellOrder);
         MarketUpdate marketUpdate = new MarketUpdate(exchange1,null, lobSummary);
-        MarketUpdate update = sip.marketUpdateHelper(marketUpdate);
+        MarketUpdate update = sip.marketUpdateHelper(marketUpdate).get();
 
-        assertEquals(sellOrder.getQuote(new TimeInstant(0)), update.summary.getSellQuote());
+        assertEquals(sellOrder.getTimeStampedOrder(new TimeInstant(0)), update.getSummary().getSellOrder());
     }
 
     /*
@@ -94,9 +94,9 @@ public class SIPTests {
         MarketUpdate marketUpdate3 = new MarketUpdate(exchange1,null, lobSummary3);
         sip.marketUpdateHelper(marketUpdate1); //From exchange 1
         sip.marketUpdateHelper(marketUpdate2); //From exchange 2
-        MarketUpdate update = sip.marketUpdateHelper(marketUpdate3); //From exchange 1. Should lead to buyOrder2 being best.
+        MarketUpdate update = sip.marketUpdateHelper(marketUpdate3).get(); //From exchange 1. Should lead to buyOrder2 being best.
 
-        assertEquals(buyOrder2.getQuote(new TimeInstant(0)), update.summary.getBuyQuote());
+        assertEquals(buyOrder2.getTimeStampedOrder(new TimeInstant(0)), update.getSummary().getBuyOrder());
     }
 
     @Test
@@ -112,9 +112,9 @@ public class SIPTests {
         MarketUpdate marketUpdate3 = new MarketUpdate(exchange1,null, lobSummary3);
         sip.marketUpdateHelper(marketUpdate1); //From exchange 1
         sip.marketUpdateHelper(marketUpdate2); //From exchange 2
-        MarketUpdate update = sip.marketUpdateHelper(marketUpdate3); //From exchange 1. Should lead to buyOrder2 being best.
+        MarketUpdate update = sip.marketUpdateHelper(marketUpdate3).get(); //From exchange 1. Should lead to buyOrder2 being best.
 
-        assertEquals(buyOrder3.getQuote(new TimeInstant(0)), update.summary.getBuyQuote());
+        assertEquals(buyOrder3.getTimeStampedOrder(new TimeInstant(0)), update.getSummary().getBuyOrder());
     }
 
     @Test
@@ -130,8 +130,8 @@ public class SIPTests {
         MarketUpdate marketUpdate3 = new MarketUpdate(exchange1,null, lobSummary3);
         sip.marketUpdateHelper(marketUpdate1); //From exchange 1
         sip.marketUpdateHelper(marketUpdate2); //From exchange 2
-        MarketUpdate update = sip.marketUpdateHelper(marketUpdate3); //From exchange 1. Should lead to buyOrder2 being best.
+        MarketUpdate update = sip.marketUpdateHelper(marketUpdate3).get(); //From exchange 1. Should lead to buyOrder2 being best.
 
-        assertEquals(buyOrder3.getQuote(new TimeInstant(0)), update.summary.getBuyQuote());
+        assertEquals(buyOrder3.getTimeStampedOrder(new TimeInstant(0)), update.getSummary().getBuyOrder());
     }
 }

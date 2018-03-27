@@ -63,8 +63,8 @@ public class Order implements Comparable<Order> {
         return arrivalTime;
     }
 
-    public QuoteData getQuote(TimeInstant time) {
-        return new QuoteData(time, this);
+    public OrderTimeStamped getTimeStampedOrder(TimeInstant time) {
+        return new OrderTimeStamped(time, this);
     }
 
 }

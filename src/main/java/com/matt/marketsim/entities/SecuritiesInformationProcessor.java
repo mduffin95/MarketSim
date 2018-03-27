@@ -8,13 +8,15 @@ import desmoj.core.simulator.TimeSpan;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 public class SecuritiesInformationProcessor extends NetworkEntity implements PriceProvider {
 
     private MultiMarketView multiMarketView;
 
-    private QuoteData bestBid;
-    private QuoteData bestOffer;
+    private OrderTimeStamped bestBid;
+    private OrderTimeStamped bestOffer;
     private TimeSpan delta;
 
     private List<NetworkEntity> observers;
@@ -50,24 +52,35 @@ public class SecuritiesInformationProcessor extends NetworkEntity implements Pri
         marketUpdateHelper(update);
     }
 
-    public MarketUpdate marketUpdateHelper(MarketUpdate update) {
-//        sendTraceNote("SIP quote: BUY = " + quote.getBuyQuote().price + ", SELL = " + quote.getBestSellOrder().price);
+    public Optional<OrderTimeStamped> getBestBid() {
+        return Optional.ofNullable(bestBid);
+    }
 
+    public Optional<OrderTimeStamped> getBestOffer() {
+        return Optional.ofNullable(bestOffer);
+    }
+
+    public Optional<MarketUpdate> marketUpdateHelper(MarketUpdate update) {
+//        sendTraceNote("SIP quote: BUY = " + quote.getBuyOrder().price + ", SELL = " + quote.getBestSellOrder().price);
+
+        Objects.requireNonNull(update);
 
         multiMarketView.add(update);
-        QuoteData oldBestBid = bestBid;
-        QuoteData oldBestOffer = bestOffer;
-        bestBid = multiMarketView.getBestBid();
-        bestOffer = multiMarketView.getBestOffer();
+        Optional<OrderTimeStamped> oldBestBid = getBestBid();
+        Optional<OrderTimeStamped> oldBestOffer = getBestOffer();
 
-        MarketUpdate m = null;
-        if ((null == bestBid) ? (null == oldBestBid) : (bestBid.equals(oldBestBid))) {
-            m = updateObservers();
+        Optional<OrderTimeStamped> newBestBid = multiMarketView.getBestBid();
+        Optional<OrderTimeStamped> newBestOffer = multiMarketView.getBestOffer();
+
+
+        if (newBestBid.isPresent() && (!oldBestBid.isPresent() || !newBestBid.get().equals(oldBestBid.get()))) {
+            return Optional.of(updateObservers());
         }
-        if ((null == bestOffer) ? (null == oldBestOffer) : (bestOffer.equals(oldBestOffer))) {
-            m = updateObservers();
+
+        if (newBestOffer.isPresent() && (!oldBestOffer.isPresent() || !newBestOffer.get().equals(oldBestOffer.get()))) {
+            return Optional.of(updateObservers());
         }
-        return m;
+        return Optional.empty();
     }
 
     @Override
@@ -86,10 +99,13 @@ public class SecuritiesInformationProcessor extends NetworkEntity implements Pri
     }
 
     private MarketUpdate updateObservers() {
-        String bidString = bestBid == null ? "none" : String.valueOf(bestBid.getPrice());
-        String offerString = bestOffer == null ? "none" : String.valueOf(bestOffer.getPrice());
+        if (null == bestBid)
+            bestBid = new OrderTimeStamped(presentTime(), null);
 
-        sendTraceNote("NBBO: BUY = " + bidString + ", SELL = " + offerString);
+        if (null == bestOffer)
+            bestOffer = new OrderTimeStamped(presentTime(), null);
+
+        sendTraceNote("NBBO: BUY = " + bestBid.toString() + ", SELL = " + bestOffer.toString());
 
         LOBSummary summary = new LOBSummary(bestBid, bestOffer);
 

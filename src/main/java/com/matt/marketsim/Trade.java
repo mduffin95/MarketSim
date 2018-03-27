@@ -10,6 +10,9 @@ public class Trade {
     private Order buyOrder;
     public Order sellOrder;
 
+    public Trade() {
+
+    }
 
     public Trade(TimeInstant time, int price, int quantity, Order buyOrder, Order sellOrder) {
         this.time = time;

@@ -2,90 +2,117 @@ package com.matt.marketsim;
 
 import com.matt.marketsim.entities.Exchange;
 import com.matt.marketsim.entities.NetworkEntity;
-import desmoj.core.simulator.TimeInstant;
+import com.matt.marketsim.entities.SecuritiesInformationProcessor;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 public class MultiMarketView {
-    private Map<Exchange, QuoteData> bidSummaryMap;
-    private Map<Exchange, QuoteData> offerSummaryMap;
+    private Map<Exchange, LOBSummary> exchangeSummaries;
+    private Map<SecuritiesInformationProcessor, LOBSummary> sipSummaries;
 
     public MultiMarketView() {
-        bidSummaryMap = new HashMap<>();
-        offerSummaryMap = new HashMap<>();
+        exchangeSummaries = new HashMap<>();
+        sipSummaries = new HashMap<>();
     }
 
-    //TODO: should not be source of update, but exchange within order.
+
     public void add(MarketUpdate update) {
-        if (null == update)
-            return;
-        LOBSummary summary = update.summary;
+        Objects.requireNonNull(update);
+        LOBSummary summary = update.getSummary();
 
-        if (null == summary)
-            return;
-
-        QuoteData bid = summary.getBuyQuote();
-        checkAndUpdate(bid);
-        QuoteData offer = summary.getSellQuote();
-        checkAndUpdate(offer);
-    }
-
-    private void checkAndUpdate(QuoteData newQuote) {
-        if (null != newQuote) {
-            QuoteData oldQuote;
-            Map<Exchange, QuoteData> map;
-            if (newQuote.direction == Direction.BUY){
-                map = bidSummaryMap;
-            } else {
-                map = offerSummaryMap;
+        OrderTimeStamped buy = summary.getBuyOrder();
+        OrderTimeStamped sell = summary.getSellOrder();
+        if (update.getSource() instanceof Exchange) {
+            LOBSummary oldSummary = exchangeSummaries.get(update.getSource());
+            if (null == oldSummary) {
+                exchangeSummaries.put((Exchange)update.getSource(), summary);
+                return;
             }
-            oldQuote = map.get(newQuote.exchange);
-            if (null == oldQuote) {
-                map.put(newQuote.exchange, newQuote);
-            } else {
-                if (!newQuote.getExchange().equals(oldQuote.getExchange()) || newQuote.moreRecentThan(oldQuote)) {
-                    //Either quotes are from different exchanges, or they are from the same exchange and the new one is more recent
-                    map.put(newQuote.exchange, newQuote);
-                }
+            updateSummary(buy, sell, oldSummary);
+        } else if (update.getSource() instanceof SecuritiesInformationProcessor) {
+            LOBSummary oldSummary = sipSummaries.get(update.getSource());
+            if (null == oldSummary) {
+                sipSummaries.put((SecuritiesInformationProcessor) update.getSource(), summary);
+                return;
             }
+            updateSummary(buy, sell, oldSummary);
         }
     }
 
-    public QuoteData getBestBid() {
-        QuoteData bestBid = null;
-        for (Map.Entry<Exchange, QuoteData> entry : bidSummaryMap.entrySet()) {
-            QuoteData bid = entry.getValue();
-            if (null == bid) {
-                continue;
-            }
-            if (null == bestBid || bid.getPrice() > bestBid.getPrice()) {
-                bestBid = bid;
+    /**
+     *
+      * @param buy - not null - the buy order
+     * @param sell - not null - the sell order
+     * @param summary - not null - the summary that needs to be checked and updated
+     */
+    private void updateSummary(OrderTimeStamped buy, OrderTimeStamped sell, LOBSummary summary) {
+        if (buy.moreRecentThan(summary.getBuyOrder())) {
+            summary.setBuyOrder(buy);
+        }
+
+        if (sell.moreRecentThan(summary.getSellOrder())) {
+            summary.setSellOrder(sell);
+        }
+    }
+
+    public Optional<OrderTimeStamped> getBestBid() {
+        OrderTimeStamped bestBid = null;
+        for (Map.Entry<Exchange, LOBSummary> entry : exchangeSummaries.entrySet()) {
+            LOBSummary summary = entry.getValue();
+            Optional<Order> bid = summary.getBuyOrder().getOrder();
+//            if (null == summary) {
+//                continue;
+//            }
+            if (null == bestBid || !bestBid.getOrder().isPresent() || (bid.isPresent() && bid.get().getPrice() > bestBid.getOrder().get().getPrice())) {
+                bestBid = summary.getBuyOrder();
             }
         }
-        return bestBid;
+        return Optional.ofNullable(bestBid);
     }
 
-    public QuoteData getBestOffer() {
-        QuoteData bestOffer = null;
-        for (Map.Entry<Exchange, QuoteData> entry : offerSummaryMap.entrySet()) {
-            QuoteData offer = entry.getValue();
-            if (null == offer) {
-                continue;
-            }
-            if (null == bestOffer || offer.getPrice() < bestOffer.getPrice()) {
-                bestOffer = offer;
+    public Optional<OrderTimeStamped> getBestOffer() {
+        OrderTimeStamped bestOffer = null;
+        for (Map.Entry<SecuritiesInformationProcessor, LOBSummary> entry : sipSummaries.entrySet()) {
+            LOBSummary summary = entry.getValue();
+            Optional<Order> offer = summary.getSellOrder().getOrder();
+//            if (null == summary) {
+//                continue;
+//            }
+            if (null == bestOffer || !bestOffer.getOrder().isPresent() || (offer.isPresent() && offer.get().getPrice() > bestOffer.getOrder().get().getPrice())) {
+                bestOffer = summary.getSellOrder();
             }
         }
-        return bestOffer;
+        return Optional.ofNullable(bestOffer);
     }
 
-    public QuoteData getBestBid(Exchange e) {
-        return bidSummaryMap.get(e);
+    public Optional<OrderTimeStamped> getBestBid(NetworkEntity e) {
+        //Shouldn't be a key in both maps
+        LOBSummary summary = exchangeSummaries.get(e);
+
+        if (null != summary)
+            return Optional.of(summary.getBuyOrder());
+
+        summary = sipSummaries.get(e);
+        if (null != summary)
+            return Optional.of(summary.getBuyOrder());
+
+        return Optional.empty();
     }
 
-    public QuoteData getBestOffer(Exchange e) {
-        return offerSummaryMap.get(e);
+    public Optional<OrderTimeStamped> getBestOffer(NetworkEntity e) {
+        //Shouldn't be a key in both maps
+        LOBSummary summary = exchangeSummaries.get(e);
+
+        if (null != summary)
+            return Optional.of(summary.getSellOrder());
+
+        summary = sipSummaries.get(e);
+        if (null != summary)
+            return Optional.of(summary.getSellOrder());
+
+        return Optional.empty();
     }
 }
