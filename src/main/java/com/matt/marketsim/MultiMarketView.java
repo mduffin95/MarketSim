@@ -96,8 +96,8 @@ public class MultiMarketView {
         OrderTimeStamped bestOffer = null;
         for (Map.Entry<Exchange, OrderTimeStamped> entry : orderMap.entrySet()) {
             OrderTimeStamped ots = entry.getValue();
-            Order bid = ots.getOrder().get();
-            if (null == bestOffer || (bid.getPrice() > bestOffer.getOrder().get().getPrice())) {
+            Order offer = ots.getOrder().get();
+            if (null == bestOffer || (offer.getPrice() < bestOffer.getOrder().get().getPrice())) {
                 bestOffer = ots;
             }
         }

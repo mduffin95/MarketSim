@@ -32,7 +32,7 @@ public class ModelExperimentController {
     static final double LAMBDA = 0.075;
     static final double DISCOUNT_RATE = 0.0006;
     static final int SIM_LENGTH = 15000;
-    static final int SEED_OFFSET = 1234;
+    static final int SEED_OFFSET = 12359;
     static final int ROUNDS = 50;
     static final int DELTA_STEPS = 11;
     static final int STEP = 100; //How much to increment delta by each time
