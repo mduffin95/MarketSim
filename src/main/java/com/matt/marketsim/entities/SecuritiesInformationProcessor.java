@@ -59,19 +59,25 @@ public class SecuritiesInformationProcessor extends NetworkEntity implements Pri
 
         multiMarketView.add(update);
 
-        Optional<OrderTimeStamped> newBestBid = multiMarketView.getBestBid();
-        Optional<OrderTimeStamped> newBestOffer = multiMarketView.getBestOffer();
+        Optional<OrderTimeStamped> bidOpt = multiMarketView.getBestBid();
+        Optional<OrderTimeStamped> offerOpt = multiMarketView.getBestOffer();
 
+        OrderTimeStamped newBestBid = bidOpt.orElse(new OrderTimeStamped(presentTime(), null));
+        OrderTimeStamped newBestOffer = offerOpt.orElse(new OrderTimeStamped(presentTime(), null));
 
-        if (newBestBid.isPresent() && (null == bestBid || !newBestBid.get().equals(bestBid))) {
-            bestBid = newBestBid.get();
-            return Optional.of(updateObservers());
+        //TODO: If there is no newBestBid or newBestOffer we incorrectly do not update the observers.
+        boolean changed = false;
+        if (null == bestBid || !newBestBid.equals(bestBid)) {
+            bestBid = newBestBid;
+            changed = true;
         }
 
-        if (newBestOffer.isPresent() && (null == bestOffer || !newBestOffer.get().equals(bestOffer))) {
-            bestOffer = newBestOffer.get();
-            return Optional.of(updateObservers());
+        if (null == bestOffer || !newBestOffer.equals(bestOffer)) {
+            bestOffer = newBestOffer;
+            changed = true;
         }
+        if (changed)
+            return Optional.of(updateObservers());
         return Optional.empty();
     }
 
@@ -97,7 +103,10 @@ public class SecuritiesInformationProcessor extends NetworkEntity implements Pri
         if (null == bestOffer)
             bestOffer = new OrderTimeStamped(presentTime(), null);
 
-        sendTraceNote("NBBO: BUY = " + bestBid.toString() + ", SELL = " + bestOffer.toString());
+        String bidString = (!bestBid.getOrder().isPresent()) ? "none" : String.valueOf(bestBid.getOrder().get().getPrice());
+        String offerString = (!bestOffer.getOrder().isPresent()) ? "none" : String.valueOf(bestOffer.getOrder().get().getPrice());
+
+        sendTraceNote("NBBO: BUY = " + bidString + ", SELL = " + offerString);
 
         LOBSummary summary = new LOBSummary(bestBid, bestOffer);
 

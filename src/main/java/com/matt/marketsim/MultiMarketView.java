@@ -24,10 +24,11 @@ public class MultiMarketView {
 
         LOBSummary oldSummary = summaries.get(update.getSource());
         if (null == oldSummary) {
-            summaries.put(update.getSource(), summary);
+            summaries.put(update.getSource(), new LOBSummary(summary));
             return;
         }
-        updateSummary(buy, sell, oldSummary);
+        oldSummary.setBuyOrder(buy);
+        oldSummary.setSellOrder(sell);
     }
 
     /**
@@ -37,13 +38,7 @@ public class MultiMarketView {
      * @param summary - not null - the summary that needs to be checked and updated
      */
     private void updateSummary(OrderTimeStamped buy, OrderTimeStamped sell, LOBSummary summary) {
-        if (buy.moreRecentThan(summary.getBuyOrder())) {
-            summary.setBuyOrder(buy);
-        }
 
-        if (sell.moreRecentThan(summary.getSellOrder())) {
-            summary.setSellOrder(sell);
-        }
     }
 
     /**

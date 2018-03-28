@@ -85,7 +85,8 @@ public class BestPriceOrderRouter implements OrderRouter {
                 return primary;
             }
         } else {
-            if (bestBid.isPresent() && primaryBestBid.isPresent() && bestBid.get().getPrice() > primaryBestBid.get().getPrice()) {
+            if ((bestBid.isPresent() && !primaryBestBid.isPresent()) ||
+                    (bestBid.isPresent() && primaryBestBid.isPresent() && bestBid.get().getPrice() > primaryBestBid.get().getPrice())) {
                 //other price (usually NBBO) is better than primary market.
                 if (bestBid.get().getPrice() > price) {
                     //Trade will transact immediately so send to other market.

@@ -52,8 +52,7 @@ public class Exchange extends NetworkEntity implements PriceProvider {
             } else {
                 price = b.getPrice();
             }
-            TimeInstant currentTime = marketSimModel.getExperiment().getSimClock().getTime(); //Trade time
-            newTrade = new Trade(currentTime, price, 1, b, s);
+            newTrade = new Trade(presentTime(), price, 1, b, s);
 
             //Update utility and record on time series
 //            marketSimModel.recordTrade(newTrade);

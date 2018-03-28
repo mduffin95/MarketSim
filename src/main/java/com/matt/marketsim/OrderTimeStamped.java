@@ -23,7 +23,7 @@ public class OrderTimeStamped {
     }
 
     public boolean moreRecentThan(OrderTimeStamped order) {
-        return TimeInstant.isAfterOrEqual(getValidTime(), order.getValidTime());
+        return TimeInstant.isAfter(getValidTime(), order.getValidTime());
     }
 
     @Override

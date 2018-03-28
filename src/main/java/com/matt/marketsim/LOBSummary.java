@@ -11,7 +11,9 @@ public class LOBSummary {
     private OrderTimeStamped buyOrder;
     private OrderTimeStamped sellOrder;
 
-    public LOBSummary() {
+    public LOBSummary(LOBSummary summary) {
+        this.buyOrder = summary.buyOrder;
+        this.sellOrder = summary.sellOrder;
     }
 
     public LOBSummary(TimeInstant time, Order buyOrder, Order sellOrder) {
