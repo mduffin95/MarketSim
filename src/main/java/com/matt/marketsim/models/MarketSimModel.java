@@ -44,7 +44,7 @@ public abstract class MarketSimModel extends Model {
     public void init() {
         long seed = generator.nextLong();
         distributionManager = new DistributionManager("Distribution Manager", seed);
-        getExperiment().setReferenceUnit(TimeUnit.MILLISECONDS);
+//        getExperiment().setReferenceUnit(TimeUnit.MILLISECONDS);
     }
 
 

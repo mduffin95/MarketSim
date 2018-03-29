@@ -1,22 +1,23 @@
 package com.matt.marketsim.models;
 
-import com.matt.marketsim.MarketParams;
+import com.google.gson.Gson;
 import com.matt.marketsim.MarketSimCallable;
 import com.matt.marketsim.dtos.ResultDto;
 import desmoj.core.simulator.Experiment;
+import desmoj.core.simulator.Parameter;
 import desmoj.core.simulator.ParameterManager;
 import desmoj.core.simulator.TimeInstant;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.*;
 
-import org.apache.commons.io.FileUtils;
 
 /*
  * This class is used to initialise models and experiments. It is the entry point. It also allows multiple runs of
@@ -24,25 +25,10 @@ import org.apache.commons.io.FileUtils;
  */
 public class ModelExperimentController {
 
-//    static final double VAR_SHOCK = 150000000;
-//    static final double VAR_PV = 100000000;
-//    static final double k = 0.05;
-//    static final double MEAN_FUNDAMENTAL = 100000;
-//    static final double ALPHA = 0.001; //Arbitrageur threshold
-//    static final double OFFSET_RANGE = 2000;
-//    static final double LAMBDA = 0.075;
-//    static final double DISCOUNT_RATE = 0.0006;
-//    static final int SIM_LENGTH = 15000;
-//    static final int SEED_OFFSET = 1234;
-//    static final int ROUNDS = 200;
-//    static final int DELTA_STEPS = 11;
-//    static final int STEP = 100; //How much to increment delta by each time
-//    static final int NUM_EXCHANGES = 2; //How much to increment delta by each time
-//    static final int AGENTS_PER_EXCHANGE = 125; //Make sure this is even
-
     private static ParameterManager parameterManager;
 
     private static void initializeModelParameters() {
+
         parameterManager = new ParameterManager();
         parameterManager.initializeModelParameter(Double.class, "SIGMA_SHOCK", Math.sqrt(150000000.0));
         parameterManager.initializeModelParameter(Double.class, "SIGMA_PV", Math.sqrt(100000000.0));
@@ -54,23 +40,22 @@ public class ModelExperimentController {
         parameterManager.initializeModelParameter(Double.class, "DISCOUNT_RATE", 0.0006);
         parameterManager.initializeModelParameter(Integer.class, "NUM_EXCHANGES", 2);
         parameterManager.initializeModelParameter(Integer.class, "AGENTS_PER_EXCHANGE", 125);
-    }
+        parameterManager.initializeModelParameter(Integer.class, "DELTA_STEPS", 11);
+        parameterManager.initializeModelParameter(Integer.class, "STEP", 100);
+        parameterManager.initializeModelParameter(Integer.class, "ROUNDS", 200);
+        parameterManager.initializeModelParameter(Integer.class, "SIM_LENGTH", 15000);
+        parameterManager.initializeModelParameter(Integer.class, "SEED_OFFSET", 1234);
+        parameterManager.initializeModelParameter(Boolean.class, "LA_PRESENT", true);
 
-    private static void initializeExperimentParameters() {
-        parameterManager.declareExperimentParameter(Integer.class, "DELTA_STEPS", 11);
-        parameterManager.declareExperimentParameter(Integer.class, "STEP", 100);
-        parameterManager.declareExperimentParameter(Integer.class, "ROUNDS", 200);
-        parameterManager.declareExperimentParameter(Integer.class, "SIM_LENGTH", 15000);
-        parameterManager.declareExperimentParameter(Integer.class, "SEED_OFFSET", 1234);
     }
 
     public static ResultDto runOnce(long seed, double delta) {
 
-        TimeUnit timeUnit = TimeUnit.MILLISECONDS;
-
         // create model and experiment
+        Experiment.setEpsilon(TimeUnit.MICROSECONDS);
+        Experiment.setReferenceUnit(TimeUnit.SECONDS);
         Experiment exp = new Experiment("Exp1");
-        exp.setReferenceUnit(timeUnit);
+
 //        NetworkBuilder builder = new ZIPExperiment(50, 0, 200);
         parameterManager.initializeModelParameter(Double.class, "DELTA", delta);
         MarketSimModel model = new TwoMarketModel(parameterManager);
@@ -80,7 +65,7 @@ public class ModelExperimentController {
 
         // set experiment parameters
         exp.setShowProgressBar(false);
-        TimeInstant stopTime = new TimeInstant((int)parameterManager.getParameterValue("SIM_LENGTH"), timeUnit);
+        TimeInstant stopTime = new TimeInstant((int)parameterManager.getParameterValue("SIM_LENGTH"));
         exp.tracePeriod(new TimeInstant(0), stopTime);
         exp.stop(stopTime);
         // start experiment
@@ -98,10 +83,9 @@ public class ModelExperimentController {
      */
     public static void main(String[] args) {
         initializeModelParameters();
-        initializeExperimentParameters();
 
         long start = System.currentTimeMillis();
-        final String dir = "results/tmp/";
+        final String dir = "results/runs/";
         double delta;
         int count = 0;
         int ROUNDS = (int)parameterManager.getParameterValue("ROUNDS");
@@ -153,12 +137,26 @@ public class ModelExperimentController {
     }
 
     private static void writeToFile(String dir, List<ResultDto> results) {
-//        try {
-//            FileUtils.cleanDirectory(new File(dir));
-//        } catch (IOException e) {
-//            System.err.println("Directory not found.");
-//            return;
-//        }
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yy-MM-dd_HH:mm:ss");
+        LocalDateTime date = LocalDateTime.now();
+        dir = dir + "/" + dtf.format(date);
+
+        try {
+            Files.createDirectories(Paths.get(dir));
+            File f = new File(dir, "experiment.txt");
+            FileWriter writer = new FileWriter(f);
+            BufferedWriter buf = new BufferedWriter(writer);
+
+            Collection<Parameter> params = parameterManager.getParameters();
+            for (Parameter p: params) {
+                buf.write(p.toString());
+                buf.newLine();
+            }
+            buf.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
 
         for (ResultDto r : results) {
             for (String[] ent : r.entries) {

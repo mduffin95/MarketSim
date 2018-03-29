@@ -66,7 +66,7 @@ public class TwoMarketModel extends MarketSimModel {
         for (TradingAgent a : initialAgents) {
             cumulative += agentArrivalTimeDist.sample();
             TradingAgentDecisionEvent event = new TradingAgentDecisionEvent(this, "MarketEntryDecision", true, false);
-            event.schedule(a, new TimeSpan(cumulative));
+            event.schedule(a, new TimeInstant(cumulative));
         }
     }
 
@@ -120,7 +120,7 @@ public class TwoMarketModel extends MarketSimModel {
     //Create the network of entities
     @Override
     WellmanGraph createNetwork() {
-        boolean la_present = false;
+        boolean la_present = (boolean)params.getParameterValue("LA_PRESENT");
         SecuritiesInformationProcessor sip = new SecuritiesInformationProcessor(this, "Securities Information Processor",
                 SHOW_ENTITIES_IN_TRACE, new TimeSpan((double)params.getParameterValue("DELTA")));
         Set<Exchange> allExchanges = new HashSet<>();

@@ -4,6 +4,8 @@ import com.matt.marketsim.models.MarketSimModel;
 import desmoj.core.dist.ContDistNormal;
 import desmoj.core.simulator.TimeInstant;
 
+import java.util.concurrent.TimeUnit;
+
 public class VariableLimitFactory {
     private MarketSimModel model;
     private double k;
