@@ -5,6 +5,7 @@ tasks.xml
 *.txt
 *.swp
 *.png
+*.tex
 
 target/
 results/tmp/

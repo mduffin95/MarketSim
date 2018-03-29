@@ -10,9 +10,7 @@ import com.matt.marketsim.entities.agents.ZIC;
 import com.matt.marketsim.events.TradingAgentDecisionEvent;
 import desmoj.core.dist.*;
 import desmoj.core.report.Reporter;
-import desmoj.core.simulator.SimClock;
-import desmoj.core.simulator.TimeInstant;
-import desmoj.core.simulator.TimeSpan;
+import desmoj.core.simulator.*;
 
 import java.util.*;
 
@@ -45,34 +43,13 @@ public class TwoMarketModel extends MarketSimModel {
     /*
      * Wellman's parameters
      */
-    private double SIGMA_SHOCK;
-    private double SIGMA_PV;
-    private double k;
-    private double MEAN_FUNDAMENTAL;
-    private double ALPHA; //Arbitrageur threshold
-    private double DELTA;
-    private double OFFSET_RANGE;
-    private double LAMBDA; //Arrival rate
-    private double DISCOUNT_RATE;
-    private int AGENTS_PER_EXCHANGE;
-    private int NUM_EXCHANGES;
+    private ParameterManager params;
 
 
-    public TwoMarketModel(int simLength, int num_exchanges, int agents_per_exchange, double alpha, double mean_fundamental, double k, double var_pv, double var_shock, double range, double lambda, double discountRate, double delta) {
-        super(null, "TwoMarketModel", true, true, simLength);
+    public TwoMarketModel(ParameterManager params) {
+        super(null, "TwoMarketModel", true, true, (int)params.getParameterValue("SIM_LENGTH"));
         generator = new Random();
-        this.simLength = simLength;
-        this.ALPHA = alpha;
-        this.MEAN_FUNDAMENTAL = mean_fundamental;
-        this.k = k;
-        this.SIGMA_PV = Math.sqrt(var_pv);
-        this.SIGMA_SHOCK = Math.sqrt(var_shock);
-        this.OFFSET_RANGE = range;
-        this.LAMBDA = lambda;
-        this.DELTA = delta;
-        this.AGENTS_PER_EXCHANGE = agents_per_exchange;
-        this.NUM_EXCHANGES = num_exchanges;
-        this.DISCOUNT_RATE = discountRate;
+        this.params = params;
 
         statsObjects = new ArrayList<>();
     }
@@ -102,10 +79,10 @@ public class TwoMarketModel extends MarketSimModel {
          */
 
         agentArrivalTimeDist = new ContDistExponential(this, "AgentArrivalTimeStream",
-                (1.0 / LAMBDA), true, false);
+                (1.0 / (double)params.getParameterValue("LAMBDA")), true, false);
         agentArrivalTimeDist.setNonNegative(true);
         offsetRangeDist = new ContDistUniform(this, "OffsetRangeUniformStream",
-                0, OFFSET_RANGE, true, false);
+                0, (double)params.getParameterValue("OFFSET_RANGE"), true, false);
 
         buyOrSell = new BoolDistBernoulli(this, "BuyOrSell", 0.5, true, false);
 
@@ -143,9 +120,9 @@ public class TwoMarketModel extends MarketSimModel {
     //Create the network of entities
     @Override
     WellmanGraph createNetwork() {
-        boolean la_present = true;
+        boolean la_present = false;
         SecuritiesInformationProcessor sip = new SecuritiesInformationProcessor(this, "Securities Information Processor",
-                SHOW_ENTITIES_IN_TRACE, new TimeSpan(DELTA));
+                SHOW_ENTITIES_IN_TRACE, new TimeSpan((double)params.getParameterValue("DELTA")));
         Set<Exchange> allExchanges = new HashSet<>();
         Set<TradingAgent> allTradingAgents = new HashSet<>();
         List<TradingAgentGroup> allExchangeGroups = new ArrayList<>();
@@ -154,28 +131,32 @@ public class TwoMarketModel extends MarketSimModel {
         TradingAgentGroup all = new TradingAgentGroup();
 
         TradeStatisticCalculator tradeStats = new TradeStatisticCalculator(this, "trading_agents", tas,
-                DISCOUNT_RATE, getExperiment().getSimClock(), true, false);
+                (double)params.getParameterValue("DISCOUNT_RATE"), getExperiment().getSimClock(), true, false);
         statsObjects.add(tradeStats);
 
         TradingAgent arbitrageur = null;
         TradeStatisticCalculator arbStats = null;
         TradeStatisticCalculator allStats = null;
         if (la_present) {
-            arbitrageur = new Arbitrageur(this, ALPHA, SHOW_ENTITIES_IN_TRACE);
+            arbitrageur = new Arbitrageur(this, (double)params.getParameterValue("ALPHA"), SHOW_ENTITIES_IN_TRACE);
             TradingAgentGroup arb = new TradingAgentGroup();
             arb.addMember(arbitrageur);
             all.addMember(arbitrageur);
             arbStats = new TradeStatisticCalculator(this, "arbitrageur",
-                    arb, DISCOUNT_RATE, getExperiment().getSimClock(), true, false);
+                    arb, (double)params.getParameterValue("DISCOUNT_RATE"), getExperiment().getSimClock(), true, false);
             allStats = new TradeStatisticCalculator(this, "all",
-                    all, DISCOUNT_RATE, getExperiment().getSimClock(), true, false);
+                    all, (double)params.getParameterValue("DISCOUNT_RATE"), getExperiment().getSimClock(), true, false);
             statsObjects.add(arbStats);
             statsObjects.add(allStats);
         }
 
         SimClock clock = this.getExperiment().getSimClock();
-        VariableLimitFactory factory = new VariableLimitFactory(this, SIGMA_SHOCK, SIGMA_PV, k, MEAN_FUNDAMENTAL);
-        for (int i = 0; i < NUM_EXCHANGES; i++) {
+        VariableLimitFactory factory = new VariableLimitFactory(this,
+                (double)params.getParameterValue("SIGMA_SHOCK"),
+                (double)params.getParameterValue("SIGMA_PV"),
+                (double)params.getParameterValue("K"),
+                (double)params.getParameterValue("MEAN_FUNDAMENTAL"));
+        for (int i = 0; i < (int)params.getParameterValue("NUM_EXCHANGES"); i++) {
             Exchange exchange = new Exchange(this, "Exchange", sip, SHOW_ENTITIES_IN_TRACE);
             allExchanges.add(exchange);
             TradingAgentGroup group = new TradingAgentGroup();
@@ -193,7 +174,7 @@ public class TwoMarketModel extends MarketSimModel {
                 exchange.registerPriceObserver(arbitrageur);
             }
 
-            for (int j = 0; j < AGENTS_PER_EXCHANGE; j++) {
+            for (int j = 0; j < (int)params.getParameterValue("AGENTS_PER_EXCHANGE"); j++) {
                 OrderRouter router = new BestPriceOrderRouter(clock, exchange);
                 //Market 1
                 TradingAgent agent = new ZIC(this, factory.create(), router, buyOrSell, offsetRangeDist, SHOW_ENTITIES_IN_TRACE);
@@ -219,7 +200,7 @@ public class TwoMarketModel extends MarketSimModel {
     @Override
     public ResultDto getResults() {
         ResultDto result = new ResultDto();
-        result.delta = DELTA;
+        result.delta = (double)params.getParameterValue("DELTA");
         for (TradeStatisticCalculator c : statsObjects) {
             Reporter r = c.createDefaultReporter();
             result.entries.add(r.getEntries());
