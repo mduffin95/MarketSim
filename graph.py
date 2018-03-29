@@ -5,12 +5,14 @@ import csv
 import re
 from collections import defaultdict
 from functools import reduce
+import numpy as np
 
 import matplotlib.pyplot as plt
 
-results ={}
 result_files = glob.glob("results/tmp/*.csv")
-averaged = {}
+averaged = [] 
+error = []
+x_vals = []
 for r in result_files:
     surplus = defaultdict(list)
 
@@ -18,35 +20,35 @@ for r in result_files:
         results_reader = csv.reader(csvfile)
         for row in results_reader:
             surplus[float(row[0])].append(float(row[1]))
-    results[r] = surplus 
 
-    x_vals = []
+    latencies = []
     av = []
+    err = []
     for key in sorted(surplus):
-        x_vals.append(key)
+        latencies.append(key)
         l = surplus[key]
-        av.append(reduce((lambda x, y: x+y), l) / len(l))
-    averaged[r] = av 
+        a = np.mean(l, axis=0)
+        e = 1.96 * np.std(l, axis=0, ddof=1) 
+        av.append(a)
+        err.append(e)
+    averaged.append(av) 
+    error.append(err) 
+    x_vals.append(latencies)
 
-print(x_vals)
-print(averaged)
+print(len(x_vals))
+print(len(averaged))
+print(len(error))
 
-def plot(x, ys, labels):
+def plot(xs, ys, err, labels):
     fig = plt.figure(figsize=(11,8))
     ax1 = fig.add_subplot(111)
     ax1.set_xlabel('latency')
     ax1.set_ylabel('surplus')
-    for y, l in zip(ys, labels):
-        ax1.plot(x_vals, y, label=l)
+    for i in range(len(xs)):
+        ax1.errorbar(xs[i], ys[i], yerr=err[i], label=labels[i])
+        
 
     plt.savefig('results.png')
 
-
-ys = []
-labels = []
-for key, val in averaged.items():
-    labels.append(key)
-    ys.append(val)
-
-plot(x_vals, ys, labels)
+plot(x_vals, averaged, error, result_files)
 
