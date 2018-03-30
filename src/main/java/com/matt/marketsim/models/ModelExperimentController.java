@@ -40,13 +40,12 @@ public class ModelExperimentController {
         parameterManager.initializeModelParameter(Double.class, "DISCOUNT_RATE", 0.0006);
         parameterManager.initializeModelParameter(Integer.class, "NUM_EXCHANGES", 2);
         parameterManager.initializeModelParameter(Integer.class, "AGENTS_PER_EXCHANGE", 125);
-        parameterManager.initializeModelParameter(Integer.class, "DELTA_STEPS", 11);
-        parameterManager.initializeModelParameter(Integer.class, "STEP", 100);
+        parameterManager.initializeModelParameter(Integer.class, "DELTA_STEPS", 21);
+        parameterManager.initializeModelParameter(Integer.class, "STEP", 1);
         parameterManager.initializeModelParameter(Integer.class, "ROUNDS", 200);
         parameterManager.initializeModelParameter(Integer.class, "SIM_LENGTH", 15000);
         parameterManager.initializeModelParameter(Integer.class, "SEED_OFFSET", 1234);
-        parameterManager.initializeModelParameter(Boolean.class, "LA_PRESENT", true);
-
+        parameterManager.initializeModelParameter(Boolean.class, "LA_PRESENT", false);
     }
 
     public static ResultDto runOnce(long seed, double delta) {
