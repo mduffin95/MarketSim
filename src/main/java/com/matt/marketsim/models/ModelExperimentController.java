@@ -25,11 +25,11 @@ import java.util.concurrent.*;
  */
 public class ModelExperimentController {
 
-    private static ParameterManager parameterManager;
 
-    private static void initializeModelParameters() {
 
-        parameterManager = new ParameterManager();
+    private static void initializeModelParameters(ParameterManager parameterManager) {
+
+        parameterManager.initializeModelParameter(Double.class, "DELTA", 100);
         parameterManager.initializeModelParameter(Double.class, "SIGMA_SHOCK", Math.sqrt(150000000.0));
         parameterManager.initializeModelParameter(Double.class, "SIGMA_PV", Math.sqrt(100000000.0));
         parameterManager.initializeModelParameter(Double.class, "K", 0.05);
@@ -40,23 +40,23 @@ public class ModelExperimentController {
         parameterManager.initializeModelParameter(Double.class, "DISCOUNT_RATE", 0.0006);
         parameterManager.initializeModelParameter(Integer.class, "NUM_EXCHANGES", 2);
         parameterManager.initializeModelParameter(Integer.class, "AGENTS_PER_EXCHANGE", 125);
-        parameterManager.initializeModelParameter(Integer.class, "DELTA_STEPS", 21);
-        parameterManager.initializeModelParameter(Integer.class, "STEP", 1);
-        parameterManager.initializeModelParameter(Integer.class, "ROUNDS", 200);
         parameterManager.initializeModelParameter(Integer.class, "SIM_LENGTH", 15000);
-        parameterManager.initializeModelParameter(Integer.class, "SEED_OFFSET", 1234);
         parameterManager.initializeModelParameter(Boolean.class, "LA_PRESENT", false);
+
+
+        parameterManager.initializeModelParameter(Integer.class, "DELTA_STEPS", 2);
+        parameterManager.initializeModelParameter(Integer.class, "STEP", 1);
+        parameterManager.initializeModelParameter(Integer.class, "ROUNDS", 10);
+        parameterManager.initializeModelParameter(Integer.class, "SEED_OFFSET", 1234);
     }
 
-    public static ResultDto runOnce(long seed, double delta) {
+    public static ResultDto runOnce(long seed, ParameterManager parameterManager) {
 
         // create model and experiment
         Experiment.setEpsilon(TimeUnit.MICROSECONDS);
         Experiment.setReferenceUnit(TimeUnit.SECONDS);
         Experiment exp = new Experiment("Exp1");
 
-//        NetworkBuilder builder = new ZIPExperiment(50, 0, 200);
-        parameterManager.initializeModelParameter(Double.class, "DELTA", delta);
         MarketSimModel model = new TwoMarketModel(parameterManager);
         model.setSeed(seed);
         // and connect them
@@ -81,19 +81,19 @@ public class ModelExperimentController {
      * runs the model
      */
     public static void main(String[] args) {
-        initializeModelParameters();
 
         long start = System.currentTimeMillis();
         final String dir = "results/runs/";
         double delta;
         int count = 0;
-        int ROUNDS = (int)parameterManager.getParameterValue("ROUNDS");
-        int DELTA_STEPS = (int)parameterManager.getParameterValue("DELTA_STEPS");
-        int STEP = (int)parameterManager.getParameterValue("STEP");
-        int SEED_OFFSET = (int)parameterManager.getParameterValue("SEED_OFFSET");
+        ParameterManager params = new ParameterManager();
+        initializeModelParameters(params);
+        int ROUNDS = (int)params.getParameterValue("ROUNDS");
+        int DELTA_STEPS = (int)params.getParameterValue("DELTA_STEPS");
+        int STEP = (int)params.getParameterValue("STEP");
+        int SEED_OFFSET = (int)params.getParameterValue("SEED_OFFSET");
 
-        List<ResultDto> allResults = new ArrayList<>(ROUNDS *
-                (int)parameterManager.getParameterValue("DELTA_STEPS"));
+        List<ResultDto> allResults = new ArrayList<>(ROUNDS * DELTA_STEPS);
         boolean parallel = true;
         if (parallel) {
             List<Callable<ResultDto>> tasks = new ArrayList<>();
@@ -101,8 +101,11 @@ public class ModelExperimentController {
                 delta = i * STEP;
                 for (int j = 0; j < ROUNDS; j++) {
                     count++;
-                    System.out.println(count);
-                    MarketSimCallable c = new MarketSimCallable(SEED_OFFSET + count, delta);
+                    System.out.println(SEED_OFFSET + count + ", " + delta);
+                    ParameterManager parameterManager = new ParameterManager();
+                    initializeModelParameters(parameterManager);
+                    parameterManager.assignModelParameter("DELTA", delta);
+                    MarketSimCallable c = new MarketSimCallable(SEED_OFFSET + count, parameterManager);
 //                    MarketSimCallable c = new MarketSimCallable(SEED_OFFSET + count, delta);
                     tasks.add(c);
                 }
@@ -125,17 +128,20 @@ public class ModelExperimentController {
                 delta = i * STEP;
                 for (int j = 0; j < ROUNDS; j++) {
                     count++;
-                    ResultDto result = runOnce(SEED_OFFSET + count, delta);
+                    ParameterManager parameterManager = new ParameterManager();
+                    initializeModelParameters(parameterManager);
+                    parameterManager.assignModelParameter("DELTA", delta);
+                    ResultDto result = runOnce(SEED_OFFSET + count, parameterManager);
                     allResults.add(result);
                     System.out.println(count);
                 }
             }
         }
         System.out.println(System.currentTimeMillis() - start);
-        writeToFile(dir, allResults);
+        writeToFile(params, dir, allResults);
     }
 
-    private static void writeToFile(String dir, List<ResultDto> results) {
+    private static void writeToFile(ParameterManager parameterManager, String dir, List<ResultDto> results) {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yy-MM-dd_HH:mm:ss");
         LocalDateTime date = LocalDateTime.now();
         dir = dir + "/" + dtf.format(date);
