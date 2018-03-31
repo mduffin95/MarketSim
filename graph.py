@@ -49,9 +49,10 @@ def plot(xs, ys, err, labels):
     ax1 = fig.add_subplot(111)
     ax1.set_xlabel('latency')
     ax1.set_ylabel('surplus')
+    ax1.set_title('Title')
     for i in range(len(xs)):
         print(labels[i])
-        ax1.errorbar(xs[i], ys[i], yerr=err[i], label=labels[i], markersize=8, capsize=10)
+        ax1.errorbar(xs[i], ys[i], yerr=err[i], label=labels[i], capsize=3)
         
 
     ax1.legend()

@@ -43,11 +43,11 @@ public class TwoMarketModel extends MarketSimModel {
     /*
      * Wellman's parameters
      */
-    private ParameterManager params;
+    private ModelParameters params;
 
 
-    public TwoMarketModel(ParameterManager params) {
-        super(null, "TwoMarketModel", true, true, (int)params.getParameterValue("SIM_LENGTH"));
+    public TwoMarketModel(ModelParameters params) {
+        super(null, "TwoMarketModel", true, true, (int)params.getParameter("SIM_LENGTH"));
         generator = new Random();
         this.params = params;
 
@@ -79,10 +79,10 @@ public class TwoMarketModel extends MarketSimModel {
          */
 
         agentArrivalTimeDist = new ContDistExponential(this, "AgentArrivalTimeStream",
-                (1.0 / (double)params.getParameterValue("LAMBDA")), true, false);
+                (1.0 / (double)params.getParameter("LAMBDA")), true, false);
         agentArrivalTimeDist.setNonNegative(true);
         offsetRangeDist = new ContDistUniform(this, "OffsetRangeUniformStream",
-                0, (double)params.getParameterValue("OFFSET_RANGE"), true, false);
+                0, (double)params.getParameter("OFFSET_RANGE"), true, false);
 
         buyOrSell = new BoolDistBernoulli(this, "BuyOrSell", 0.5, true, false);
 
@@ -120,9 +120,9 @@ public class TwoMarketModel extends MarketSimModel {
     //Create the network of entities
     @Override
     WellmanGraph createNetwork() {
-        boolean la_present = (boolean)params.getParameterValue("LA_PRESENT");
+        boolean la_present = (boolean)params.getParameter("LA_PRESENT");
         SecuritiesInformationProcessor sip = new SecuritiesInformationProcessor(this, "Securities Information Processor",
-                SHOW_ENTITIES_IN_TRACE, new TimeSpan((double)params.getParameterValue("DELTA")));
+                SHOW_ENTITIES_IN_TRACE, new TimeSpan((double)params.getParameter("DELTA")));
         Set<Exchange> allExchanges = new HashSet<>();
         Set<TradingAgent> allTradingAgents = new HashSet<>();
         List<TradingAgentGroup> allExchangeGroups = new ArrayList<>();
@@ -131,32 +131,32 @@ public class TwoMarketModel extends MarketSimModel {
         TradingAgentGroup all = new TradingAgentGroup();
 
         TradeStatisticCalculator tradeStats = new TradeStatisticCalculator(this, "trading_agents", tas,
-                (double)params.getParameterValue("DISCOUNT_RATE"), getExperiment().getSimClock(), true, false);
+                (double)params.getParameter("DISCOUNT_RATE"), getExperiment().getSimClock(), true, false);
         statsObjects.add(tradeStats);
 
         TradingAgent arbitrageur = null;
         TradeStatisticCalculator arbStats = null;
         TradeStatisticCalculator allStats = null;
         if (la_present) {
-            arbitrageur = new Arbitrageur(this, (double)params.getParameterValue("ALPHA"), SHOW_ENTITIES_IN_TRACE);
+            arbitrageur = new Arbitrageur(this, (double)params.getParameter("ALPHA"), SHOW_ENTITIES_IN_TRACE);
             TradingAgentGroup arb = new TradingAgentGroup();
             arb.addMember(arbitrageur);
             all.addMember(arbitrageur);
             arbStats = new TradeStatisticCalculator(this, "arbitrageur",
-                    arb, (double)params.getParameterValue("DISCOUNT_RATE"), getExperiment().getSimClock(), true, false);
+                    arb, (double)params.getParameter("DISCOUNT_RATE"), getExperiment().getSimClock(), true, false);
             allStats = new TradeStatisticCalculator(this, "all",
-                    all, (double)params.getParameterValue("DISCOUNT_RATE"), getExperiment().getSimClock(), true, false);
+                    all, (double)params.getParameter("DISCOUNT_RATE"), getExperiment().getSimClock(), true, false);
             statsObjects.add(arbStats);
             statsObjects.add(allStats);
         }
 
         SimClock clock = this.getExperiment().getSimClock();
         VariableLimitFactory factory = new VariableLimitFactory(this,
-                (double)params.getParameterValue("SIGMA_SHOCK"),
-                (double)params.getParameterValue("SIGMA_PV"),
-                (double)params.getParameterValue("K"),
-                (double)params.getParameterValue("MEAN_FUNDAMENTAL"));
-        for (int i = 0; i < (int)params.getParameterValue("NUM_EXCHANGES"); i++) {
+                (double)params.getParameter("SIGMA_SHOCK"),
+                (double)params.getParameter("SIGMA_PV"),
+                (double)params.getParameter("K"),
+                (double)params.getParameter("MEAN_FUNDAMENTAL"));
+        for (int i = 0; i < (int)params.getParameter("NUM_EXCHANGES"); i++) {
             Exchange exchange = new Exchange(this, "Exchange", sip, SHOW_ENTITIES_IN_TRACE);
             allExchanges.add(exchange);
             TradingAgentGroup group = new TradingAgentGroup();
@@ -174,7 +174,7 @@ public class TwoMarketModel extends MarketSimModel {
                 exchange.registerPriceObserver(arbitrageur);
             }
 
-            for (int j = 0; j < (int)params.getParameterValue("AGENTS_PER_EXCHANGE"); j++) {
+            for (int j = 0; j < (int)params.getParameter("AGENTS_PER_EXCHANGE"); j++) {
                 OrderRouter router = new BestPriceOrderRouter(clock, exchange);
                 //Market 1
                 TradingAgent agent = new ZIC(this, factory.create(), router, buyOrSell, offsetRangeDist, SHOW_ENTITIES_IN_TRACE);
@@ -200,7 +200,7 @@ public class TwoMarketModel extends MarketSimModel {
     @Override
     public ResultDto getResults() {
         ResultDto result = new ResultDto();
-        result.delta = (double)params.getParameterValue("DELTA");
+        result.delta = (double)params.getParameter("DELTA");
         for (TradeStatisticCalculator c : statsObjects) {
             Reporter r = c.createDefaultReporter();
             result.entries.add(r.getEntries());

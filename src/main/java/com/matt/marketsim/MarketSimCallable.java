@@ -8,11 +8,11 @@ import java.util.concurrent.Callable;
 public class MarketSimCallable implements Callable {
 
     private long seed;
-    private ParameterManager params;
+    private ModelParameters params;
 
-    public MarketSimCallable(long seed, ParameterManager parameterManager) {
+    public MarketSimCallable(long seed, ModelParameters params) {
         this.seed = seed;
-        this.params = parameterManager;
+        this.params = params;
     }
 
     @Override
