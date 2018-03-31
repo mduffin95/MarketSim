@@ -1,0 +1,13 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="MarketSim:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/MarketSim_jar</output-path>
+    <root id="archive" name="MarketSim.jar">
+      <element id="module-output" name="MarketSim" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/google/code/gson/gson/2.8.2/gson-2.8.2.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/desmoj/desmoj/2.5.1e/desmoj-2.5.1e.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/commons-cli/commons-cli/1.4/commons-cli-1.4.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/commons-io/commons-io/2.5/commons-io-2.5.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/jgrapht/jgrapht-core/1.1.0/jgrapht-core-1.1.0.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
