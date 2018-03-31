@@ -1,12 +1,9 @@
 package com.matt.marketsim.entities.agents;
 
 import com.matt.marketsim.*;
-import com.matt.marketsim.LimitProvider;
 import com.matt.marketsim.models.MarketSimModel;
 import desmoj.core.dist.BoolDistBernoulli;
 import desmoj.core.dist.ContDist;
-import desmoj.core.dist.ContDistUniform;
-import desmoj.core.simulator.Model;
 
 public class ZIC extends TradingAgent {
     private Direction direction;

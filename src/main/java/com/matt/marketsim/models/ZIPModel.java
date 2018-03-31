@@ -1,62 +1,46 @@
 package com.matt.marketsim.models;
 
 import com.matt.marketsim.*;
+import com.matt.marketsim.builders.Schedule;
 import com.matt.marketsim.dtos.ResultDto;
 import com.matt.marketsim.entities.Exchange;
 import com.matt.marketsim.entities.SecuritiesInformationProcessor;
 import com.matt.marketsim.entities.agents.Arbitrageur;
 import com.matt.marketsim.entities.agents.TradingAgent;
 import com.matt.marketsim.entities.agents.ZIC;
+import com.matt.marketsim.entities.agents.ZIP;
 import com.matt.marketsim.events.TradingAgentDecisionEvent;
-import desmoj.core.dist.*;
+import desmoj.core.dist.BoolDistBernoulli;
+import desmoj.core.dist.ContDistExponential;
+import desmoj.core.dist.ContDistUniform;
+import desmoj.core.dist.DiscreteDistUniform;
 import desmoj.core.report.Reporter;
-import desmoj.core.simulator.*;
+import desmoj.core.simulator.SimClock;
+import desmoj.core.simulator.TimeInstant;
+import desmoj.core.simulator.TimeSpan;
 
 import java.util.*;
 
-public class TwoMarketModel extends MarketSimModel {
+public class ZIPModel extends TwoMarketModel {
 
-    /*
-     * Distributions and number generators
-     */
-    ContDistExponential agentArrivalTimeDist;
-    ContDistUniform offsetRangeDist;
-//    protected DiscreteDistUniform priceDist;
-    BoolDistBernoulli buyOrSell;
-    //    private BoolDistBernoulli buyOrSell;
+    private Schedule schedule;
+    private int buyAgents;
+    private int sellAgents;
 
-    /*
-     * Model parameters
-     */
+    public ZIPModel(ModelParameters params) {
+        super(params);
+        buyAgents = (int)params.getParameter("BUY_AGENTS_PER_EXCHANGE");
+        sellAgents = (int)params.getParameter("SELL_AGENTS_PER_EXCHANGE");
 
-    boolean SHOW_ENTITIES_IN_TRACE = true;
-    public static boolean SHOW_EVENTS_IN_TRACE = true;
-    private static boolean PACKET_SEND_IN_TRACE = false;
-    private static boolean PACKET_ARRIVAL_IN_TRACE = false;
-
-    /*
-     * Statistics
-     */
-    List<TradeStatisticCalculator> statsObjects;
-
-
-    /*
-     * Wellman's parameters
-     */
-    protected ModelParameters params;
-
-
-    public TwoMarketModel(ModelParameters params) {
-        super(null, "TwoMarketModel", true, true, (int)params.getParameter("SIM_LENGTH"));
-        generator = new Random();
-        this.params = params;
-
-        statsObjects = new ArrayList<>();
+        int minBuyLimit = (int)params.getParameter("MIN_BUY_LIMIT");
+        int minSellLimit = (int)params.getParameter("MIN_SELL_LIMIT");
+        int limitStep = (int)params.getParameter("LIMIT_STEP");
+        schedule = new Schedule(minBuyLimit, limitStep, buyAgents, minSellLimit, limitStep, sellAgents);
     }
 
     @Override
     public String description() {
-        return "A two market model from the Wah and Wellman paper.";
+        return "A model using ZIP traders.";
     }
 
     @Override
@@ -68,52 +52,6 @@ public class TwoMarketModel extends MarketSimModel {
             TradingAgentDecisionEvent event = new TradingAgentDecisionEvent(this, "MarketEntryDecision", true, false);
             event.schedule(a, new TimeInstant(cumulative));
         }
-    }
-
-    @Override
-    public void init() {
-        super.init();
-
-        /*
-         * Distributions and number generators
-         */
-
-        agentArrivalTimeDist = new ContDistExponential(this, "AgentArrivalTimeStream",
-                (1.0 / (double)params.getParameter("LAMBDA")), true, false);
-        agentArrivalTimeDist.setNonNegative(true);
-        offsetRangeDist = new ContDistUniform(this, "OffsetRangeUniformStream",
-                0, (double)params.getParameter("OFFSET_RANGE"), true, false);
-
-        buyOrSell = new BoolDistBernoulli(this, "BuyOrSell", 0.5, true, false);
-
-        /*
-         * Add distributions to the distribution manager. This allows us to set a single seed.
-         */
-        distributionManager.register(agentArrivalTimeDist);
-        distributionManager.register(offsetRangeDist);
-        distributionManager.register(buyOrSell);
-
-        network = createNetwork(); //Always call this last
-    }
-
-    @Override
-    public TimeSpan getAgentArrivalTime() {
-        return new TimeSpan(agentArrivalTimeDist.sample());
-    }
-
-    @Override
-    protected WellmanGraph getNetwork() {
-        return network;
-    }
-
-    @Override
-    public boolean showPacketSendInTrace() {
-        return PACKET_SEND_IN_TRACE;
-    }
-
-    @Override
-    public boolean showPacketArrivalInTrace() {
-        return PACKET_ARRIVAL_IN_TRACE;
     }
 
 
@@ -151,11 +89,6 @@ public class TwoMarketModel extends MarketSimModel {
         }
 
         SimClock clock = this.getExperiment().getSimClock();
-        VariableLimitFactory factory = new VariableLimitFactory(this,
-                (double)params.getParameter("SIGMA_SHOCK"),
-                (double)params.getParameter("SIGMA_PV"),
-                (double)params.getParameter("K"),
-                (double)params.getParameter("MEAN_FUNDAMENTAL"));
         for (int i = 0; i < (int)params.getParameter("NUM_EXCHANGES"); i++) {
             Exchange exchange = new Exchange(this, "Exchange", sip, SHOW_ENTITIES_IN_TRACE);
             allExchanges.add(exchange);
@@ -174,10 +107,21 @@ public class TwoMarketModel extends MarketSimModel {
                 exchange.registerPriceObserver(arbitrageur);
             }
 
-            for (int j = 0; j < (int)params.getParameter("AGENTS_PER_EXCHANGE"); j++) {
+            for (int j = 0; j < buyAgents; j++) {
                 OrderRouter router = new BestPriceOrderRouter(clock, exchange);
                 //Market 1
-                TradingAgent agent = new ZIC(this, factory.create(), router, buyOrSell, offsetRangeDist, SHOW_ENTITIES_IN_TRACE);
+                TradingAgent agent = new ZIP(this, schedule.getBuySchedule()[j], router, Direction.BUY, generator, SHOW_ENTITIES_IN_TRACE);
+                exchange.registerPriceObserver(agent);
+                sip.registerPriceObserver(agent); //TODO: Control this from the graph itself based on edges
+                group.addMember(agent);
+                tas.addMember(agent);
+                all.addMember(agent);
+                allTradingAgents.add(agent);
+            }
+            for (int j = 0; j < sellAgents; j++) {
+                OrderRouter router = new BestPriceOrderRouter(clock, exchange);
+                //Market 1
+                TradingAgent agent = new ZIP(this, schedule.getSellSchedule()[j], router, Direction.SELL, generator, SHOW_ENTITIES_IN_TRACE);
                 exchange.registerPriceObserver(agent);
                 sip.registerPriceObserver(agent); //TODO: Control this from the graph itself based on edges
                 group.addMember(agent);
@@ -195,16 +139,5 @@ public class TwoMarketModel extends MarketSimModel {
                 graph.addBidirectionalEdge(arbitrageur, e);
         }
         return graph;
-    }
-
-    @Override
-    public ResultDto getResults() {
-        ResultDto result = new ResultDto();
-        result.delta = (double)params.getParameter("DELTA");
-        for (TradeStatisticCalculator c : statsObjects) {
-            Reporter r = c.createDefaultReporter();
-            result.entries.add(r.getEntries());
-        }
-        return result;
     }
 }

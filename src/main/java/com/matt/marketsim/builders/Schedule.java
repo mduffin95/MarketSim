@@ -1,42 +1,40 @@
 package com.matt.marketsim.builders;
 
-import com.matt.marketsim.FixedLimit;
-
 import static java.lang.Math.min;
 
 public class Schedule {
     int lowestBuy;
     int buyStep;
     int buyQuantity;
-    FixedLimit[] buySchedule;
+    int[] buySchedule;
 
     int lowestSell;
     int sellStep;
     int sellQuantity;
-    FixedLimit[] sellSchedule;
+    int[] sellSchedule;
 
 
 
     public Schedule(int lowestBuy, int buyStep, int buyQuantity, int lowestSell, int sellStep, int sellQuantity) {
         this.buyQuantity = buyQuantity;
         this.sellQuantity = sellQuantity;
-        buySchedule = new FixedLimit[buyQuantity];
-        sellSchedule = new FixedLimit[sellQuantity];
+        buySchedule = new int[buyQuantity];
+        sellSchedule = new int[sellQuantity];
         for (int i=0; i<buyQuantity; i++) {
             int j = buyQuantity-i-1;
-            buySchedule[i] = new FixedLimit(lowestBuy + j*buyStep);
+            buySchedule[i] = lowestBuy + j*buyStep;
         }
 
         for (int i=0; i<sellQuantity; i++) {
-            sellSchedule[i] = new FixedLimit(lowestSell + i*sellStep);
+            sellSchedule[i] = lowestSell + i*sellStep;
         }
     }
 
-    public FixedLimit[] getBuySchedule() {
+    public int[] getBuySchedule() {
         return buySchedule;
     }
 
-    public FixedLimit[] getSellSchedule() {
+    public int[] getSellSchedule() {
         return sellSchedule;
     }
 
@@ -44,8 +42,8 @@ public class Schedule {
         int minQuantity = min(buyQuantity, sellQuantity);
 
         for (int i=0; i<minQuantity; i++) {
-            int b = buySchedule[i].getLimitPrice(null);
-            int s = sellSchedule[i].getLimitPrice(null);
+            int b = buySchedule[i];
+            int s = sellSchedule[i];
             if (b > s) {
                 return (b+s) / 2;
             }

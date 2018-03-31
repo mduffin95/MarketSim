@@ -50,8 +50,16 @@ public class ModelExperimentController {
 
         params.addParameter(Integer.class, "DELTA_STEPS", 11);
         params.addParameter(Integer.class, "STEP", 100);
-        params.addParameter(Integer.class, "ROUNDS", 200);
+        params.addParameter(Integer.class, "ROUNDS", 1000);
         params.addParameter(Integer.class, "SEED_OFFSET", 1234);
+
+        /* ZIP Experiment */
+        params.addParameter(Integer.class,"BUY_AGENTS_PER_EXCHANGE", 75);
+        params.addParameter(Integer.class,"SELL_AGENTS_PER_EXCHANGE", 75);
+
+        params.addParameter(Integer.class,"MIN_BUY_LIMIT", 70000);
+        params.addParameter(Integer.class, "MIN_SELL_LIMIT", 70000);
+        params.addParameter(Integer.class, "LIMIT_STEP", 1000);
 
         updateParams(args, params); //Do last to overwrite
     }
@@ -63,7 +71,7 @@ public class ModelExperimentController {
         Experiment.setReferenceUnit(TimeUnit.SECONDS);
         Experiment exp = new Experiment("Exp1");
 
-        MarketSimModel model = new TwoMarketModel(params);
+        MarketSimModel model = new ZIPModel(params);
         model.setSeed(seed);
         // and connect them
         model.connectToExperiment(exp);

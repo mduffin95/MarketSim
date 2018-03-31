@@ -24,7 +24,7 @@ public class ZIP extends TradingAgent {
 
     public ZIP(MarketSimModel model, int limit, OrderRouter router, Direction direction, Random generator, boolean showInTrace) {
         super(model, router, showInTrace);
-        ((MarketSimModel) model).registerForInitialSchedule(this); //Register so that it is scheduled
+        model.registerForInitialSchedule(this); //Register so that it is scheduled
         this.limit = limit;
         this.direction = direction;
         this.generator = generator;
@@ -37,6 +37,8 @@ public class ZIP extends TradingAgent {
         } else {
             margin = 0.05 + 0.3 * generator.nextDouble();
         }
+
+        currentSummary = new LOBSummary(presentTime(), null, null);
     }
 
     @Override
@@ -72,7 +74,7 @@ public class ZIP extends TradingAgent {
     }
 
     private void placeOrder() {
-        previousOrder = router.routeOrder(this, MessageType.LIMIT_ORDER, direction, getPrice(), limit);
+        previousOrder = router.routeOrder(this, MessageType.LIMIT_ORDER, direction, getPrice(), getLimitPrice());
     }
 
     @Override
@@ -86,30 +88,34 @@ public class ZIP extends TradingAgent {
         Direction lastOrderDirection;
         int price;
 
-        OrderTimeStamped currentBestBuy = (null == currentSummary) ? null : currentSummary.getBuyOrder();
-        OrderTimeStamped currentBestSell = (null == currentSummary) ? null : currentSummary.getSellOrder();
+        OrderTimeStamped currentBestBuy = currentSummary.getBuyOrder();
+        OrderTimeStamped currentBestSell = currentSummary.getSellOrder();
 
-        if (currentBestBuy != summary.getBuyOrder()) {
+        if (!currentBestBuy.equals(summary.getBuyOrder())) {
             //Either new buy order or trade occurred that cleared with the buy order
             if (deal) {
                 //Most recent order was a sell order
                 lastOrderDirection = Direction.SELL;
                 price = trade.getPrice();
-            } else {
+            } else if (summary.getBuyOrder().getOrder().isPresent()) {
                 //Most recent order was a buy order
                 lastOrderDirection = Direction.BUY;
                 price = summary.getBuyOrder().getOrder().get().getPrice();
+            } else {
+                return;
             }
-        } else if (currentBestSell != summary.getSellOrder()) {
+        } else if (!currentBestSell.equals(summary.getSellOrder())) {
             //Either new sell order or trade occurred that cleared with the sell order
             if (deal) {
                 //Most recent order was a buy order
                 lastOrderDirection = Direction.BUY;
                 price = trade.getPrice();
-            } else {
+            } else if (summary.getSellOrder().getOrder().isPresent()) {
                 //Most recent order was a sell order
                 lastOrderDirection = Direction.SELL;
                 price = summary.getSellOrder().getOrder().get().getPrice();
+            } else {
+                return;
             }
         } else {
             //Nothing has changed

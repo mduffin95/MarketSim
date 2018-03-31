@@ -1,6 +1,5 @@
 package com.matt.marketsim.entities.agents;
 import com.matt.marketsim.*;
-import com.matt.marketsim.LimitProvider;
 import com.matt.marketsim.models.MarketSimModel;
 import com.matt.marketsim.entities.*;
 
