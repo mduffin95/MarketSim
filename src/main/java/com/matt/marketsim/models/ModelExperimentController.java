@@ -50,28 +50,30 @@ public class ModelExperimentController {
 
         params.addParameter(Integer.class, "DELTA_STEPS", 11);
         params.addParameter(Integer.class, "STEP", 100);
-        params.addParameter(Integer.class, "ROUNDS", 1000);
+        params.addParameter(Integer.class, "ROUNDS", 50);
         params.addParameter(Integer.class, "SEED_OFFSET", 1234);
 
         /* ZIP Experiment */
-        params.addParameter(Integer.class,"BUY_AGENTS_PER_EXCHANGE", 75);
-        params.addParameter(Integer.class,"SELL_AGENTS_PER_EXCHANGE", 75);
-
-        params.addParameter(Integer.class,"MIN_BUY_LIMIT", 70000);
-        params.addParameter(Integer.class, "MIN_SELL_LIMIT", 70000);
-        params.addParameter(Integer.class, "LIMIT_STEP", 1000);
+//        params.addParameter(Integer.class,"BUY_AGENTS_PER_EXCHANGE", 75);
+//        params.addParameter(Integer.class,"SELL_AGENTS_PER_EXCHANGE", 75);
+//
+//        params.addParameter(Integer.class,"MIN_BUY_LIMIT", 70000);
+//        params.addParameter(Integer.class, "MIN_SELL_LIMIT", 70000);
+//        params.addParameter(Integer.class, "LIMIT_STEP", 1000);
 
         updateParams(args, params); //Do last to overwrite
     }
 
-    public static ResultDto runOnce(long seed, ModelParameters params) {
+    public static ResultDto runOnce(ModelParameters params) {
 
         // create model and experiment
         Experiment.setEpsilon(TimeUnit.MICROSECONDS);
         Experiment.setReferenceUnit(TimeUnit.SECONDS);
         Experiment exp = new Experiment("Exp1");
 
-        MarketSimModel model = new ZIPModel(params);
+        MarketSimModel model = new TwoMarketModel(params);
+
+        long seed = (int)params.getParameter("SEED");
         model.setSeed(seed);
         // and connect them
         model.connectToExperiment(exp);
@@ -185,7 +187,8 @@ public class ModelExperimentController {
         List<ResultDto> allResults = new ArrayList<>(ROUNDS * DELTA_STEPS);
         boolean parallel = true;
         if (parallel) {
-            List<Callable<ResultDto>> tasks = new ArrayList<>();
+            List<ModelParameters> all_params = new ArrayList<>();
+            List<Callable<List<ResultDto>>> tasks = new ArrayList<>();
             for (int i = 0; i < DELTA_STEPS; i++) {
                 delta = i * STEP;
                 for (int j = 0; j < ROUNDS; j++) {
@@ -193,17 +196,32 @@ public class ModelExperimentController {
                     System.out.println(SEED_OFFSET + count + ", " + delta);
                     ModelParameters p = new ModelParameters(params);
                     p.addParameter(Double.class, "DELTA", delta);
-                    MarketSimCallable c = new MarketSimCallable(SEED_OFFSET + count, p);
-//                    MarketSimCallable c = new MarketSimCallable(SEED_OFFSET + count, delta);
-                    tasks.add(c);
+                    p.addParameter(Long.class, "SEED", SEED_OFFSET + count);
+                    all_params.add(p);
                 }
             }
 
-            ExecutorService EXEC = Executors.newFixedThreadPool(4);
+            int processors = Runtime.getRuntime().availableProcessors();
+            System.out.println("Num processors = " + processors);
+            ExecutorService EXEC = Executors.newFixedThreadPool(processors);
+
+            int div = all_params.size() / processors;
+            int remainder = all_params.size() % processors;
+            for (int i = 0; i<processors; i++) {
+                List<ModelParameters> sub = all_params.subList(i*div, (i+1)*div);
+                MarketSimCallable c = new MarketSimCallable(sub);
+                tasks.add(c);
+            }
+            if (remainder != 0) {
+                List<ModelParameters> sub = all_params.subList(processors * div, all_params.size()-1);
+                MarketSimCallable c = new MarketSimCallable(sub);
+                tasks.add(c);
+            }
+
             try {
-                List<Future<ResultDto>> results = EXEC.invokeAll(tasks);
-                for (Future<ResultDto> fr : results) {
-                    allResults.add(fr.get());
+                List<Future<List<ResultDto>>> results = EXEC.invokeAll(tasks);
+                for (Future<List<ResultDto>> fr : results) {
+                    allResults.addAll(fr.get());
                 }
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
@@ -218,7 +236,8 @@ public class ModelExperimentController {
                     count++;
                     ModelParameters p = new ModelParameters(params);
                     p.addParameter(Double.class, "DELTA", delta);
-                    ResultDto result = runOnce(SEED_OFFSET + count, p);
+                    p.addParameter(Long.class, "SEED", SEED_OFFSET + count);
+                    ResultDto result = runOnce(p);
                     allResults.add(result);
                     System.out.println(count);
                 }
