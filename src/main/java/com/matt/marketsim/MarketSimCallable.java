@@ -11,18 +11,14 @@ import java.util.concurrent.Callable;
 public class MarketSimCallable implements Callable {
 
     private long seed;
-    private List<ModelParameters> params;
+    private ModelParameters params;
 
-    public MarketSimCallable(List<ModelParameters> params) {
+    public MarketSimCallable(ModelParameters params) {
         this.params = params;
     }
 
     @Override
     public Object call() throws Exception {
-        List<ResultDto> results = new ArrayList<>();
-        for (ModelParameters p: params) {
-            results.add(ModelExperimentController.runOnce(p));
-        }
-        return results;
+        return ModelExperimentController.runOnce(params);
     }
 }

@@ -87,7 +87,7 @@ public class ModelExperimentController {
         exp.start();
 
         // generate report and shut everything off
-        exp.report();
+//        exp.report();
         ResultDto result = model.getResults();
         exp.finish();
         return result;
@@ -187,8 +187,7 @@ public class ModelExperimentController {
         List<ResultDto> allResults = new ArrayList<>(ROUNDS * DELTA_STEPS);
         boolean parallel = true;
         if (parallel) {
-            List<ModelParameters> all_params = new ArrayList<>();
-            List<Callable<List<ResultDto>>> tasks = new ArrayList<>();
+            List<Callable<ResultDto>> tasks = new ArrayList<>();
             for (int i = 0; i < DELTA_STEPS; i++) {
                 delta = i * STEP;
                 for (int j = 0; j < ROUNDS; j++) {
@@ -197,7 +196,8 @@ public class ModelExperimentController {
                     ModelParameters p = new ModelParameters(params);
                     p.addParameter(Double.class, "DELTA", delta);
                     p.addParameter(Long.class, "SEED", SEED_OFFSET + count);
-                    all_params.add(p);
+//                    all_params.add(p);
+                    tasks.add(new MarketSimCallable(p));
                 }
             }
 
@@ -205,23 +205,10 @@ public class ModelExperimentController {
             System.out.println("Num processors = " + processors);
             ExecutorService EXEC = Executors.newFixedThreadPool(processors);
 
-            int div = all_params.size() / processors;
-            int remainder = all_params.size() % processors;
-            for (int i = 0; i<processors; i++) {
-                List<ModelParameters> sub = all_params.subList(i*div, (i+1)*div);
-                MarketSimCallable c = new MarketSimCallable(sub);
-                tasks.add(c);
-            }
-            if (remainder != 0) {
-                List<ModelParameters> sub = all_params.subList(processors * div, all_params.size()-1);
-                MarketSimCallable c = new MarketSimCallable(sub);
-                tasks.add(c);
-            }
-
             try {
-                List<Future<List<ResultDto>>> results = EXEC.invokeAll(tasks);
-                for (Future<List<ResultDto>> fr : results) {
-                    allResults.addAll(fr.get());
+                List<Future<ResultDto>> results = EXEC.invokeAll(tasks);
+                for (Future<ResultDto> fr : results) {
+                    allResults.add(fr.get());
                 }
             } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
