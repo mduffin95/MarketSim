@@ -34,7 +34,7 @@ public class ModelExperimentController {
 
     private static void initializeModelParameters(String[] args, ModelParameters params) {
 
-        params.addParameter(Double.class, "DELTA", 100);
+        params.addParameter(Double.class, "DELTA", 20.0);
         params.addParameter(Double.class, "SIGMA_SHOCK", Math.sqrt(150000000.0));
         params.addParameter(Double.class, "SIGMA_PV", Math.sqrt(100000000.0));
         params.addParameter(Double.class, "K", 0.05);
@@ -46,11 +46,12 @@ public class ModelExperimentController {
         params.addParameter(Integer.class, "NUM_EXCHANGES", 2);
         params.addParameter(Integer.class, "AGENTS_PER_EXCHANGE", 125);
         params.addParameter(Integer.class, "SIM_LENGTH", 15000);
-        params.addParameter(Boolean.class, "LA_PRESENT", false);
+        params.addParameter(Boolean.class, "LA_PRESENT", true);
 
-        params.addParameter(Integer.class, "DELTA_STEPS", 11);
-        params.addParameter(Integer.class, "STEP", 100);
-        params.addParameter(Integer.class, "ROUNDS", 5);
+        params.addParameter(Integer.class, "DELTA_STEPS", 50);
+        params.addParameter(Integer.class, "DELTA_OFFSET", 5);
+        params.addParameter(Integer.class, "STEP", 1);
+        params.addParameter(Integer.class, "ROUNDS", 1000);
         params.addParameter(Integer.class, "SEED_OFFSET", 1234);
 
         /* ZIP Experiment */
@@ -174,7 +175,7 @@ public class ModelExperimentController {
 
         long start = System.currentTimeMillis();
         final String dir = "results/runs/";
-        double delta;
+        double ind_var;
         int count = 0;
         ModelParameters params = new ModelParameters();
         initializeModelParameters(args, params);
@@ -183,18 +184,19 @@ public class ModelExperimentController {
         int DELTA_STEPS = (int)params.getParameter("DELTA_STEPS");
         int STEP = (int)params.getParameter("STEP");
         int SEED_OFFSET = (int)params.getParameter("SEED_OFFSET");
+        int DELTA_OFFSET = (int)params.getParameter("DELTA_OFFSET");
 
         List<ResultDto> allResults = new ArrayList<>(ROUNDS * DELTA_STEPS);
         boolean parallel = true;
         if (parallel) {
             List<Callable<ResultDto>> tasks = new ArrayList<>();
             for (int i = 0; i < DELTA_STEPS; i++) {
-                delta = i * STEP;
+                ind_var = i * STEP + DELTA_OFFSET;
                 for (int j = 0; j < ROUNDS; j++) {
                     count++;
-                    System.out.println(SEED_OFFSET + count + ", " + delta);
+                    System.out.println(SEED_OFFSET + count + ", " + ind_var);
                     ModelParameters p = new ModelParameters(params);
-                    p.addParameter(Double.class, "DELTA", delta);
+                    p.addParameter(Double.class, "LAMBDA", 1.0 / ind_var);
                     p.addParameter(Long.class, "SEED", SEED_OFFSET + count);
 //                    all_params.add(p);
                     tasks.add(new MarketSimCallable(p));
@@ -218,11 +220,11 @@ public class ModelExperimentController {
 
         } else {
             for (int i = 0; i < DELTA_STEPS; i++) {
-                delta = i * STEP;
+                ind_var = i * STEP;
                 for (int j = 0; j < ROUNDS; j++) {
                     count++;
                     ModelParameters p = new ModelParameters(params);
-                    p.addParameter(Double.class, "DELTA", delta);
+                    p.addParameter(Double.class, "LAMBDA", 1.0 / ind_var);
                     p.addParameter(Long.class, "SEED", SEED_OFFSET + count);
                     ResultDto result = runOnce(p);
                     allResults.add(result);
@@ -255,8 +257,8 @@ public class ModelExperimentController {
         for (ResultDto r : results) {
             for (String[] ent : r.entries) {
                 Path path = Paths.get(dir, ent[0] + ".csv");
-                double delta = (double)r.params.getParameter("DELTA");
-                ent[0] = String.valueOf(delta);
+                double ind_var = 1.0 / (double)r.params.getParameter("LAMBDA");
+                ent[0] = String.valueOf(ind_var);
                 String toWrite = String.join(", ", ent);
 
                 try {

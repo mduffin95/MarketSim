@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="77be16a5-d58e-43f2-8a64-da41b28bf94d" name="BC4" url="http://bc4login.acrc.bris.ac.uk">
+        <fileTransfer host="bc4login.acrc.bris.ac.uk" port="22" rootFolder="/mnt/storage/home/md14816" accessType="SFTP" authAgent="true">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" />
+          </advancedOptions>
+          <option name="port" value="22" />
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>

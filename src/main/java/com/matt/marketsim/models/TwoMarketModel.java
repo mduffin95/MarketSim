@@ -19,7 +19,7 @@ public class TwoMarketModel extends MarketSimModel {
     /*
      * Distributions and number generators
      */
-    ContDistExponential agentArrivalTimeDist;
+    ContDistConstant agentArrivalTimeDist;
     ContDistUniform offsetRangeDist;
 //    protected DiscreteDistUniform priceDist;
     BoolDistBernoulli buyOrSell;
@@ -77,9 +77,10 @@ public class TwoMarketModel extends MarketSimModel {
         /*
          * Distributions and number generators
          */
-
-        agentArrivalTimeDist = new ContDistExponential(this, "AgentArrivalTimeStream",
+        agentArrivalTimeDist = new ContDistConstant(this, "AgentArrivalTimeStream",
                 (1.0 / (double)params.getParameter("LAMBDA")), true, false);
+//        agentArrivalTimeDist = new ContDistExponential(this, "AgentArrivalTimeStream",
+//                (1.0 / (double)params.getParameter("LAMBDA")), true, false);
         agentArrivalTimeDist.setNonNegative(true);
         offsetRangeDist = new ContDistUniform(this, "OffsetRangeUniformStream",
                 0, (double)params.getParameter("OFFSET_RANGE"), true, false);

@@ -24,7 +24,8 @@ for r in result_files:
         for row in results_reader:
             surplus[float(row[0])].append(float(row[1]))
 
-    dof = len(surplus[0])-1
+    dof = len(surplus[float(row[0])])-1
+    print(dof)
     latencies = []
     av = []
     err = []
