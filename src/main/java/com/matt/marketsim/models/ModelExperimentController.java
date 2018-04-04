@@ -48,8 +48,8 @@ public class ModelExperimentController {
         params.addParameter(Integer.class, "SIM_LENGTH", 15000);
         params.addParameter(Boolean.class, "LA_PRESENT", true);
 
-        params.addParameter(Integer.class, "DELTA_STEPS", 50);
-        params.addParameter(Integer.class, "DELTA_OFFSET", 5);
+        params.addParameter(Integer.class, "DELTA_STEPS", 25);
+        params.addParameter(Integer.class, "DELTA_OFFSET", 1);
         params.addParameter(Integer.class, "STEP", 1);
         params.addParameter(Integer.class, "ROUNDS", 1000);
         params.addParameter(Integer.class, "SEED_OFFSET", 1234);
