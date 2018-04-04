@@ -5,10 +5,7 @@ import com.matt.marketsim.builders.Schedule;
 import com.matt.marketsim.dtos.ResultDto;
 import com.matt.marketsim.entities.Exchange;
 import com.matt.marketsim.entities.SecuritiesInformationProcessor;
-import com.matt.marketsim.entities.agents.Arbitrageur;
-import com.matt.marketsim.entities.agents.TradingAgent;
-import com.matt.marketsim.entities.agents.ZIC;
-import com.matt.marketsim.entities.agents.ZIP;
+import com.matt.marketsim.entities.agents.*;
 import com.matt.marketsim.events.TradingAgentDecisionEvent;
 import desmoj.core.dist.BoolDistBernoulli;
 import desmoj.core.dist.ContDistExponential;
@@ -110,7 +107,8 @@ public class ZIPModel extends TwoMarketModel {
             for (int j = 0; j < buyAgents; j++) {
                 OrderRouter router = new BestPriceOrderRouter(clock, exchange);
                 //Market 1
-                TradingAgent agent = new ZIP(this, schedule.getBuySchedule()[j], router, Direction.BUY, generator, SHOW_ENTITIES_IN_TRACE);
+//                TradingAgent agent = new ZIP(this, schedule.getBuySchedule()[j], router, Direction.BUY, generator, SHOW_ENTITIES_IN_TRACE);
+                TradingAgent agent = new ZIC(this, new FixedLimit(schedule.getBuySchedule()[j]), router, Direction.BUY, offsetRangeDist, SHOW_ENTITIES_IN_TRACE);
                 exchange.registerPriceObserver(agent);
                 sip.registerPriceObserver(agent); //TODO: Control this from the graph itself based on edges
                 group.addMember(agent);
@@ -121,7 +119,8 @@ public class ZIPModel extends TwoMarketModel {
             for (int j = 0; j < sellAgents; j++) {
                 OrderRouter router = new BestPriceOrderRouter(clock, exchange);
                 //Market 1
-                TradingAgent agent = new ZIP(this, schedule.getSellSchedule()[j], router, Direction.SELL, generator, SHOW_ENTITIES_IN_TRACE);
+//                TradingAgent agent = new ZIP(this, schedule.getSellSchedule()[j], router, Direction.SELL, generator, SHOW_ENTITIES_IN_TRACE);
+                TradingAgent agent = new ZIC(this, new FixedLimit(schedule.getSellSchedule()[j]), router, Direction.SELL, offsetRangeDist, SHOW_ENTITIES_IN_TRACE);
                 exchange.registerPriceObserver(agent);
                 sip.registerPriceObserver(agent); //TODO: Control this from the graph itself based on edges
                 group.addMember(agent);

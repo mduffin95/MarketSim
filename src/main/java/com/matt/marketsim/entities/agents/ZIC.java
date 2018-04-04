@@ -2,26 +2,27 @@ package com.matt.marketsim.entities.agents;
 
 import com.matt.marketsim.*;
 import com.matt.marketsim.models.MarketSimModel;
+import desmoj.core.dist.BoolDist;
 import desmoj.core.dist.BoolDistBernoulli;
 import desmoj.core.dist.ContDist;
 
 public class ZIC extends TradingAgent {
     private Direction direction;
     private Order currentOrder;
-    private VariableLimit limit;
+    private Limit limit;
     private ContDist offsetRange;
 
-    public ZIC(MarketSimModel model, VariableLimit limit, OrderRouter router, BoolDistBernoulli buyOrSell, ContDist offsetRange, boolean showInTrace) {
+    public ZIC(MarketSimModel model, Limit limit, OrderRouter router, BoolDist direction, ContDist offsetRange, boolean showInTrace) {
+        this(model, limit, router, direction.sample() ? Direction.BUY : Direction.SELL, offsetRange, showInTrace);
+    }
+
+    public ZIC(MarketSimModel model, Limit limit, OrderRouter router, Direction direction, ContDist offsetRange, boolean showInTrace) {
         super(model, router, showInTrace);
 
         model.registerForInitialSchedule(this); //Register so that it is scheduled
         this.limit = limit;
         this.offsetRange = offsetRange;
-        if (buyOrSell.sample()) {
-            direction = Direction.BUY;
-        } else {
-            direction = Direction.SELL;
-        }
+        this.direction = direction;
     }
 
     private int newPrice;

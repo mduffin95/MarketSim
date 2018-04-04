@@ -7,7 +7,7 @@ import desmoj.core.simulator.SimClock;
 import desmoj.core.simulator.TimeInstant;
 import desmoj.core.simulator.TimeOperations;
 
-public class VariableLimit {
+public class VariableLimit implements Limit {
     private ContDistNormal normal_pv;
     private MarketSimModel model;
     private TimeInstant lastTime = null;
