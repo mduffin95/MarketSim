@@ -200,7 +200,7 @@ public class TwoMarketModel extends MarketSimModel {
     @Override
     public ResultDto getResults() {
         ResultDto result = new ResultDto();
-        result.delta = (double)params.getParameter("DELTA");
+        result.params = params;
         for (TradeStatisticCalculator c : statsObjects) {
             Reporter r = c.createDefaultReporter();
             result.entries.add(r.getEntries());

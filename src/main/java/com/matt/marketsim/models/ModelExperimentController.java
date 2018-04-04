@@ -50,7 +50,7 @@ public class ModelExperimentController {
 
         params.addParameter(Integer.class, "DELTA_STEPS", 11);
         params.addParameter(Integer.class, "STEP", 100);
-        params.addParameter(Integer.class, "ROUNDS", 50);
+        params.addParameter(Integer.class, "ROUNDS", 5);
         params.addParameter(Integer.class, "SEED_OFFSET", 1234);
 
         /* ZIP Experiment */
@@ -255,7 +255,8 @@ public class ModelExperimentController {
         for (ResultDto r : results) {
             for (String[] ent : r.entries) {
                 Path path = Paths.get(dir, ent[0] + ".csv");
-                ent[0] = String.valueOf(r.delta);
+                double delta = (double)r.params.getParameter("DELTA");
+                ent[0] = String.valueOf(delta);
                 String toWrite = String.join(", ", ent);
 
                 try {
