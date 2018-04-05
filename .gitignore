@@ -10,4 +10,5 @@ tasks.xml
 target/
 results/tmp/
 results/runs/
+__pycache__/
 

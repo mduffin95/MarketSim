@@ -34,6 +34,8 @@ public class ModelExperimentController {
 
     private static void initializeModelParameters(String[] args, ModelParameters params) {
 
+        params.addParameter(String.class, "MODEL", "ZIC");
+
         params.addParameter(Double.class, "DELTA", 100);
         params.addParameter(Double.class, "SIGMA_SHOCK", Math.sqrt(150000000.0));
         params.addParameter(Double.class, "SIGMA_PV", Math.sqrt(100000000.0));
@@ -46,7 +48,7 @@ public class ModelExperimentController {
         params.addParameter(Integer.class, "NUM_EXCHANGES", 2);
         params.addParameter(Integer.class, "AGENTS_PER_EXCHANGE", 125);
         params.addParameter(Integer.class, "SIM_LENGTH", 15000);
-        params.addParameter(Boolean.class, "LA_PRESENT", false);
+        params.addParameter(Boolean.class, "LA_PRESENT", true);
 
         params.addParameter(Integer.class, "DELTA_STEPS", 11);
         params.addParameter(Integer.class, "STEP", 100);
@@ -127,10 +129,18 @@ public class ModelExperimentController {
                 .desc("Number of rounds")
                 .build();
 
+        Option modelOption = Option.builder("m")
+                .longOpt("model")
+                .required(false)
+                .hasArg(true)
+                .desc("Model")
+                .build();
+
         options.addOption(arbOption);
         options.addOption(exchangeOption);
         options.addOption(agentsOption);
         options.addOption(roundsOption);
+        options.addOption(modelOption);
         CommandLineParser parser = new DefaultParser();
         CommandLine cmd;
         try {
@@ -164,6 +174,12 @@ public class ModelExperimentController {
         if (num_agents != null) {
             System.out.println("AGENTS_PER_EXCHANGE == " + num_agents);
             params.addParameter(Integer.class,"AGENTS_PER_EXCHANGE", Integer.valueOf(num_agents));
+        }
+
+        String model = cmd.getOptionValue("model");
+        if (model != null) {
+            System.out.println("MODEL == " + model);
+            params.addParameter(String.class,"MODEL", model);
         }
     }
 

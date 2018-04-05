@@ -3,9 +3,7 @@
     <CLASSES>
       <root url="jar://$MAVEN_REPOSITORY$/desmoj/desmoj/2.5.1e/desmoj-2.5.1e.jar!/" />
     </CLASSES>
-    <JAVADOC>
-      <root url="jar://$MAVEN_REPOSITORY$/desmoj/desmoj/2.5.1e/desmoj-2.5.1e-javadoc.jar!/" />
-    </JAVADOC>
+    <JAVADOC />
     <SOURCES>
       <root url="jar://$MAVEN_REPOSITORY$/desmoj/desmoj/2.5.1e/desmoj-2.5.1e-sources.jar!/" />
     </SOURCES>

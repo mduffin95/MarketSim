@@ -40,16 +40,16 @@ public class ZIPModel extends TwoMarketModel {
         return "A model using ZIP traders.";
     }
 
-    @Override
-    public void doInitialSchedules() {
-        Collections.shuffle(initialAgents, generator);
-        double cumulative = 0.0;
-        for (TradingAgent a : initialAgents) {
-            cumulative += agentArrivalTimeDist.sample();
-            TradingAgentDecisionEvent event = new TradingAgentDecisionEvent(this, "MarketEntryDecision", true, false);
-            event.schedule(a, new TimeInstant(cumulative));
-        }
-    }
+//    @Override
+//    public void doInitialSchedules() {
+//        Collections.shuffle(initialAgents, generator);
+//        double cumulative = 0.0;
+//        for (TradingAgent a : initialAgents) {
+//            cumulative += agentArrivalTimeDist.sample();
+//            TradingAgentDecisionEvent event = new TradingAgentDecisionEvent(this, "MarketEntryDecision", true, false);
+//            event.schedule(a, new TimeInstant(cumulative));
+//        }
+//    }
 
 
     //Create the network of entities
@@ -107,8 +107,12 @@ public class ZIPModel extends TwoMarketModel {
             for (int j = 0; j < buyAgents; j++) {
                 OrderRouter router = new BestPriceOrderRouter(clock, exchange);
                 //Market 1
-//                TradingAgent agent = new ZIP(this, schedule.getBuySchedule()[j], router, Direction.BUY, generator, SHOW_ENTITIES_IN_TRACE);
-                TradingAgent agent = new ZIC(this, new FixedLimit(schedule.getBuySchedule()[j]), router, Direction.BUY, offsetRangeDist, SHOW_ENTITIES_IN_TRACE);
+                TradingAgent agent;
+                if (params.getParameter("MODEL").equals("ZIC")) {
+                    agent = new ZIC(this, new FixedLimit(schedule.getBuySchedule()[j]), router, Direction.BUY, offsetRangeDist, SHOW_ENTITIES_IN_TRACE);
+                } else {
+                    agent = new ZIP(this, schedule.getBuySchedule()[j], router, Direction.BUY, generator, SHOW_ENTITIES_IN_TRACE);
+                }
                 exchange.registerPriceObserver(agent);
                 sip.registerPriceObserver(agent); //TODO: Control this from the graph itself based on edges
                 group.addMember(agent);
@@ -119,8 +123,15 @@ public class ZIPModel extends TwoMarketModel {
             for (int j = 0; j < sellAgents; j++) {
                 OrderRouter router = new BestPriceOrderRouter(clock, exchange);
                 //Market 1
+                TradingAgent agent;
+                if (params.getParameter("MODEL").equals("ZIC")) {
+                    agent = new ZIC(this, new FixedLimit(schedule.getSellSchedule()[j]), router, Direction.SELL, offsetRangeDist, SHOW_ENTITIES_IN_TRACE);
+                } else {
+                    agent = new ZIP(this, schedule.getSellSchedule()[j], router, Direction.SELL, generator, SHOW_ENTITIES_IN_TRACE);
+                }
+
 //                TradingAgent agent = new ZIP(this, schedule.getSellSchedule()[j], router, Direction.SELL, generator, SHOW_ENTITIES_IN_TRACE);
-                TradingAgent agent = new ZIC(this, new FixedLimit(schedule.getSellSchedule()[j]), router, Direction.SELL, offsetRangeDist, SHOW_ENTITIES_IN_TRACE);
+//                TradingAgent agent = new ZIC(this, new FixedLimit(schedule.getSellSchedule()[j]), router, Direction.SELL, offsetRangeDist, SHOW_ENTITIES_IN_TRACE);
                 exchange.registerPriceObserver(agent);
                 sip.registerPriceObserver(agent); //TODO: Control this from the graph itself based on edges
                 group.addMember(agent);

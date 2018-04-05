@@ -8,7 +8,11 @@ import desmoj.core.simulator.*;
 import com.matt.marketsim.entities.NetworkEntity;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Random;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 public abstract class MarketSimModel extends Model {
@@ -21,11 +25,11 @@ public abstract class MarketSimModel extends Model {
     /*
      * Model entities
      */
-    ArrayList<TradingAgent> initialAgents;
+    public Queue<TradingAgent> initialAgents;
 
     public MarketSimModel(Model model, String name, boolean showInReport, boolean showInTrace, int simLength) {
         super(model, name, showInReport, showInTrace);
-        initialAgents = new ArrayList<>();
+        initialAgents = new LinkedList<>();
         this.simLength = simLength;
     }
 
