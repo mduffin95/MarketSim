@@ -3,6 +3,7 @@ package com.matt.marketsim.entities;
 import com.matt.marketsim.*;
 import desmoj.core.simulator.*;
 import com.matt.marketsim.MessageType;
+import desmoj.core.statistic.ValueSupplier;
 
 import java.util.*;
 
@@ -13,7 +14,7 @@ public class Exchange extends NetworkEntity implements PriceProvider {
     //Entities that need to be notified of price changes
     private List<NetworkEntity> observers;
 
-    public LastTradeSupplier lastTradeSupplier;
+    public ValueSupplier lastTradeSupplier;
 
     //For testing purposes
     public Trade recentTrade;
@@ -26,7 +27,7 @@ public class Exchange extends NetworkEntity implements PriceProvider {
         orderBook = new OrderBook();
 
         registerPriceObserver(sip);
-        lastTradeSupplier = new LastTradeSupplier("LastTradeSupplier");
+        lastTradeSupplier = new BasicValueSupplier("LastTradeSupplier");
         clock = model.getExperiment().getSimClock();
     }
 

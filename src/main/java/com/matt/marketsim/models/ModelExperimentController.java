@@ -34,7 +34,7 @@ public class ModelExperimentController {
 
     private static void initializeModelParameters(String[] args, ModelParameters params) {
 
-        params.addParameter(String.class, "MODEL", "ZIC");
+        params.addParameter(String.class, "MODEL", "ZIP");
 
         params.addParameter(Double.class, "DELTA", 100);
         params.addParameter(Double.class, "SIGMA_SHOCK", Math.sqrt(150000000.0));
@@ -59,9 +59,10 @@ public class ModelExperimentController {
         params.addParameter(Integer.class,"BUY_AGENTS_PER_EXCHANGE", 75);
         params.addParameter(Integer.class,"SELL_AGENTS_PER_EXCHANGE", 75);
 
-        params.addParameter(Integer.class,"MIN_BUY_LIMIT", 70000);
-        params.addParameter(Integer.class, "MIN_SELL_LIMIT", 70000);
+        params.addParameter(Integer.class,"MIN_BUY_LIMIT", 63000);
+        params.addParameter(Integer.class, "MIN_SELL_LIMIT", 63000);
         params.addParameter(Integer.class, "LIMIT_STEP", 1000);
+        params.addParameter(Integer.class, "EQUILIBRIUM", 100000);
 
         updateParams(args, params); //Do last to overwrite
     }
@@ -201,7 +202,7 @@ public class ModelExperimentController {
         int SEED_OFFSET = (int)params.getParameter("SEED_OFFSET");
 
         List<ResultDto> allResults = new ArrayList<>(ROUNDS * DELTA_STEPS);
-        boolean parallel = true;
+        boolean parallel = false;
         if (parallel) {
             List<Callable<ResultDto>> tasks = new ArrayList<>();
             for (int i = 0; i < DELTA_STEPS; i++) {

@@ -37,7 +37,8 @@ public class TwoMarketModel extends MarketSimModel {
     /*
      * Statistics
      */
-    List<TradeStatisticCalculator> statsObjects;
+    List<TradeStatisticCalculator> tradeStatsObjects;
+    List<RoutingStatistics> routeStatsObjects;
 
 
     /*
@@ -51,7 +52,8 @@ public class TwoMarketModel extends MarketSimModel {
         generator = new Random();
         this.params = params;
 
-        statsObjects = new ArrayList<>();
+        tradeStatsObjects = new ArrayList<>();
+        routeStatsObjects = new ArrayList<>();
     }
 
     @Override
@@ -133,7 +135,10 @@ public class TwoMarketModel extends MarketSimModel {
 
         TradeStatisticCalculator tradeStats = new TradeStatisticCalculator(this, "trading_agents", tas,
                 (double)params.getParameter("DISCOUNT_RATE"), getExperiment().getSimClock(), true, false);
-        statsObjects.add(tradeStats);
+        tradeStatsObjects.add(tradeStats);
+
+        RoutingStatistics routeStats = new RoutingStatistics(this, "route_stats", tas, true, false);
+        routeStatsObjects.add(routeStats);
 
         TradingAgent arbitrageur = null;
         TradeStatisticCalculator arbStats = null;
@@ -147,8 +152,8 @@ public class TwoMarketModel extends MarketSimModel {
                     arb, (double)params.getParameter("DISCOUNT_RATE"), getExperiment().getSimClock(), true, false);
             allStats = new TradeStatisticCalculator(this, "all",
                     all, (double)params.getParameter("DISCOUNT_RATE"), getExperiment().getSimClock(), true, false);
-            statsObjects.add(arbStats);
-            statsObjects.add(allStats);
+            tradeStatsObjects.add(arbStats);
+            tradeStatsObjects.add(allStats);
         }
 
         SimClock clock = this.getExperiment().getSimClock();
@@ -176,7 +181,8 @@ public class TwoMarketModel extends MarketSimModel {
             }
 
             for (int j = 0; j < (int)params.getParameter("AGENTS_PER_EXCHANGE"); j++) {
-                OrderRouter router = new BestPriceOrderRouter(clock, exchange);
+                BestPriceOrderRouter router = new BestPriceOrderRouter(clock, exchange, allExchanges);
+                router.routingSupplier.addObserver(routeStats);
                 //Market 1
                 TradingAgent agent = new ZIC(this, factory.create(), router, buyOrSell, offsetRangeDist, SHOW_ENTITIES_IN_TRACE);
                 exchange.registerPriceObserver(agent);
@@ -202,8 +208,12 @@ public class TwoMarketModel extends MarketSimModel {
     public ResultDto getResults() {
         ResultDto result = new ResultDto();
         result.params = params;
-        for (TradeStatisticCalculator c : statsObjects) {
-            Reporter r = c.createDefaultReporter();
+        for (TradeStatisticCalculator stats : tradeStatsObjects) {
+            Reporter r = stats.createDefaultReporter();
+            result.entries.add(r.getEntries());
+        }
+        for (RoutingStatistics stats : routeStatsObjects) {
+            Reporter r = stats.createDefaultReporter();
             result.entries.add(r.getEntries());
         }
         return result;

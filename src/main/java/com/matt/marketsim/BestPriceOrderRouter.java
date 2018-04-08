@@ -5,6 +5,7 @@ import com.matt.marketsim.entities.agents.TradingAgent;
 import com.matt.marketsim.models.MarketSimModel;
 import com.sun.org.apache.xpath.internal.operations.Quo;
 import desmoj.core.simulator.SimClock;
+import desmoj.core.statistic.ValueSupplier;
 
 import java.util.HashSet;
 import java.util.Optional;
@@ -17,13 +18,18 @@ public class BestPriceOrderRouter implements OrderRouter {
     //public for testing purposes
     public MultiMarketView multiMarketView;
     private Exchange primary;
+    private Set<Exchange> allExchanges;
+
+    public ValueSupplier routingSupplier;
 
     //TODO: Clock may not be necessary
-    public BestPriceOrderRouter(SimClock clock, Exchange exchange) {
+    public BestPriceOrderRouter(SimClock clock, Exchange exchange, Set<Exchange> allExchanges) {
 //        this.model = model;
 //        this.clock = clock;
         primary = exchange;
         multiMarketView = new MultiMarketView();
+        this.allExchanges = allExchanges;
+        this.routingSupplier = new BasicValueSupplier("RoutingSupplier");
     }
 
     /*
@@ -32,14 +38,48 @@ public class BestPriceOrderRouter implements OrderRouter {
     //TODO: Write some tests for this method
     @Override
     public Order routeOrder(TradingAgent agent, MessageType type, Direction direction, int price, int limit) {
-        //TODO: This still has an issue when an out of date bid from our primary exchange is sent to us from the SIP.
         //We should always trust the individual market info more than the NBBO.
 
         Exchange e = findBestExchange(direction, price);
 
+        Exchange trueBestExchange = findTrueBestExchange(direction, price);
+
         Order newOrder = new Order(agent, e, direction, price, limit);
+        if (!e.equals(trueBestExchange))
+            newOrder.inefficient = true;
+
+        routingSupplier.notifyStatistics(newOrder);
         e.send(agent, type, newOrder);
         return newOrder;
+    }
+
+    public Exchange findTrueBestExchange(Direction direction, int price) {
+        Order best = null;
+        for (Exchange ex: allExchanges) {
+            if (direction == Direction.BUY) {
+                Order order = ex.getOrderBook().getBestSellOrder();
+                if (null == order) continue;
+                if (null == best) {
+                    if (order.getPrice() < price)
+                        best = order;
+                } else if (order.getPrice() < best.getPrice() && order.getPrice() < price) {
+                    best = order;
+                }
+            } else {
+                Order order = ex.getOrderBook().getBestBuyOrder();
+                if (null == order) continue;
+                if (null == best) {
+                    if (order.getPrice() > price)
+                        best = order;
+                } else if (order.getPrice() > best.getPrice() && order.getPrice() > price) {
+                    best = order;
+                }
+            }
+        }
+
+        if (null == best)
+            return primary;
+        return best.getExchange();
     }
 
     //Public for testing purposes
@@ -54,7 +94,7 @@ public class BestPriceOrderRouter implements OrderRouter {
             bestBid = Optional.empty();
         }
         if (multiMarketView.getBestOffer().isPresent()) {
-            bestOffer =  multiMarketView.getBestOffer().get().getOrder();
+            bestOffer = multiMarketView.getBestOffer().get().getOrder();
         } else {
             bestOffer = Optional.empty();
         }
@@ -65,7 +105,7 @@ public class BestPriceOrderRouter implements OrderRouter {
             primaryBestBid = Optional.empty();
         }
         if (multiMarketView.getBestOffer(primary).isPresent()) {
-            primaryBestOffer =  multiMarketView.getBestOffer(primary).get().getOrder();
+            primaryBestOffer = multiMarketView.getBestOffer(primary).get().getOrder();
         } else {
             primaryBestOffer = Optional.empty();
         }

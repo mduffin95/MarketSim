@@ -7,7 +7,7 @@ public class TradeStatisticReporter extends Reporter {
     public TradeStatisticReporter(desmoj.core.simulator.Reportable informationSource) {
         super(informationSource);
 
-        numColumns = 4;
+        numColumns = 5;
         columns = new String[numColumns];
         columns[0] = "Title";
 //        columns[1] = "Alloc. Efficiency";
@@ -15,6 +15,7 @@ public class TradeStatisticReporter extends Reporter {
         columns[1] = "Total Utility";
         columns[2] = "Total Execution Time";
         columns[3] = "Total Orders";
+        columns[4] = "Inefficiently Traded Orders";
 
         entries = new String[numColumns];
         if (source instanceof TradeStatisticCalculator) {
@@ -24,6 +25,7 @@ public class TradeStatisticReporter extends Reporter {
             entries[1] = String.valueOf(((TradeStatisticCalculator) source).getTotalUtility());
             entries[2] = String.valueOf(((TradeStatisticCalculator) source).getTotalExecutionTime());
             entries[3] = String.valueOf(((TradeStatisticCalculator) source).getTotalOrders());
+            entries[4] = String.valueOf(((TradeStatisticCalculator) source).getInefficient());
         }
         groupHeading = "TradeStatistics";
         groupID = 99;

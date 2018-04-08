@@ -2,16 +2,9 @@ package com.matt.marketsim.models;
 
 import com.matt.marketsim.*;
 import com.matt.marketsim.builders.Schedule;
-import com.matt.marketsim.dtos.ResultDto;
 import com.matt.marketsim.entities.Exchange;
 import com.matt.marketsim.entities.SecuritiesInformationProcessor;
 import com.matt.marketsim.entities.agents.*;
-import com.matt.marketsim.events.TradingAgentDecisionEvent;
-import desmoj.core.dist.BoolDistBernoulli;
-import desmoj.core.dist.ContDistExponential;
-import desmoj.core.dist.ContDistUniform;
-import desmoj.core.dist.DiscreteDistUniform;
-import desmoj.core.report.Reporter;
 import desmoj.core.simulator.SimClock;
 import desmoj.core.simulator.TimeInstant;
 import desmoj.core.simulator.TimeSpan;
@@ -65,9 +58,13 @@ public class ZIPModel extends TwoMarketModel {
         TradingAgentGroup tas = new TradingAgentGroup();
         TradingAgentGroup all = new TradingAgentGroup();
 
+        double discount_rate = (double)params.getParameter("DISCOUNT_RATE");
+        int equilibrium = (int)params.getParameter("EQUILIBRIUM");
         TradeStatisticCalculator tradeStats = new TradeStatisticCalculator(this, "trading_agents", tas,
-                (double)params.getParameter("DISCOUNT_RATE"), getExperiment().getSimClock(), true, false);
-        statsObjects.add(tradeStats);
+                discount_rate, getExperiment().getSimClock(), true, false, equilibrium);
+        tradeStatsObjects.add(tradeStats);
+        RoutingStatistics routeStats = new RoutingStatistics(this, "route_stats", tas, true, false);
+        routeStatsObjects.add(routeStats);
 
         TradingAgent arbitrageur = null;
         TradeStatisticCalculator arbStats = null;
@@ -78,11 +75,11 @@ public class ZIPModel extends TwoMarketModel {
             arb.addMember(arbitrageur);
             all.addMember(arbitrageur);
             arbStats = new TradeStatisticCalculator(this, "arbitrageur",
-                    arb, (double)params.getParameter("DISCOUNT_RATE"), getExperiment().getSimClock(), true, false);
+                    arb, discount_rate, getExperiment().getSimClock(), true, false, equilibrium);
             allStats = new TradeStatisticCalculator(this, "all",
-                    all, (double)params.getParameter("DISCOUNT_RATE"), getExperiment().getSimClock(), true, false);
-            statsObjects.add(arbStats);
-            statsObjects.add(allStats);
+                    all, discount_rate, getExperiment().getSimClock(), true, false, equilibrium);
+            tradeStatsObjects.add(arbStats);
+            tradeStatsObjects.add(allStats);
         }
 
         SimClock clock = this.getExperiment().getSimClock();
@@ -105,7 +102,8 @@ public class ZIPModel extends TwoMarketModel {
             }
 
             for (int j = 0; j < buyAgents; j++) {
-                OrderRouter router = new BestPriceOrderRouter(clock, exchange);
+                BestPriceOrderRouter router = new BestPriceOrderRouter(clock, exchange, allExchanges);
+                router.routingSupplier.addObserver(routeStats);
                 //Market 1
                 TradingAgent agent;
                 if (params.getParameter("MODEL").equals("ZIC")) {
@@ -121,7 +119,8 @@ public class ZIPModel extends TwoMarketModel {
                 allTradingAgents.add(agent);
             }
             for (int j = 0; j < sellAgents; j++) {
-                OrderRouter router = new BestPriceOrderRouter(clock, exchange);
+                BestPriceOrderRouter router = new BestPriceOrderRouter(clock, exchange, allExchanges);
+                router.routingSupplier.addObserver(routeStats);
                 //Market 1
                 TradingAgent agent;
                 if (params.getParameter("MODEL").equals("ZIC")) {

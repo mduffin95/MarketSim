@@ -8,7 +8,7 @@ public class Trade {
     private int price;
     private int quantity;
     private Order buyOrder;
-    public Order sellOrder;
+    private Order sellOrder;
 
     public Trade() {
 
@@ -44,5 +44,9 @@ public class Trade {
 
     public TradingAgent getSeller() {
         return sellOrder.getAgent();
+    }
+
+    public TimeInstant getExecutionTime() {
+        return time;
     }
 }

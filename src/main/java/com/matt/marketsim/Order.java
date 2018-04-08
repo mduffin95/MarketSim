@@ -14,6 +14,7 @@ public class Order implements Comparable<Order> {
 
     private int price;
     private int limit; //For statistics. The limit at the time the order was made.
+    public boolean inefficient = false; //For statistics. Whether or not the order was routed inefficiently/sub-optimally.
     //TODO: Remove this limit. Perhaps store a log of orders and limits with the trading agent, or on the statistic calculator.
 
     public Order(TradingAgent agent, Exchange exchange, Direction direction, int price, int limit) {
@@ -35,6 +36,10 @@ public class Order implements Comparable<Order> {
     }
 
     public int getPrice() {
+        if (direction == Direction.BUY)
+            assert price <= limit;
+        else
+            assert price >= limit;
         return price;
     }
 

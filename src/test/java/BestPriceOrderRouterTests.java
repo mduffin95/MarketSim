@@ -11,7 +11,10 @@ import desmoj.core.simulator.TimeInstant;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
@@ -40,7 +43,10 @@ public class BestPriceOrderRouterTests {
         SimClock clock = new SimClock("clock");
         agent1 = new ZIP(model, 0, new FixedOrderRouter(clock, exchange1), Direction.SELL, generator, false);
         agent2 = new ZIP(model, 0, new FixedOrderRouter(clock, exchange1), Direction.SELL, generator, false);
-        orderRouter = new BestPriceOrderRouter(null, exchange1);
+        Set<Exchange> allExchanges = new HashSet<>();
+        allExchanges.add(exchange1);
+        allExchanges.add(exchange2);
+        orderRouter = new BestPriceOrderRouter(null, exchange1, allExchanges);
 
         sip = new SecuritiesInformationProcessor(model, "TestSIP", false);
     }
