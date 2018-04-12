@@ -134,7 +134,7 @@ public class TwoMarketModel extends MarketSimModel {
         TradingAgentGroup all = new TradingAgentGroup();
 
         TradeStatisticCalculator tradeStats = new TradeStatisticCalculator(this, "trading_agents", tas,
-                (double)params.getParameter("DISCOUNT_RATE"), getExperiment().getSimClock(), true, false);
+                (double)params.getParameter("DISCOUNT_RATE"), getExperiment().getSimClock(), true, true);
         tradeStatsObjects.add(tradeStats);
 
         RoutingStatistics routeStats = new RoutingStatistics(this, "route_stats", tas, true, false);
@@ -149,9 +149,9 @@ public class TwoMarketModel extends MarketSimModel {
             arb.addMember(arbitrageur);
             all.addMember(arbitrageur);
             arbStats = new TradeStatisticCalculator(this, "arbitrageur",
-                    arb, (double)params.getParameter("DISCOUNT_RATE"), getExperiment().getSimClock(), true, false);
+                    arb, (double)params.getParameter("DISCOUNT_RATE"), getExperiment().getSimClock(), true, true);
             allStats = new TradeStatisticCalculator(this, "all",
-                    all, (double)params.getParameter("DISCOUNT_RATE"), getExperiment().getSimClock(), true, false);
+                    all, (double)params.getParameter("DISCOUNT_RATE"), getExperiment().getSimClock(), true, true);
             tradeStatsObjects.add(arbStats);
             tradeStatsObjects.add(allStats);
         }

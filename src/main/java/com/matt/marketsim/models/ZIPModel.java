@@ -61,9 +61,9 @@ public class ZIPModel extends TwoMarketModel {
         double discount_rate = (double)params.getParameter("DISCOUNT_RATE");
         int equilibrium = (int)params.getParameter("EQUILIBRIUM");
         TradeStatisticCalculator tradeStats = new TradeStatisticCalculator(this, "trading_agents", tas,
-                discount_rate, getExperiment().getSimClock(), true, false, equilibrium);
+                discount_rate, getExperiment().getSimClock(), true, true, equilibrium);
         tradeStatsObjects.add(tradeStats);
-        RoutingStatistics routeStats = new RoutingStatistics(this, "route_stats", tas, true, false);
+        RoutingStatistics routeStats = new RoutingStatistics(this, "route_stats", tas, true, true);
         routeStatsObjects.add(routeStats);
 
         TradingAgent arbitrageur = null;
@@ -75,9 +75,9 @@ public class ZIPModel extends TwoMarketModel {
             arb.addMember(arbitrageur);
             all.addMember(arbitrageur);
             arbStats = new TradeStatisticCalculator(this, "arbitrageur",
-                    arb, discount_rate, getExperiment().getSimClock(), true, false, equilibrium);
+                    arb, discount_rate, getExperiment().getSimClock(), true, true, equilibrium);
             allStats = new TradeStatisticCalculator(this, "all",
-                    all, discount_rate, getExperiment().getSimClock(), true, false, equilibrium);
+                    all, discount_rate, getExperiment().getSimClock(), true, true, equilibrium);
             tradeStatsObjects.add(arbStats);
             tradeStatsObjects.add(allStats);
         }

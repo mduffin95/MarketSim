@@ -58,6 +58,7 @@ public class TradeStatisticCalculator extends StatisticObject {
         if (buyLimit > equilibrium && sellLimit > equilibrium ||
                 buyLimit < equilibrium && sellLimit < equilibrium) {
             inefficient++;
+            sendTraceNote("Inefficient Trade");
         }
     }
 

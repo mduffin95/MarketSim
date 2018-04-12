@@ -34,24 +34,24 @@ public class ModelExperimentController {
 
     private static void initializeModelParameters(String[] args, ModelParameters params) {
 
-        params.addParameter(String.class, "MODEL", "ZIP");
+        params.addParameter(String.class, "MODEL", "ZIC");
 
-        params.addParameter(Double.class, "DELTA", 100);
+        params.addParameter(Double.class, "DELTA", 100.0);
         params.addParameter(Double.class, "SIGMA_SHOCK", Math.sqrt(150000000.0));
         params.addParameter(Double.class, "SIGMA_PV", Math.sqrt(100000000.0));
         params.addParameter(Double.class, "K", 0.05);
         params.addParameter(Double.class, "MEAN_FUNDAMENTAL", 100000.0);
         params.addParameter(Double.class, "ALPHA", 0.001);
-        params.addParameter(Double.class, "OFFSET_RANGE", 2000.0);
+        params.addParameter(Double.class, "OFFSET_RANGE", 1000.0);
         params.addParameter(Double.class, "LAMBDA", 0.075);
         params.addParameter(Double.class, "DISCOUNT_RATE", 0.0006);
         params.addParameter(Integer.class, "NUM_EXCHANGES", 2);
         params.addParameter(Integer.class, "AGENTS_PER_EXCHANGE", 125);
-        params.addParameter(Integer.class, "SIM_LENGTH", 15000);
+        params.addParameter(Integer.class, "SIM_LENGTH", 60000);
         params.addParameter(Boolean.class, "LA_PRESENT", true);
 
-        params.addParameter(Integer.class, "DELTA_STEPS", 11);
-        params.addParameter(Integer.class, "STEP", 100);
+        params.addParameter(Integer.class, "DELTA_STEPS", 31);
+        params.addParameter(Integer.class, "STEP", 2000);
         params.addParameter(Integer.class, "ROUNDS", 1000);
         params.addParameter(Integer.class, "SEED_OFFSET", 1234);
 
@@ -137,11 +137,19 @@ public class ModelExperimentController {
                 .desc("Model")
                 .build();
 
+        Option deltaOption = Option.builder("d")
+                .longOpt("delta")
+                .required(false)
+                .hasArg(true)
+                .desc("NBBO delta")
+                .build();
+
         options.addOption(arbOption);
         options.addOption(exchangeOption);
         options.addOption(agentsOption);
         options.addOption(roundsOption);
         options.addOption(modelOption);
+        options.addOption(deltaOption);
         CommandLineParser parser = new DefaultParser();
         CommandLine cmd;
         try {
@@ -182,6 +190,12 @@ public class ModelExperimentController {
             System.out.println("MODEL == " + model);
             params.addParameter(String.class,"MODEL", model);
         }
+
+        String delta = cmd.getOptionValue("delta");
+        if (delta != null) {
+            System.out.println("DELTA == " + delta);
+            params.addParameter(Double.class,"DELTA", Double.valueOf(delta));
+        }
     }
 
     /**
@@ -202,7 +216,7 @@ public class ModelExperimentController {
         int SEED_OFFSET = (int)params.getParameter("SEED_OFFSET");
 
         List<ResultDto> allResults = new ArrayList<>(ROUNDS * DELTA_STEPS);
-        boolean parallel = false;
+        boolean parallel = true;
         if (parallel) {
             List<Callable<ResultDto>> tasks = new ArrayList<>();
             for (int i = 0; i < DELTA_STEPS; i++) {
@@ -211,7 +225,7 @@ public class ModelExperimentController {
                     count++;
                     System.out.println(SEED_OFFSET + count + ", " + delta);
                     ModelParameters p = new ModelParameters(params);
-                    p.addParameter(Double.class, "DELTA", delta);
+                    p.addParameter(Double.class, "OFFSET_RANGE", delta);
                     p.addParameter(Long.class, "SEED", SEED_OFFSET + count);
 //                    all_params.add(p);
                     tasks.add(new MarketSimCallable(p));
@@ -272,7 +286,7 @@ public class ModelExperimentController {
         for (ResultDto r : results) {
             for (String[] ent : r.entries) {
                 Path path = Paths.get(dir, ent[0] + ".csv");
-                double delta = (double)r.params.getParameter("DELTA");
+                double delta = (double)r.params.getParameter("OFFSET_RANGE");
                 ent[0] = String.valueOf(delta);
                 String toWrite = String.join(", ", ent);
 

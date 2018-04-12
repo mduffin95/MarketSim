@@ -2,6 +2,8 @@
 *.class
 workspace.xml
 tasks.xml
+deployment.xml
+webServers.xml
 *.txt
 *.swp
 *.png
