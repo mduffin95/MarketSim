@@ -1,4 +1,5 @@
 import com.matt.marketsim.*;
+import com.matt.marketsim.entities.CDA;
 import com.matt.marketsim.entities.Exchange;
 import com.matt.marketsim.entities.SecuritiesInformationProcessor;
 import com.matt.marketsim.entities.agents.ZIP;
@@ -45,8 +46,8 @@ public class SIPTests {
         model.connectToExperiment(exp);
 
         sip = new SecuritiesInformationProcessor(model, "TestSIP", false);
-        exchange1 = new Exchange(model, "Exchange1", sip, false);
-        exchange2 = new Exchange(model, "Exchange2", sip, false);
+        exchange1 = new CDA(model, "Exchange1", sip, false);
+        exchange2 = new CDA(model, "Exchange2", sip, false);
         clock = exp.getSimClock();
         generator = new Random();
 

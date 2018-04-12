@@ -2,7 +2,9 @@ package com.matt.marketsim.models;
 
 import com.matt.marketsim.*;
 import com.matt.marketsim.dtos.ResultDto;
+import com.matt.marketsim.entities.CDA;
 import com.matt.marketsim.entities.Exchange;
+import com.matt.marketsim.entities.NetworkEntity;
 import com.matt.marketsim.entities.SecuritiesInformationProcessor;
 import com.matt.marketsim.entities.agents.Arbitrageur;
 import com.matt.marketsim.entities.agents.TradingAgent;
@@ -163,7 +165,7 @@ public class TwoMarketModel extends MarketSimModel {
                 (double)params.getParameter("K"),
                 (double)params.getParameter("MEAN_FUNDAMENTAL"));
         for (int i = 0; i < (int)params.getParameter("NUM_EXCHANGES"); i++) {
-            Exchange exchange = new Exchange(this, "Exchange", sip, SHOW_ENTITIES_IN_TRACE);
+            Exchange exchange = new CDA(this, "Exchange", sip, SHOW_ENTITIES_IN_TRACE);
             allExchanges.add(exchange);
             TradingAgentGroup group = new TradingAgentGroup();
             allExchangeGroups.add(group);
@@ -171,12 +173,12 @@ public class TwoMarketModel extends MarketSimModel {
             TradeTimeSeries tradePrices = new TradeTimeSeries(this, "Exchange trade prices", group,
                     new TimeInstant(0.0), new TimeInstant(simLength), true, false);
 
-            exchange.lastTradeSupplier.addObserver(tradePrices);
-            exchange.lastTradeSupplier.addObserver(tradeStats);
+            exchange.registerLastTradeObserver(tradePrices);
+            exchange.registerLastTradeObserver(tradeStats);
 
             if (la_present) {
-                exchange.lastTradeSupplier.addObserver(arbStats);
-                exchange.lastTradeSupplier.addObserver(allStats);
+                exchange.registerLastTradeObserver(arbStats);
+                exchange.registerLastTradeObserver(allStats);
                 exchange.registerPriceObserver(arbitrageur);
             }
 
@@ -198,8 +200,10 @@ public class TwoMarketModel extends MarketSimModel {
 
         if (la_present) {
             graph.addVertex(arbitrageur);
-            for (Exchange e: allExchanges)
-                graph.addBidirectionalEdge(arbitrageur, e);
+            for (Exchange e: allExchanges) {
+                graph.addBidirectionalEdge(arbitrageur, e); //Bit of a hack
+            }
+
         }
         return graph;
     }

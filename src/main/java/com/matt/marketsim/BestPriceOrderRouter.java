@@ -2,12 +2,9 @@ package com.matt.marketsim;
 
 import com.matt.marketsim.entities.Exchange;
 import com.matt.marketsim.entities.agents.TradingAgent;
-import com.matt.marketsim.models.MarketSimModel;
-import com.sun.org.apache.xpath.internal.operations.Quo;
 import desmoj.core.simulator.SimClock;
 import desmoj.core.statistic.ValueSupplier;
 
-import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 

@@ -1,4 +1,5 @@
 import com.matt.marketsim.*;
+import com.matt.marketsim.entities.CDA;
 import com.matt.marketsim.entities.Exchange;
 import com.matt.marketsim.entities.SecuritiesInformationProcessor;
 import com.matt.marketsim.entities.agents.TradingAgent;
@@ -37,8 +38,8 @@ public class BestPriceOrderRouterTests {
         Experiment exp = new Experiment("TestExperiment");
         model.connectToExperiment(exp);
 //        tradingAgent = new ZIU(null, );
-        exchange1 = new Exchange(model, "Exchange", null, false);
-        exchange2 = new Exchange(model, "Exchange", null, false);
+        exchange1 = new CDA(model, "Exchange", null, false);
+        exchange2 = new CDA(model, "Exchange", null, false);
         generator = new Random();
         SimClock clock = new SimClock("clock");
         agent1 = new ZIP(model, 0, new FixedOrderRouter(clock, exchange1), Direction.SELL, generator, false);

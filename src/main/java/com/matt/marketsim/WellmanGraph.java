@@ -4,7 +4,6 @@ import com.matt.marketsim.entities.Exchange;
 import com.matt.marketsim.entities.NetworkEntity;
 import com.matt.marketsim.entities.SecuritiesInformationProcessor;
 import com.matt.marketsim.entities.agents.TradingAgent;
-import org.jgrapht.graph.SimpleDirectedGraph;
 import org.jgrapht.graph.SimpleDirectedWeightedGraph;
 
 import java.util.Set;
@@ -24,7 +23,7 @@ public class WellmanGraph implements MarketGraph {
         addVertex(sip);
 
         //Connect each exchange to the SIP
-        for (Exchange e: exchanges) {
+        for (NetworkEntity e: exchanges) {
             addVertex(e);
             addEdge(e, sip);
         }
@@ -34,7 +33,7 @@ public class WellmanGraph implements MarketGraph {
         for (TradingAgent ta: tas) {
             addVertex(ta);
             addEdge(sip, ta);
-            for (Exchange e: exchanges) {
+            for (NetworkEntity e: exchanges) {
                 addEdge(ta, e);
                 addEdge(e, ta);
             }

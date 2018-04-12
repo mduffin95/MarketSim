@@ -2,8 +2,6 @@ package com.matt.marketsim;
 
 import com.matt.marketsim.entities.Exchange;
 import com.matt.marketsim.entities.NetworkEntity;
-import com.matt.marketsim.entities.SecuritiesInformationProcessor;
-import sun.nio.ch.Net;
 
 import java.util.*;
 

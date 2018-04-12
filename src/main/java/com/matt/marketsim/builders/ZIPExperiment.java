@@ -36,7 +36,7 @@
 //        TradeTimeSeries tradePrices = new TradeTimeSeries(model, "Trade prices over time", all,"trade_prices.txt",
 //                new TimeInstant(0.0), new TimeInstant(MarketSimModel.SIM_LENGTH), true, false);
 //
-//        exchange.lastTradeSupplier.addObserver(tradePrices);
+//        exchange.registerLastTradeObserver(tradePrices);
 //
 //        SimpleWeightedGraph<NetworkEntity, DefaultWeightedEdge> graph = new SimpleWeightedGraph<>(DefaultWeightedEdge.class);
 //        graph.addVertex(sip);

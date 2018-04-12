@@ -2,7 +2,6 @@ package com.matt.marketsim;
 
 import com.matt.marketsim.entities.Exchange;
 import com.matt.marketsim.entities.agents.TradingAgent;
-import com.matt.marketsim.models.MarketSimModel;
 import desmoj.core.simulator.SimClock;
 
 public class FixedOrderRouter implements OrderRouter {

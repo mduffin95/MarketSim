@@ -53,9 +53,9 @@
 //        TradeStatisticCalculator tradeStatShort = new TradeStatisticCalculator(model, "Stats (short delay)", shortDelay, equilibrium, true, false);
 //        TradeStatisticCalculator tradeStatLong = new TradeStatisticCalculator(model, "Stats (long delay)", longDelay, equilibrium, true, false);
 //
-//        exchange.lastTradeSupplier.addObserver(tradePrices);
-//        exchange.lastTradeSupplier.addObserver(tradeStatShort);
-//        exchange.lastTradeSupplier.addObserver(tradeStatLong);
+//        exchange.registerLastTradeObserver(tradePrices);
+//        exchange.registerLastTradeObserver(tradeStatShort);
+//        exchange.registerLastTradeObserver(tradeStatLong);
 //        SimClock clock = model.getExperiment().getSimClock();
 //        //Create the supply and demand curves
 //        for (int i = 0; i < num; i++) {

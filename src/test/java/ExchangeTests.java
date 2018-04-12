@@ -2,7 +2,6 @@ import com.matt.marketsim.*;
 import com.matt.marketsim.entities.*;
 import com.matt.marketsim.entities.agents.ZIP;
 import com.matt.marketsim.models.DummyModel;
-import com.matt.marketsim.models.TwoMarketModel;
 import desmoj.core.simulator.Experiment;
 import desmoj.core.simulator.SimClock;
 import com.matt.marketsim.models.MarketSimModel;
@@ -45,7 +44,7 @@ public class ExchangeTests {
         model.connectToExperiment(exp);
 
 //        sip = new SecuritiesInformationProcessor(null, "TestSIP", false);
-        exchange = new Exchange(model, "Exchange", sip, false);
+        exchange = new CDA(model, "Exchange", sip, false);
         clock = exp.getSimClock();
         generator = new Random();
 

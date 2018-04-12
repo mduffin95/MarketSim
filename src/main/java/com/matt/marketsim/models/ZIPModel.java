@@ -2,6 +2,7 @@ package com.matt.marketsim.models;
 
 import com.matt.marketsim.*;
 import com.matt.marketsim.builders.Schedule;
+import com.matt.marketsim.entities.CDA;
 import com.matt.marketsim.entities.Exchange;
 import com.matt.marketsim.entities.SecuritiesInformationProcessor;
 import com.matt.marketsim.entities.agents.*;
@@ -84,7 +85,7 @@ public class ZIPModel extends TwoMarketModel {
 
         SimClock clock = this.getExperiment().getSimClock();
         for (int i = 0; i < (int)params.getParameter("NUM_EXCHANGES"); i++) {
-            Exchange exchange = new Exchange(this, "Exchange", sip, SHOW_ENTITIES_IN_TRACE);
+            Exchange exchange = new CDA(this, "Exchange", sip, SHOW_ENTITIES_IN_TRACE);
             allExchanges.add(exchange);
             TradingAgentGroup group = new TradingAgentGroup();
             allExchangeGroups.add(group);
@@ -92,12 +93,12 @@ public class ZIPModel extends TwoMarketModel {
             TradeTimeSeries tradePrices = new TradeTimeSeries(this, "Exchange trade prices", group,
                     new TimeInstant(0.0), new TimeInstant(simLength), true, false);
 
-            exchange.lastTradeSupplier.addObserver(tradePrices);
-            exchange.lastTradeSupplier.addObserver(tradeStats);
+            exchange.registerLastTradeObserver(tradePrices);
+            exchange.registerLastTradeObserver(tradeStats);
 
             if (la_present) {
-                exchange.lastTradeSupplier.addObserver(arbStats);
-                exchange.lastTradeSupplier.addObserver(allStats);
+                exchange.registerLastTradeObserver(arbStats);
+                exchange.registerLastTradeObserver(allStats);
                 exchange.registerPriceObserver(arbitrageur);
             }
 
