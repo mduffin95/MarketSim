@@ -57,26 +57,26 @@ public abstract class Exchange extends NetworkEntity implements PriceProvider {
 
     @Override
     public void onMarketOrder(Order order) {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void onOwnCompleted(MarketUpdate update) {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void onMarketUpdate(MarketUpdate update) {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void onCancelSuccess(Order order) {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void onCancelFailure(Order order) {
-
+        throw new UnsupportedOperationException();
     }
 }

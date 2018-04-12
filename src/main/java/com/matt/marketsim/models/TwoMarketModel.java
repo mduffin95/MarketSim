@@ -67,12 +67,8 @@ public class TwoMarketModel extends MarketSimModel {
     public void doInitialSchedules() {
         List l = (List) initialAgents;
         Collections.shuffle(l, generator);
-//        double cumulative = 0.0;
-//        for (TradingAgent a : initialAgents) {
-//        cumulative += agentArrivalTimeDist.sample();
         TradingAgentDecisionEvent event = new TradingAgentDecisionEvent(this, "MarketEntryDecision", true, initialAgents);
         event.schedule(initialAgents.remove(), new TimeInstant(agentArrivalTimeDist.sample()));
-//        }
     }
 
     @Override

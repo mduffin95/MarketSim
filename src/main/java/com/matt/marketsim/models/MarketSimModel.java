@@ -25,11 +25,11 @@ public abstract class MarketSimModel extends Model {
     /*
      * Model entities
      */
-    public Queue<TradingAgent> initialAgents;
+    Queue<TradingAgent> initialAgents;
 
     public MarketSimModel(Model model, String name, boolean showInReport, boolean showInTrace, int simLength) {
         super(model, name, showInReport, showInTrace);
-        initialAgents = new LinkedList<>();
+        this.initialAgents = new LinkedList<>();
         this.simLength = simLength;
     }
 
