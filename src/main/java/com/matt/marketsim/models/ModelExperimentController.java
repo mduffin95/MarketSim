@@ -50,9 +50,9 @@ public class ModelExperimentController {
         params.addParameter(Integer.class, "SIM_LENGTH", 15000);
         params.addParameter(Boolean.class, "LA_PRESENT", true);
 
-        params.addParameter(Integer.class, "DELTA_STEPS", 11);
+        params.addParameter(Integer.class, "DELTA_STEPS", 1);
         params.addParameter(Integer.class, "STEP", 100);
-        params.addParameter(Integer.class, "ROUNDS", 1000);
+        params.addParameter(Integer.class, "ROUNDS", 1);
         params.addParameter(Integer.class, "SEED_OFFSET", 1234);
 
         /* ZIP Experiment */
@@ -64,7 +64,7 @@ public class ModelExperimentController {
         params.addParameter(Integer.class, "LIMIT_STEP", 1000);
         params.addParameter(Integer.class, "EQUILIBRIUM", 100000);
 
-        updateParams(args, params); //Do last to overwrite
+        params.updateParams(args); //Do last to overwrite
     }
 
     public static ResultDto runOnce(ModelParameters params) {
@@ -96,94 +96,6 @@ public class ModelExperimentController {
         return result;
     }
 
-    private static void updateParams(String[] args, ModelParameters params) {
-        Options options = new Options();
-//        options.addOption("a", "arbitrageur", false, );
-//        options.addOption("e", "num-exchanges", true, );
-//        options.addOption("r", "rounds", true, "Number of rounds");
-
-        Option arbOption = Option.builder("a")
-                .longOpt("arbitrageur")
-                .required(false)
-                .hasArg(false)
-                .desc("Presence of a latency arbitraguer")
-                .build();
-
-        Option exchangeOption = Option.builder("e")
-                .longOpt("num-exchanges")
-                .required(false)
-                .hasArg(true)
-                .desc("Number of exchanges")
-                .build();
-
-        Option agentsOption = Option.builder("t")
-                .longOpt("agents-per-exchange")
-                .required(false)
-                .hasArg(true)
-                .desc("Number of trading agents per exchange")
-                .build();
-
-        Option roundsOption = Option.builder("r")
-                .longOpt("rounds")
-                .required(false)
-                .hasArg(true)
-                .desc("Number of rounds")
-                .build();
-
-        Option modelOption = Option.builder("m")
-                .longOpt("model")
-                .required(false)
-                .hasArg(true)
-                .desc("Model")
-                .build();
-
-        options.addOption(arbOption);
-        options.addOption(exchangeOption);
-        options.addOption(agentsOption);
-        options.addOption(roundsOption);
-        options.addOption(modelOption);
-        CommandLineParser parser = new DefaultParser();
-        CommandLine cmd;
-        try {
-            cmd = parser.parse(options, args);
-        } catch (ParseException e) {
-            e.printStackTrace();
-            return;
-        }
-
-        if (cmd.hasOption("arbitrageur")) {
-            System.out.println("LA_PRESENT == true");
-            params.addParameter(Boolean.class,"LA_PRESENT", true);
-        } else {
-            System.out.println("LA_PRESENT == false");
-            params.addParameter(Boolean.class, "LA_PRESENT", false);
-        }
-
-        String num_ex = cmd.getOptionValue("num-exchanges");
-        if (num_ex != null) {
-            System.out.println("NUM_EXCHANGES == " + num_ex);
-            params.addParameter(Integer.class,"NUM_EXCHANGES", Integer.valueOf(num_ex));
-        }
-
-        String num_rounds = cmd.getOptionValue("rounds");
-        if (num_rounds != null) {
-            System.out.println("ROUNDS == " + num_rounds);
-            params.addParameter(Integer.class,"ROUNDS", Integer.valueOf(num_rounds));
-        }
-
-        String num_agents = cmd.getOptionValue("agents-per-exchange");
-        if (num_agents != null) {
-            System.out.println("AGENTS_PER_EXCHANGE == " + num_agents);
-            params.addParameter(Integer.class,"AGENTS_PER_EXCHANGE", Integer.valueOf(num_agents));
-        }
-
-        String model = cmd.getOptionValue("model");
-        if (model != null) {
-            System.out.println("MODEL == " + model);
-            params.addParameter(String.class,"MODEL", model);
-        }
-    }
-
     /**
      * runs the model
      */
@@ -202,7 +114,7 @@ public class ModelExperimentController {
         int SEED_OFFSET = (int)params.getParameter("SEED_OFFSET");
 
         List<ResultDto> allResults = new ArrayList<>(ROUNDS * DELTA_STEPS);
-        boolean parallel = false;
+        boolean parallel = true;
         if (parallel) {
             List<Callable<ResultDto>> tasks = new ArrayList<>();
             for (int i = 0; i < DELTA_STEPS; i++) {
