@@ -1,4 +1,4 @@
-package com.matt.marketsim;
+package com.matt.marketsim.statistics;
 
 import desmoj.core.report.Reporter;
 
@@ -21,8 +21,8 @@ public class RoutingStatisticReporter extends Reporter {
             entries[2] = String.valueOf(((RoutingStatistics) source).getTotalOrders());
             entries[3] = String.valueOf(((RoutingStatistics) source).getInefficientFraction());
         }
-        groupHeading = "TradeStatistics";
-        groupID = 99;
+        groupHeading = "RouteStatistics";
+        groupID = 11198;
     }
 
     @Override

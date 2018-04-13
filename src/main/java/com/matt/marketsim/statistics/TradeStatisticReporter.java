@@ -1,4 +1,4 @@
-package com.matt.marketsim;
+package com.matt.marketsim.statistics;
 
 import desmoj.core.report.Reporter;
 
@@ -18,14 +18,14 @@ public class TradeStatisticReporter extends Reporter {
         columns[4] = "Inefficiently Traded Orders";
 
         entries = new String[numColumns];
-        if (source instanceof TradeStatisticCalculator) {
+        if (source instanceof TradeStatistics) {
             entries[0] = source.getName();
-//            entries[1] = String.valueOf(((TradeStatisticCalculator) source).getAllocEfficiency());
-//            entries[1] = String.valueOf(((TradeStatisticCalculator) source).getSmithsAlpha());
-            entries[1] = String.valueOf(((TradeStatisticCalculator) source).getTotalUtility());
-            entries[2] = String.valueOf(((TradeStatisticCalculator) source).getTotalExecutionTime());
-            entries[3] = String.valueOf(((TradeStatisticCalculator) source).getTotalOrders());
-            entries[4] = String.valueOf(((TradeStatisticCalculator) source).getInefficient());
+//            entries[1] = String.valueOf(((TradeStatistics) source).getAllocEfficiency());
+//            entries[1] = String.valueOf(((TradeStatistics) source).getSmithsAlpha());
+            entries[1] = String.valueOf(((TradeStatistics) source).getTotalUtility());
+            entries[2] = String.valueOf(((TradeStatistics) source).getTotalExecutionTime());
+            entries[3] = String.valueOf(((TradeStatistics) source).getTotalOrders());
+            entries[4] = String.valueOf(((TradeStatistics) source).getInefficient());
         }
         groupHeading = "TradeStatistics";
         groupID = 99;

@@ -1,6 +1,7 @@
 package com.matt.marketsim.entities;
 
 import com.matt.marketsim.*;
+import com.matt.marketsim.statistics.ExchangeStatistics;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.SimClock;
 import desmoj.core.statistic.ValueSupplier;
@@ -16,7 +17,7 @@ public abstract class Exchange extends NetworkEntity implements PriceProvider {
     //Entities that need to be notified of price changes
     List<NetworkEntity> observers;
 
-
+    ExchangeStatistics stats;
 
     //For testing purposes
     public Trade recentTrade;
@@ -31,6 +32,7 @@ public abstract class Exchange extends NetworkEntity implements PriceProvider {
         registerPriceObserver(sip);
         lastTradeSupplier = new BasicValueSupplier("LastTradeSupplier");
         clock = model.getExperiment().getSimClock();
+        stats = new ExchangeStatistics(model, "ExchangeStats", true, false);
     }
 
     /**

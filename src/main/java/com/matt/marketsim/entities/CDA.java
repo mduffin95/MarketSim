@@ -1,6 +1,7 @@
 package com.matt.marketsim.entities;
 
 import com.matt.marketsim.*;
+import desmoj.core.report.Message;
 import desmoj.core.simulator.*;
 import com.matt.marketsim.MessageType;
 import desmoj.core.statistic.ValueSupplier;
@@ -51,10 +52,9 @@ public class CDA extends Exchange {
         LOBSummary newSummary = orderBook.getSummary(clock);
         if (!newSummary.equals(original) || newTrade != null) { //Not sure you will end up in a situation where newtrade != null but the summaries are equal.
             MarketUpdate update = new MarketUpdate(this, newTrade, newSummary);
-            MessageType msg;
 
             //The price quote has changed so this needs to be sent to all observers
-            msg = MessageType.MARKET_UPDATE;
+            MessageType msg = MessageType.MARKET_UPDATE;
 
             for (NetworkEntity e: observers) {
                 e.send(this, msg, update);

@@ -1,4 +1,4 @@
-package com.matt.marketsim;
+package com.matt.marketsim.statistics;
 
 import com.matt.marketsim.entities.agents.TradingAgent;
 

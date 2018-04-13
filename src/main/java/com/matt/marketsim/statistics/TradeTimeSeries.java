@@ -1,5 +1,6 @@
-package com.matt.marketsim;
+package com.matt.marketsim.statistics;
 
+import com.matt.marketsim.Trade;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeInstant;
 import desmoj.core.statistic.TimeSeries;

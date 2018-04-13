@@ -50,8 +50,8 @@
 //
 //        TradeTimeSeries tradePrices = new TradeTimeSeries(model, "Trade prices over time", all, "trade_prices.txt",
 //                new TimeInstant(0.0), new TimeInstant(MarketSimModel.SIM_LENGTH), true, false);
-//        TradeStatisticCalculator tradeStatShort = new TradeStatisticCalculator(model, "Stats (short delay)", shortDelay, equilibrium, true, false);
-//        TradeStatisticCalculator tradeStatLong = new TradeStatisticCalculator(model, "Stats (long delay)", longDelay, equilibrium, true, false);
+//        TradeStatistics tradeStatShort = new TradeStatistics(model, "Stats (short delay)", shortDelay, equilibrium, true, false);
+//        TradeStatistics tradeStatLong = new TradeStatistics(model, "Stats (long delay)", longDelay, equilibrium, true, false);
 //
 //        exchange.registerLastTradeObserver(tradePrices);
 //        exchange.registerLastTradeObserver(tradeStatShort);

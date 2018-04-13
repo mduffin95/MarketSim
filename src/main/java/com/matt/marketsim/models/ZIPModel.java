@@ -3,9 +3,14 @@ package com.matt.marketsim.models;
 import com.matt.marketsim.*;
 import com.matt.marketsim.builders.Schedule;
 import com.matt.marketsim.entities.CDA;
+import com.matt.marketsim.entities.Call;
 import com.matt.marketsim.entities.Exchange;
 import com.matt.marketsim.entities.SecuritiesInformationProcessor;
 import com.matt.marketsim.entities.agents.*;
+import com.matt.marketsim.statistics.RoutingStatistics;
+import com.matt.marketsim.statistics.TradeStatistics;
+import com.matt.marketsim.statistics.TradeTimeSeries;
+import com.matt.marketsim.statistics.TradingAgentGroup;
 import desmoj.core.simulator.SimClock;
 import desmoj.core.simulator.TimeInstant;
 import desmoj.core.simulator.TimeSpan;
@@ -61,23 +66,23 @@ public class ZIPModel extends TwoMarketModel {
 
         double discount_rate = (double)params.getParameter("DISCOUNT_RATE");
         int equilibrium = (int)params.getParameter("EQUILIBRIUM");
-        TradeStatisticCalculator tradeStats = new TradeStatisticCalculator(this, "trading_agents", tas,
+        TradeStatistics tradeStats = new TradeStatistics(this, "trading_agents", tas,
                 discount_rate, getExperiment().getSimClock(), true, false, equilibrium);
         tradeStatsObjects.add(tradeStats);
         RoutingStatistics routeStats = new RoutingStatistics(this, "route_stats", tas, true, false);
         routeStatsObjects.add(routeStats);
 
         TradingAgent arbitrageur = null;
-        TradeStatisticCalculator arbStats = null;
-        TradeStatisticCalculator allStats = null;
+        TradeStatistics arbStats = null;
+        TradeStatistics allStats = null;
         if (la_present) {
             arbitrageur = new Arbitrageur(this, (double)params.getParameter("ALPHA"), SHOW_ENTITIES_IN_TRACE);
             TradingAgentGroup arb = new TradingAgentGroup();
             arb.addMember(arbitrageur);
             all.addMember(arbitrageur);
-            arbStats = new TradeStatisticCalculator(this, "arbitrageur",
+            arbStats = new TradeStatistics(this, "arbitrageur",
                     arb, discount_rate, getExperiment().getSimClock(), true, false, equilibrium);
-            allStats = new TradeStatisticCalculator(this, "all",
+            allStats = new TradeStatistics(this, "all",
                     all, discount_rate, getExperiment().getSimClock(), true, false, equilibrium);
             tradeStatsObjects.add(arbStats);
             tradeStatsObjects.add(allStats);
@@ -85,7 +90,13 @@ public class ZIPModel extends TwoMarketModel {
 
         SimClock clock = this.getExperiment().getSimClock();
         for (int i = 0; i < (int)params.getParameter("NUM_EXCHANGES"); i++) {
-            Exchange exchange = new CDA(this, "Exchange", sip, SHOW_ENTITIES_IN_TRACE);
+            Exchange exchange;
+            if (params.getParameter("EXCHANGE_TYPE").equals("CDA")) {
+                exchange = new CDA(this, "Exchange", sip, SHOW_ENTITIES_IN_TRACE);
+            } else {
+                exchange = new Call(this, "PeriodicCallMarket", sip, SHOW_ENTITIES_IN_TRACE,
+                        new TimeSpan((double)params.getParameter("CLEARING_INTERVAL")));
+            }
             allExchanges.add(exchange);
             TradingAgentGroup group = new TradingAgentGroup();
             allExchangeGroups.add(group);
@@ -107,7 +118,7 @@ public class ZIPModel extends TwoMarketModel {
                 router.routingSupplier.addObserver(routeStats);
                 //Market 1
                 TradingAgent agent;
-                if (params.getParameter("MODEL").equals("ZIC")) {
+                if (params.getParameter("TRADING_AGENT").equals("ZIC")) {
                     agent = new ZIC(this, new FixedLimit(schedule.getBuySchedule()[j]), router, Direction.BUY, offsetRangeDist, SHOW_ENTITIES_IN_TRACE);
                 } else {
                     agent = new ZIP(this, schedule.getBuySchedule()[j], router, Direction.BUY, generator, SHOW_ENTITIES_IN_TRACE);
@@ -124,7 +135,7 @@ public class ZIPModel extends TwoMarketModel {
                 router.routingSupplier.addObserver(routeStats);
                 //Market 1
                 TradingAgent agent;
-                if (params.getParameter("MODEL").equals("ZIC")) {
+                if (params.getParameter("TRADING_AGENT").equals("ZIC")) {
                     agent = new ZIC(this, new FixedLimit(schedule.getSellSchedule()[j]), router, Direction.SELL, offsetRangeDist, SHOW_ENTITIES_IN_TRACE);
                 } else {
                     agent = new ZIP(this, schedule.getSellSchedule()[j], router, Direction.SELL, generator, SHOW_ENTITIES_IN_TRACE);

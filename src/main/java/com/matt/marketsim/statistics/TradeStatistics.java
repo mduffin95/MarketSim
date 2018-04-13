@@ -1,12 +1,14 @@
-package com.matt.marketsim;
+package com.matt.marketsim.statistics;
 
+import com.matt.marketsim.Order;
+import com.matt.marketsim.Trade;
 import desmoj.core.report.Reporter;
 import desmoj.core.simulator.*;
 import desmoj.core.statistic.StatisticObject;
 
 import java.util.Observable;
 
-public class TradeStatisticCalculator extends StatisticObject {
+public class TradeStatistics extends StatisticObject {
     private double totalUtility = 0.0;
     private TimeSpan totalExecutionTime;
     private TradingAgentGroup group;
@@ -17,7 +19,7 @@ public class TradeStatisticCalculator extends StatisticObject {
     private int inefficient;
     private int equilibrium;
 
-    public TradeStatisticCalculator(Model model, String name, TradingAgentGroup group, double discountRate, SimClock clock, boolean showInReport, boolean showInTrace, int equilibrium) {
+    public TradeStatistics(Model model, String name, TradingAgentGroup group, double discountRate, SimClock clock, boolean showInReport, boolean showInTrace, int equilibrium) {
         super(model, name, showInReport, showInTrace);
         this.group = group;
         this.discountRate = discountRate;
@@ -29,7 +31,7 @@ public class TradeStatisticCalculator extends StatisticObject {
         this.equilibrium = equilibrium;
     }
 
-    public TradeStatisticCalculator(Model model, String name, TradingAgentGroup group, double discountRate, SimClock clock, boolean showInReport, boolean showInTrace) {
+    public TradeStatistics(Model model, String name, TradingAgentGroup group, double discountRate, SimClock clock, boolean showInReport, boolean showInTrace) {
         this(model, name, group, discountRate, clock, showInReport, showInTrace, 0);
     }
 

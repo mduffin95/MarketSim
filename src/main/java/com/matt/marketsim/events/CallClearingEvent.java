@@ -13,6 +13,7 @@ public class CallClearingEvent extends Event<Call> {
     @Override
     public void eventRoutine(Call call) throws SuspendExecution {
         call.clear();
-        reSchedule(call.getClearingInterval());
+
+        this.schedule(call, call.getClearingInterval());
     }
 }
