@@ -1,9 +1,9 @@
 package com.matt.marketsim.entities;
 
 import com.matt.marketsim.*;
+import com.matt.marketsim.events.VolatilitySamplingEvent;
 import com.matt.marketsim.statistics.ExchangeStatistics;
-import desmoj.core.simulator.Model;
-import desmoj.core.simulator.SimClock;
+import desmoj.core.simulator.*;
 import desmoj.core.statistic.ValueSupplier;
 
 import java.util.ArrayList;
@@ -17,12 +17,13 @@ public abstract class Exchange extends NetworkEntity implements PriceProvider {
     //Entities that need to be notified of price changes
     List<NetworkEntity> observers;
 
-    ExchangeStatistics stats;
+    public ExchangeStatistics stats;
 
     //For testing purposes
     public Trade recentTrade;
 
     SimClock clock;
+    private TimeSpan volatilitySamplingInterval;
 
     public Exchange(Model model, String name, SecuritiesInformationProcessor sip, boolean showInTrace) {
         super(model, name, showInTrace);
@@ -33,6 +34,25 @@ public abstract class Exchange extends NetworkEntity implements PriceProvider {
         lastTradeSupplier = new BasicValueSupplier("LastTradeSupplier");
         clock = model.getExperiment().getSimClock();
         stats = new ExchangeStatistics(model, "ExchangeStats", true, false);
+        volatilitySamplingInterval = new TimeSpan(250);
+
+        Event<Exchange> event = new VolatilitySamplingEvent(model, "VolatilitySamplingEvent", true);
+        event.schedule(this, volatilitySamplingInterval);
+    }
+
+    void updateSpreadStats(LOBSummary summary) {
+        if (presentTime().getTimeAsDouble() > 3000)
+            return;
+
+        stats.spreadUpdate(summary);
+    }
+
+    public void updateVolatilityStats() {
+        TimeInstant t = presentTime();
+        if (t.getTimeAsDouble() > 3000)
+            return;
+
+        stats.volatilityUpdate(orderBook.getSummary(clock));
     }
 
     /**
@@ -54,6 +74,10 @@ public abstract class Exchange extends NetworkEntity implements PriceProvider {
 
     public OrderBook getOrderBook() {
         return orderBook;
+    }
+
+    public TimeSpan getVolatilitySamplingInterval() {
+        return volatilitySamplingInterval;
     }
 
 

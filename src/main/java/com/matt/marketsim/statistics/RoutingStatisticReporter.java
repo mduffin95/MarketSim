@@ -22,7 +22,7 @@ public class RoutingStatisticReporter extends Reporter {
             entries[3] = String.valueOf(((RoutingStatistics) source).getInefficientFraction());
         }
         groupHeading = "RouteStatistics";
-        groupID = 11198;
+        groupID = 1298;
     }
 
     @Override

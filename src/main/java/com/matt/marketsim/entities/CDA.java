@@ -50,6 +50,7 @@ public class CDA extends Exchange {
         }
 
         LOBSummary newSummary = orderBook.getSummary(clock);
+        updateSpreadStats(newSummary);
         if (!newSummary.equals(original) || newTrade != null) { //Not sure you will end up in a situation where newtrade != null but the summaries are equal.
             MarketUpdate update = new MarketUpdate(this, newTrade, newSummary);
 

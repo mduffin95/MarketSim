@@ -49,6 +49,10 @@ public class TwoMarketModel extends MarketSimModel {
      */
     protected ModelParameters params;
 
+    /*
+     * Other
+     */
+    Set<Exchange> allExchanges;
 
     public TwoMarketModel(ModelParameters params) {
         super(null, "TwoMarketModel", true, true, (int)params.getParameter("SIM_LENGTH"));
@@ -57,6 +61,7 @@ public class TwoMarketModel extends MarketSimModel {
 
         tradeStatsObjects = new ArrayList<>();
         routeStatsObjects = new ArrayList<>();
+        allExchanges = new HashSet<>();
     }
 
     @Override
@@ -125,7 +130,6 @@ public class TwoMarketModel extends MarketSimModel {
         boolean la_present = (boolean)params.getParameter("LA_PRESENT");
         SecuritiesInformationProcessor sip = new SecuritiesInformationProcessor(this, "Securities Information Processor",
                 SHOW_ENTITIES_IN_TRACE, new TimeSpan((double)params.getParameter("DELTA")));
-        Set<Exchange> allExchanges = new HashSet<>();
         Set<TradingAgent> allTradingAgents = new HashSet<>();
         List<TradingAgentGroup> allExchangeGroups = new ArrayList<>();
 
@@ -222,6 +226,10 @@ public class TwoMarketModel extends MarketSimModel {
         }
         for (RoutingStatistics stats : routeStatsObjects) {
             Reporter r = stats.createDefaultReporter();
+            result.entries.add(r.getEntries());
+        }
+        for (Exchange e: allExchanges) {
+            Reporter r = e.stats.createDefaultReporter();
             result.entries.add(r.getEntries());
         }
         return result;

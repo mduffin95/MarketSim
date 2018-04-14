@@ -58,8 +58,10 @@ public class Call extends Exchange {
                     e.send(this, msg, update);
                 }
             }
+
         }
         summary = newSummary;
+        updateSpreadStats(summary);
     }
 
     @Override
