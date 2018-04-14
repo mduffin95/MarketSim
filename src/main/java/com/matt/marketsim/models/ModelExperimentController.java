@@ -35,7 +35,7 @@ public class ModelExperimentController {
     private static void initializeModelParameters(String[] args, ModelParameters params) {
 
         params.addParameter(String.class, "TRADING_AGENT", "ZIC");
-        params.addParameter(String.class, "EXCHANGE_TYPE", "CDA");
+        params.addParameter(String.class, "EXCHANGE_TYPE", "Call");
 //        params.addParameter(Double.class, "CLEARING_INTERVAL", 100.0);
 
         params.addParameter(Double.class, "DELTA", 100.0);
@@ -47,24 +47,26 @@ public class ModelExperimentController {
         params.addParameter(Double.class, "OFFSET_RANGE", 2000.0);
         params.addParameter(Double.class, "LAMBDA", 0.075);
         params.addParameter(Double.class, "DISCOUNT_RATE", 0.0006);
-        params.addParameter(Integer.class, "NUM_EXCHANGES", 2);
-        params.addParameter(Integer.class, "AGENTS_PER_EXCHANGE", 125);
+        params.addParameter(Integer.class, "AGENTS_PER_EXCHANGE", 125); //<-- Just for TwoMarketModel
+        params.addParameter(Integer.class, "NUM_EXCHANGES", 1);
         params.addParameter(Integer.class, "SIM_LENGTH", 15000);
         params.addParameter(Boolean.class, "LA_PRESENT", false);
 
-        params.addParameter(Integer.class, "DELTA_STEPS", 11);
+        params.addParameter(Integer.class, "DELTA_STEPS", 1);
         params.addParameter(Integer.class, "STEP", 100);
-        params.addParameter(Integer.class, "ROUNDS", 1000);
+        params.addParameter(Integer.class, "ROUNDS", 10);
         params.addParameter(Integer.class, "SEED_OFFSET", 1234);
 
         /* ZIP Experiment */
-        params.addParameter(Integer.class,"BUY_AGENTS_PER_EXCHANGE", 75);
-        params.addParameter(Integer.class,"SELL_AGENTS_PER_EXCHANGE", 75);
+        params.addParameter(Integer.class,"SCHEDULE_LENGTH", 75);
+        params.addParameter(Integer.class,"AGENTS_PER_PRICE", 2);
 
         params.addParameter(Integer.class,"MIN_BUY_LIMIT", 63000);
         params.addParameter(Integer.class, "MIN_SELL_LIMIT", 63000);
         params.addParameter(Integer.class, "LIMIT_STEP", 1000);
         params.addParameter(Integer.class, "EQUILIBRIUM", 100000);
+
+        //total agents = SCHEDULE_LENGTH * 2 * AGENTS_PER_PRICE * NUM_EXCHANGES
 
         params.updateParams(args); //Do last to overwrite
     }
@@ -76,7 +78,7 @@ public class ModelExperimentController {
         Experiment.setReferenceUnit(TimeUnit.SECONDS);
         Experiment exp = new Experiment("Exp1");
 
-        MarketSimModel model = new TwoMarketModel(params);
+        MarketSimModel model = new ZIPModel(params);
 
         long seed = (int)params.getParameter("SEED");
         model.setSeed(seed);
@@ -92,7 +94,7 @@ public class ModelExperimentController {
         exp.start();
 
         // generate report and shut everything off
-//        exp.report();
+        exp.report();
         ResultDto result = model.getResults();
         exp.finish();
         return result;
@@ -116,7 +118,7 @@ public class ModelExperimentController {
         int SEED_OFFSET = (int)params.getParameter("SEED_OFFSET");
 
         List<ResultDto> allResults = new ArrayList<>(ROUNDS * DELTA_STEPS);
-        boolean parallel = true;
+        boolean parallel = false;
         if (parallel) {
             List<Callable<ResultDto>> tasks = new ArrayList<>();
             for (int i = 0; i < DELTA_STEPS; i++) {

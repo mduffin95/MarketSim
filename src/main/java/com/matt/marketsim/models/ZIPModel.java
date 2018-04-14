@@ -20,18 +20,18 @@ import java.util.*;
 public class ZIPModel extends TwoMarketModel {
 
     private Schedule schedule;
-    private int buyAgents;
-    private int sellAgents;
+    private int scheduleLength;
+    private int perPrice;
 
     public ZIPModel(ModelParameters params) {
         super(params);
-        buyAgents = (int)params.getParameter("BUY_AGENTS_PER_EXCHANGE");
-        sellAgents = (int)params.getParameter("SELL_AGENTS_PER_EXCHANGE");
+        scheduleLength = (int)params.getParameter("SCHEDULE_LENGTH");
+        perPrice = (int)params.getParameter("AGENTS_PER_PRICE");
 
         int minBuyLimit = (int)params.getParameter("MIN_BUY_LIMIT");
         int minSellLimit = (int)params.getParameter("MIN_SELL_LIMIT");
         int limitStep = (int)params.getParameter("LIMIT_STEP");
-        schedule = new Schedule(minBuyLimit, limitStep, buyAgents, minSellLimit, limitStep, sellAgents);
+        schedule = new Schedule(minBuyLimit, limitStep, scheduleLength, minSellLimit, limitStep, scheduleLength);
     }
 
     @Override
@@ -88,7 +88,8 @@ public class ZIPModel extends TwoMarketModel {
         }
 
         SimClock clock = this.getExperiment().getSimClock();
-        for (int i = 0; i < (int)params.getParameter("NUM_EXCHANGES"); i++) {
+        int numExchanges = (int)params.getParameter("NUM_EXCHANGES");
+        for (int i = 0; i < numExchanges; i++) {
             Exchange exchange;
             if (params.getParameter("EXCHANGE_TYPE").equals("CDA")) {
                 exchange = new CDA(this, "Exchange", sip, SHOW_ENTITIES_IN_TRACE);
@@ -112,42 +113,44 @@ public class ZIPModel extends TwoMarketModel {
                 exchange.registerPriceObserver(arbitrageur);
             }
 
-            for (int j = 0; j < buyAgents; j++) {
-                BestPriceOrderRouter router = new BestPriceOrderRouter(clock, exchange, allExchanges);
-                router.routingSupplier.addObserver(routeStats);
-                //Market 1
-                TradingAgent agent;
-                if (params.getParameter("TRADING_AGENT").equals("ZIC")) {
-                    agent = new ZIC(this, new FixedLimit(schedule.getBuySchedule()[j]), router, Direction.BUY, offsetRangeDist, SHOW_ENTITIES_IN_TRACE);
-                } else {
-                    agent = new ZIP(this, schedule.getBuySchedule()[j], router, Direction.BUY, generator, SHOW_ENTITIES_IN_TRACE);
-                }
-                exchange.registerPriceObserver(agent);
-                sip.registerPriceObserver(agent); //TODO: Control this from the graph itself based on edges
-                group.addMember(agent);
-                tas.addMember(agent);
-                all.addMember(agent);
-                allTradingAgents.add(agent);
-            }
-            for (int j = 0; j < sellAgents; j++) {
-                BestPriceOrderRouter router = new BestPriceOrderRouter(clock, exchange, allExchanges);
-                router.routingSupplier.addObserver(routeStats);
-                //Market 1
-                TradingAgent agent;
-                if (params.getParameter("TRADING_AGENT").equals("ZIC")) {
-                    agent = new ZIC(this, new FixedLimit(schedule.getSellSchedule()[j]), router, Direction.SELL, offsetRangeDist, SHOW_ENTITIES_IN_TRACE);
-                } else {
-                    agent = new ZIP(this, schedule.getSellSchedule()[j], router, Direction.SELL, generator, SHOW_ENTITIES_IN_TRACE);
-                }
+            for (int j = 0; j < scheduleLength; j++) {
+                for (int k=0; k < perPrice; k++) {
+                    //BUY AGENTS
+                    BestPriceOrderRouter router = new BestPriceOrderRouter(clock, exchange, allExchanges);
+                    router.routingSupplier.addObserver(routeStats);
+                    //Market 1
+                    TradingAgent agent;
+                    if (params.getParameter("TRADING_AGENT").equals("ZIC")) {
+                        agent = new ZIC(this, new FixedLimit(schedule.getBuySchedule()[j]), router, Direction.BUY, offsetRangeDist, SHOW_ENTITIES_IN_TRACE);
+                    } else {
+                        agent = new ZIP(this, schedule.getBuySchedule()[j], router, Direction.BUY, generator, SHOW_ENTITIES_IN_TRACE);
+                    }
+                    exchange.registerPriceObserver(agent);
+                    sip.registerPriceObserver(agent); //TODO: Control this from the graph itself based on edges
+                    group.addMember(agent);
+                    tas.addMember(agent);
+                    all.addMember(agent);
+                    allTradingAgents.add(agent);
+
+                    //SELL AGENTS
+                    router = new BestPriceOrderRouter(clock, exchange, allExchanges);
+                    router.routingSupplier.addObserver(routeStats);
+                    //Market 1
+                    if (params.getParameter("TRADING_AGENT").equals("ZIC")) {
+                        agent = new ZIC(this, new FixedLimit(schedule.getSellSchedule()[j]), router, Direction.SELL, offsetRangeDist, SHOW_ENTITIES_IN_TRACE);
+                    } else {
+                        agent = new ZIP(this, schedule.getSellSchedule()[j], router, Direction.SELL, generator, SHOW_ENTITIES_IN_TRACE);
+                    }
 
 //                TradingAgent agent = new ZIP(this, schedule.getSellSchedule()[j], router, Direction.SELL, generator, SHOW_ENTITIES_IN_TRACE);
 //                TradingAgent agent = new ZIC(this, new FixedLimit(schedule.getSellSchedule()[j]), router, Direction.SELL, offsetRangeDist, SHOW_ENTITIES_IN_TRACE);
-                exchange.registerPriceObserver(agent);
-                sip.registerPriceObserver(agent); //TODO: Control this from the graph itself based on edges
-                group.addMember(agent);
-                tas.addMember(agent);
-                all.addMember(agent);
-                allTradingAgents.add(agent);
+                    exchange.registerPriceObserver(agent);
+                    sip.registerPriceObserver(agent); //TODO: Control this from the graph itself based on edges
+                    group.addMember(agent);
+                    tas.addMember(agent);
+                    all.addMember(agent);
+                    allTradingAgents.add(agent);
+                }
             }
         }
 

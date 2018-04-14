@@ -17,8 +17,11 @@ public class Call extends Exchange {
     public Call(Model model, String name, SecuritiesInformationProcessor sip, boolean showInTrace, TimeSpan clearingInterval) {
         super(model, name, sip, showInTrace);
         this.clearingInterval = clearingInterval;
-        Event<Call> event = new CallClearingEvent(model, "CallClearingEvent", true);
-        event.schedule(this, clearingInterval);
+        if (clearingInterval.getTimeAsDouble() > 0.0) {
+            Event<Call> event = new CallClearingEvent(model, "CallClearingEvent", true);
+            event.schedule(this, clearingInterval);
+        }
+        summary = orderBook.getSummary(clock);
     }
 
     public void clear() {
@@ -69,6 +72,11 @@ public class Call extends Exchange {
         order.setArrivalTime(clock.getTime());
         orderBook.add(order);
 
+        if (clearingInterval.getTimeAsDouble() == 0.0) {
+            LOBSummary newSummary = orderBook.getSummary(clock);
+            if (!summary.equals(newSummary))
+                clear();
+        }
         String note = "Handling order: " + order.toString();
         sendTraceNote(note);
     }
