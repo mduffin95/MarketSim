@@ -3,7 +3,11 @@ package com.matt.marketsim.entities;
 import com.matt.marketsim.*;
 
 
+import com.matt.marketsim.events.VolatilitySamplingEvent;
+import com.matt.marketsim.statistics.ExchangeStatistics;
+import desmoj.core.simulator.Event;
 import desmoj.core.simulator.Model;
+import desmoj.core.simulator.TimeInstant;
 import desmoj.core.simulator.TimeSpan;
 
 import java.util.ArrayList;
@@ -21,6 +25,8 @@ public class SecuritiesInformationProcessor extends NetworkEntity implements Pri
 
     private List<NetworkEntity> observers;
 
+    public ExchangeStatistics stats;
+
     public SecuritiesInformationProcessor(Model model, String name, boolean showInTrace) {
         this(model, name, showInTrace, new TimeSpan(0));
     }
@@ -30,7 +36,28 @@ public class SecuritiesInformationProcessor extends NetworkEntity implements Pri
         observers = new ArrayList<>();
         multiMarketView = new MultiMarketView();
         this.delta = delta;
+
+        stats = new ExchangeStatistics(model, "SIPStats", true, false);
+//        volatilitySamplingInterval = new TimeSpan(250);
+//        Event<Exchange> event = new VolatilitySamplingEvent(model, "VolatilitySamplingEvent", true);
+//        event.schedule(this, volatilitySamplingInterval);
     }
+
+    void updateSpreadStats() {
+        if (presentTime().getTimeAsDouble() > 3000)
+            return;
+
+        LOBSummary summary = new LOBSummary(bestBid, bestOffer);
+        stats.spreadUpdate(summary);
+    }
+
+//    public void updateVolatilityStats() {
+//        TimeInstant t = presentTime();
+//        if (t.getTimeAsDouble() > 3000)
+//            return;
+//
+//        stats.volatilityUpdate(orderBook.getSummary(clock));
+//    }
 
     @Override
     public void onLimitOrder(Order order) {
@@ -76,8 +103,10 @@ public class SecuritiesInformationProcessor extends NetworkEntity implements Pri
             bestOffer = newBestOffer;
             changed = true;
         }
-        if (changed)
+        if (changed) {
+            updateSpreadStats();
             return Optional.of(updateObservers());
+        }
         return Optional.empty();
     }
 

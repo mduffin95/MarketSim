@@ -49,6 +49,8 @@ public class ExchangeStatistics extends StatisticObject {
     }
 
     public double getMedianSpread() {
+        if (spreads.size() == 0)
+            return -1.0;
         Collections.sort(spreads);
         int len = spreads.size();
         int middle = len / 2;
@@ -61,6 +63,8 @@ public class ExchangeStatistics extends StatisticObject {
     }
 
     public double getVolatility() {
+        if (midQuotes.size() == 0)
+            return -1.0;
         return Math.log(sd(midQuotes));
     }
 

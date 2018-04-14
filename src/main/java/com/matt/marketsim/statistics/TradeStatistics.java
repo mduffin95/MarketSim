@@ -6,6 +6,7 @@ import desmoj.core.report.Reporter;
 import desmoj.core.simulator.*;
 import desmoj.core.statistic.StatisticObject;
 
+import java.util.ArrayList;
 import java.util.Observable;
 
 public class TradeStatistics extends StatisticObject {
@@ -18,6 +19,8 @@ public class TradeStatistics extends StatisticObject {
 
     private int inefficient;
     private int equilibrium;
+
+    ArrayList<Double> deviation = new ArrayList<>();
 
     public TradeStatistics(Model model, String name, TradingAgentGroup group, double discountRate, SimClock clock, boolean showInReport, boolean showInTrace, int equilibrium) {
         super(model, name, showInReport, showInTrace);
@@ -50,6 +53,8 @@ public class TradeStatistics extends StatisticObject {
                 findInefficient(trade);
                 processOrder(trade.getSellOrder(), trade.getExecutionTime(), trade.getPrice());
             }
+
+            deviation.add(Math.pow(trade.getPrice() - equilibrium, 2));
         }
     }
 
@@ -91,6 +96,15 @@ public class TradeStatistics extends StatisticObject {
 
     public int getInefficient() {
         return inefficient;
+    }
+
+    public double getPriceDiscovery() {
+        double total = 0;
+        for (Double p: deviation) {
+            total += p;
+        }
+
+        return Math.sqrt(total / deviation.size());
     }
 
     @Override

@@ -34,7 +34,7 @@ public class ModelExperimentController {
 
     private static void initializeModelParameters(String[] args, ModelParameters params) {
 
-        params.addParameter(String.class, "TRADING_AGENT", "ZIC");
+        params.addParameter(String.class, "TRADING_AGENT", "ZIP");
         params.addParameter(String.class, "EXCHANGE_TYPE", "CDA");
         params.addParameter(Double.class, "CLEARING_INTERVAL", 100.0);
 
@@ -47,7 +47,7 @@ public class ModelExperimentController {
         params.addParameter(Double.class, "OFFSET_RANGE", 2000.0);
         params.addParameter(Double.class, "LAMBDA", 0.075);
         params.addParameter(Double.class, "DISCOUNT_RATE", 0.0006);
-        params.addParameter(Integer.class, "NUM_EXCHANGES", 1);
+        params.addParameter(Integer.class, "NUM_EXCHANGES", 2);
         params.addParameter(Integer.class, "AGENTS_PER_EXCHANGE", 125);
         params.addParameter(Integer.class, "SIM_LENGTH", 15000);
         params.addParameter(Boolean.class, "LA_PRESENT", false);
@@ -76,7 +76,7 @@ public class ModelExperimentController {
         Experiment.setReferenceUnit(TimeUnit.SECONDS);
         Experiment exp = new Experiment("Exp1");
 
-        MarketSimModel model = new TwoMarketModel(params);
+        MarketSimModel model = new ZIPModel(params);
 
         long seed = (int)params.getParameter("SEED");
         model.setSeed(seed);

@@ -53,6 +53,7 @@ public class TwoMarketModel extends MarketSimModel {
      * Other
      */
     Set<Exchange> allExchanges;
+    SecuritiesInformationProcessor sip;
 
     public TwoMarketModel(ModelParameters params) {
         super(null, "TwoMarketModel", true, true, (int)params.getParameter("SIM_LENGTH"));
@@ -128,7 +129,7 @@ public class TwoMarketModel extends MarketSimModel {
     @Override
     WellmanGraph createNetwork() {
         boolean la_present = (boolean)params.getParameter("LA_PRESENT");
-        SecuritiesInformationProcessor sip = new SecuritiesInformationProcessor(this, "Securities Information Processor",
+        sip = new SecuritiesInformationProcessor(this, "Securities Information Processor",
                 SHOW_ENTITIES_IN_TRACE, new TimeSpan((double)params.getParameter("DELTA")));
         Set<TradingAgent> allTradingAgents = new HashSet<>();
         List<TradingAgentGroup> allExchangeGroups = new ArrayList<>();
@@ -232,6 +233,8 @@ public class TwoMarketModel extends MarketSimModel {
             Reporter r = e.stats.createDefaultReporter();
             result.entries.add(r.getEntries());
         }
+        Reporter r = sip.stats.createDefaultReporter();
+        result.entries.add(r.getEntries());
         return result;
     }
 }
