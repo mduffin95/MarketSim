@@ -94,7 +94,7 @@ public class ZIPModel extends TwoMarketModel {
                 exchange = new CDA(this, "Exchange", sip, SHOW_ENTITIES_IN_TRACE);
             } else {
                 exchange = new Call(this, "PeriodicCallMarket", sip, SHOW_ENTITIES_IN_TRACE,
-                        new TimeSpan((double)params.getParameter("CLEARING_INTERVAL")));
+                        new TimeSpan((double)params.getParameter("DELTA")));
             }
             allExchanges.add(exchange);
             TradingAgentGroup group = new TradingAgentGroup();

@@ -54,6 +54,7 @@ public class TwoMarketModel extends MarketSimModel {
      */
     Set<Exchange> allExchanges;
     SecuritiesInformationProcessor sip;
+    public VariableLimitFactory factory;
 
     public TwoMarketModel(ModelParameters params) {
         super(null, "TwoMarketModel", true, true, (int)params.getParameter("SIM_LENGTH"));
@@ -161,7 +162,7 @@ public class TwoMarketModel extends MarketSimModel {
         }
 
         SimClock clock = this.getExperiment().getSimClock();
-        VariableLimitFactory factory = new VariableLimitFactory(this,
+        factory = new VariableLimitFactory(this,
                 (double)params.getParameter("SIGMA_SHOCK"),
                 (double)params.getParameter("SIGMA_PV"),
                 (double)params.getParameter("K"),
@@ -172,7 +173,7 @@ public class TwoMarketModel extends MarketSimModel {
                 exchange = new CDA(this, "Exchange", sip, SHOW_ENTITIES_IN_TRACE);
             } else {
                 exchange = new Call(this, "PeriodicCallMarket", sip, SHOW_ENTITIES_IN_TRACE,
-                        new TimeSpan((double)params.getParameter("CLEARING_INTERVAL")));
+                        new TimeSpan((double)params.getParameter("DELTA")));
             }
 
             allExchanges.add(exchange);

@@ -2,6 +2,7 @@ package com.matt.marketsim.statistics;
 
 import com.matt.marketsim.Order;
 import com.matt.marketsim.Trade;
+import com.matt.marketsim.models.TwoMarketModel;
 import desmoj.core.report.Reporter;
 import desmoj.core.simulator.*;
 import desmoj.core.statistic.StatisticObject;
@@ -18,11 +19,12 @@ public class TradeStatistics extends StatisticObject {
     private int totalOrders;
 
     private int inefficient;
-    private int equilibrium;
+    private double equilibrium;
+    private TwoMarketModel model;
 
     ArrayList<Double> deviation = new ArrayList<>();
 
-    public TradeStatistics(Model model, String name, TradingAgentGroup group, double discountRate, SimClock clock, boolean showInReport, boolean showInTrace, int equilibrium) {
+    public TradeStatistics(Model model, String name, TradingAgentGroup group, double discountRate, SimClock clock, boolean showInReport, boolean showInTrace, double equilibrium) {
         super(model, name, showInReport, showInTrace);
         this.group = group;
         this.discountRate = discountRate;
@@ -32,6 +34,8 @@ public class TradeStatistics extends StatisticObject {
         this.totalOrders = 0;
         this.inefficient = 0;
         this.equilibrium = equilibrium;
+
+        this.model = (TwoMarketModel)model;
     }
 
     public TradeStatistics(Model model, String name, TradingAgentGroup group, double discountRate, SimClock clock, boolean showInReport, boolean showInTrace) {
@@ -54,7 +58,14 @@ public class TradeStatistics extends StatisticObject {
                 processOrder(trade.getSellOrder(), trade.getExecutionTime(), trade.getPrice());
             }
 
-            deviation.add(Math.pow(trade.getPrice() - equilibrium, 2));
+            double equ;
+            if (model.factory != null) {
+                equ = model.factory.getFundamental();
+            } else {
+                equ = equilibrium;
+            }
+            deviation.add(Math.pow(trade.getPrice() - equ, 2));
+
         }
     }
 
