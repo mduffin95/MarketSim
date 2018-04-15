@@ -57,6 +57,7 @@ public class ModelParameters {
         for (Map.Entry<String, Parameter> entry: parameterMap.entrySet()) {
             String name = entry.getKey();
             if (cmd.hasOption(name)) {
+                System.out.println(name + "=" + cmd.getOptionValue(name));
                 Class<?> type = entry.getValue().getType();
                 if (type == Boolean.class) {
                     entry.setValue(new Parameter(type, name, Boolean.valueOf(cmd.getOptionValue(name))));
@@ -64,6 +65,8 @@ public class ModelParameters {
                     entry.setValue(new Parameter(type, name, Integer.valueOf(cmd.getOptionValue(name))));
                 } if (type == Double.class) {
                     entry.setValue(new Parameter(type, name, Double.valueOf(cmd.getOptionValue(name))));
+                } if (type == String.class) {
+                    entry.setValue(new Parameter(type, name, cmd.getOptionValue(name)));
                 }
             }
         }
