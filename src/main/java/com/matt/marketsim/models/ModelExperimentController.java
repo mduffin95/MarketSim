@@ -35,7 +35,10 @@ public class ModelExperimentController {
     private static void initializeModelParameters(String[] args, ModelParameters params) {
 
         params.addParameter(String.class, "TRADING_AGENT", "ZIC");
-        params.addParameter(String.class, "EXCHANGE_TYPE", "Call");
+        params.addParameter(String.class, "EXCHANGE_TYPE", "CDA");
+        params.addParameter(String.class, "DIR", "CDA");
+        params.addParameter(String.class, "MODEL", "TwoMarketModel");
+
 //        params.addParameter(Double.class, "CLEARING_INTERVAL", 100.0);
 
         params.addParameter(Double.class, "DELTA", 100.0);
@@ -47,12 +50,12 @@ public class ModelExperimentController {
         params.addParameter(Double.class, "OFFSET_RANGE", 2000.0);
         params.addParameter(Double.class, "LAMBDA", 0.075);
         params.addParameter(Double.class, "DISCOUNT_RATE", 0.0006);
-        params.addParameter(Integer.class, "AGENTS_PER_EXCHANGE", 125); //<-- Just for TwoMarketModel
+        params.addParameter(Integer.class, "AGENTS_PER_EXCHANGE", 250); //<-- Just for TwoMarketModel
         params.addParameter(Integer.class, "NUM_EXCHANGES", 1);
         params.addParameter(Integer.class, "SIM_LENGTH", 15000);
         params.addParameter(Boolean.class, "LA_PRESENT", false);
 
-        params.addParameter(Integer.class, "DELTA_STEPS", 1);
+        params.addParameter(Integer.class, "DELTA_STEPS", 11);
         params.addParameter(Integer.class, "STEP", 100);
         params.addParameter(Integer.class, "ROUNDS", 10);
         params.addParameter(Integer.class, "SEED_OFFSET", 1234);
@@ -78,7 +81,12 @@ public class ModelExperimentController {
         Experiment.setReferenceUnit(TimeUnit.SECONDS);
         Experiment exp = new Experiment("Exp1");
 
-        MarketSimModel model = new ZIPModel(params);
+        MarketSimModel model;
+        if (params.getParameter("MODEL").equals("TwoMarketModel")) {
+            model = new TwoMarketModel(params);
+        } else {
+            model = new ZIPModel(params);
+        }
 
         long seed = (int)params.getParameter("SEED");
         model.setSeed(seed);
@@ -94,7 +102,7 @@ public class ModelExperimentController {
         exp.start();
 
         // generate report and shut everything off
-        exp.report();
+//        exp.report();
         ResultDto result = model.getResults();
         exp.finish();
         return result;
@@ -118,7 +126,7 @@ public class ModelExperimentController {
         int SEED_OFFSET = (int)params.getParameter("SEED_OFFSET");
 
         List<ResultDto> allResults = new ArrayList<>(ROUNDS * DELTA_STEPS);
-        boolean parallel = false;
+        boolean parallel = true;
         if (parallel) {
             List<Callable<ResultDto>> tasks = new ArrayList<>();
             for (int i = 0; i < DELTA_STEPS; i++) {
@@ -170,7 +178,7 @@ public class ModelExperimentController {
     private static void writeToFile(ModelParameters params, String dir, List<ResultDto> results) {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yy-MM-dd_HH:mm:ss");
         LocalDateTime date = LocalDateTime.now();
-        dir = dir + "/" + dtf.format(date);
+        dir = dir + "/" + dtf.format(date) + "_" + params.getParameter("DIR");
 
         try {
             Files.createDirectories(Paths.get(dir));

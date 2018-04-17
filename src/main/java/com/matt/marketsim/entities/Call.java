@@ -81,11 +81,6 @@ public class Call extends Exchange {
         sendTraceNote(note);
     }
 
-    @Override
-    public void onCancelOrder(Order order) {
-
-    }
-
     public TimeSpan getClearingInterval() {
         return clearingInterval;
     }

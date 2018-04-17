@@ -24,6 +24,8 @@ public class TradingAgentDecisionEvent extends Event<TradingAgent> {
             tradingAgent.doSomething();
             queue.add(tradingAgent); //re-insert
         }
-        schedule(queue.remove(), marketSimModel.getAgentArrivalTime()); //schedule next
+        TradingAgent ta = queue.poll();
+        if (null != ta)
+            schedule(ta, marketSimModel.getAgentArrivalTime()); //schedule next
     }
 }

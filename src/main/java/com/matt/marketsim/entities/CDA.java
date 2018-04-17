@@ -64,17 +64,4 @@ public class CDA extends Exchange {
         recentTrade = newTrade;
     }
 
-    @Override
-    public void onCancelOrder(Order order) {
-        if (null != order) {
-            sendTraceNote("Cancelling order: " + order.toString());
-            boolean success = orderBook.remove(order);
-            if (success) {
-                order.getAgent().send(this, MessageType.CANCEL_SUCCESS, order);
-            } else {
-                order.getAgent().send(this, MessageType.CANCEL_FAILURE, order);
-            }
-        }
-    }
-
 }

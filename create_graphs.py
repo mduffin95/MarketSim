@@ -20,8 +20,7 @@ def plot_data(df, dof, t, name):
     mean_df = group.mean()
     std_df = group.std(ddof=1)
     err_df = t * (std_df / math.sqrt(dof))
-    print(err_df)
-    mean_df.plot()
+    mean_df.plot(yerr=err_df, capsize=1)
     #plt.show()
     tikz_save(name + ".tex")
 
@@ -41,11 +40,14 @@ if __name__ == "__main__":
     surplus_df =    all_results.xs(1, axis=1, level=1)
     time_df =       all_results.xs(2, axis=1, level=1)
     num_trades_df = all_results.xs(3, axis=1, level=1)
+    rmsd_df = all_results.xs(5, axis=1, level=1)
+    print(num_trades_df)
 
     dof = surplus_df.groupby(0).count().iloc[0].iloc[0]-1 # Degrees of freedom
     print(dof)
     t = stats.t.ppf(0.95, dof) 
     plot_data(surplus_df, dof, t, "surplus")
-    plot_data(num_trades_df, dof, t, "num_trades")
+    plot_data(time_df / num_trades_df, dof, t, "time")
+    plot_data(rmsd_df, dof, t, "rmsd")
 
 
