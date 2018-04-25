@@ -52,14 +52,7 @@ public class CDA extends Exchange {
         LOBSummary newSummary = orderBook.getSummary(clock);
         updateSpreadStats(newSummary);
         if (!newSummary.equals(original) || newTrade != null) { //Not sure you will end up in a situation where newtrade != null but the summaries are equal.
-            MarketUpdate update = new MarketUpdate(this, newTrade, newSummary);
-
-            //The price quote has changed so this needs to be sent to all observers
-            MessageType msg = MessageType.MARKET_UPDATE;
-
-            for (NetworkEntity e: observers) {
-                e.send(this, msg, update);
-            }
+            sendUpdate(newTrade, newSummary);
         }
         recentTrade = newTrade;
     }

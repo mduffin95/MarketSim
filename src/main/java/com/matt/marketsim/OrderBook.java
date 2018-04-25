@@ -3,9 +3,8 @@ package com.matt.marketsim;
 import desmoj.core.simulator.SimClock;
 import desmoj.core.simulator.TimeInstant;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.PriorityQueue;
+import javax.swing.text.html.Option;
+import java.util.*;
 
 public class OrderBook {
     private PriorityQueue<Order> buyQueue;
@@ -32,6 +31,37 @@ public class OrderBook {
         } else {
             sellQueue.add(order);
         }
+    }
+
+    public Optional<Integer> findIntersectionPrice() {
+        Order[] buyOrders = buyQueue.toArray(new Order[0]);
+        Order[] sellOrders = sellQueue.toArray(new Order[0]);
+
+        Arrays.sort(buyOrders, Collections.reverseOrder());
+        Arrays.sort(sellOrders);
+
+        Integer result = null;
+        for (int i=0; i<buyQueue.size() && i<sellQueue.size(); i++) {
+            Order buy = buyOrders[i];
+            Order sell = sellOrders[i];
+
+            if (buy.compareTo(sell) < 0)
+                break;
+
+            result = (int)Math.round((buy.getPrice() + sell.getPrice()) / 2.0);
+        }
+        return Optional.ofNullable(result);
+    }
+
+    public boolean canTrade() {
+        Order b = getBestBuyOrder();
+        Order s = getBestSellOrder();
+
+        if (null == b || null == s)
+            return false;
+        if (b.compareTo(s) < 0)
+            return false;
+        return true;
     }
 
     public Order getBestBuyOrder() {

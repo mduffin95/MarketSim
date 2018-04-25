@@ -8,11 +8,13 @@ import desmoj.core.simulator.Model;
 import desmoj.core.simulator.TimeSpan;
 
 import java.util.LinkedList;
+import java.util.Optional;
 import java.util.Queue;
 
 public class Call extends Exchange {
     private TimeSpan clearingInterval;
     private LOBSummary summary;
+    private int option = 2;
 
     public Call(Model model, String name, SecuritiesInformationProcessor sip, boolean showInTrace, TimeSpan clearingInterval) {
         super(model, name, sip, showInTrace);
@@ -27,43 +29,38 @@ public class Call extends Exchange {
     public void clear() {
         //Clearing logic
 
-        Order b = orderBook.getBestBuyOrder();
-        Order s = orderBook.getBestSellOrder();
-
-        if (null == b || null == s)
+        if (!orderBook.canTrade())
             return;
 
-        Queue<Trade> newTrades = new LinkedList<>();
+//        Queue<Trade> newTrades = new LinkedList<>();
 
-        int midPrice = (int)Math.round((b.getPrice() + s.getPrice()) / 2.0);
+        int clearPrice = orderBook.findIntersectionPrice().get();
+        Order b = orderBook.getBestBuyOrder();
+        Order s = orderBook.getBestSellOrder();
         while (null != b && null != s && b.getPrice() >= s.getPrice()) {
-            Trade t = new Trade(presentTime(), midPrice, 1, b, s);
-            newTrades.add(t);
+            Trade t = new Trade(presentTime(), clearPrice, 1, b, s);
+//            newTrades.add(t);
             lastTradeSupplier.notifyStatistics(t);
             sendTraceNote("Trade at " + t.getPrice());
 
             orderBook.pollBestBuyOrder();
             orderBook.pollBestSellOrder();
+            summary = orderBook.getSummary(clock);
+            sendUpdate(t, summary);
+            recentTrade = t; //Only used for testing
+
             b = orderBook.getBestBuyOrder();
             s = orderBook.getBestSellOrder();
         }
 
-        LOBSummary newSummary = orderBook.getSummary(clock);
-        if (!newSummary.equals(summary) || newTrades.size() != 0) {
-            for (Trade t: newTrades) {
-                MarketUpdate update = new MarketUpdate(this, t, newSummary);
-                recentTrade = t; //For statistics. Only last one in queue will persist.
-
-                //The price quote has changed so this needs to be sent to all observers
-                MessageType msg = MessageType.MARKET_UPDATE;
-
-                for (NetworkEntity e: observers) {
-                    e.send(this, msg, update);
-                }
-            }
-
-        }
-        summary = newSummary;
+//        LOBSummary newSummary = orderBook.getSummary(clock);
+//        if (!newSummary.equals(summary) || newTrades.size() != 0) {
+//            for (Trade t: newTrades) {
+//                recentTrade = t; //For statistics. Only last one in queue will persist.
+//                sendUpdate(t, newSummary);
+//            }
+//        }
+//        summary = newSummary;
         updateSpreadStats(summary);
     }
 
@@ -77,6 +74,14 @@ public class Call extends Exchange {
             if (!summary.equals(newSummary))
                 clear();
         }
+
+//        else if (option == 2) {
+//            LOBSummary newSummary = orderBook.getSummary(clock);
+//            if (!newSummary.equals(summary)) {
+//                summary = newSummary;
+//                sendUpdate(null, newSummary);
+//            }
+//        }
         String note = "Handling order: " + order.toString();
         sendTraceNote(note);
     }

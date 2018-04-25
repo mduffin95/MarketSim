@@ -20,6 +20,7 @@ public class Trade {
         this.quantity = quantity;
         this.buyOrder = buyOrder;
         this.sellOrder = sellOrder;
+        assert (price <= buyOrder.getPrice() && price >= sellOrder.getPrice());
     }
 
     public int getPrice() {

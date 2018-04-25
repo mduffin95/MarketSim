@@ -40,6 +40,17 @@ public abstract class Exchange extends NetworkEntity implements PriceProvider {
         event.schedule(this, volatilitySamplingInterval);
     }
 
+    void sendUpdate(Trade t, LOBSummary s) {
+        MarketUpdate update = new MarketUpdate(this, t, s);
+
+        //The price quote has changed so this needs to be sent to all observers
+        MessageType msg = MessageType.MARKET_UPDATE;
+
+        for (NetworkEntity e: observers) {
+            e.send(this, msg, update);
+        }
+    }
+
     void updateSpreadStats(LOBSummary summary) {
         if (presentTime().getTimeAsDouble() > 3000)
             return;

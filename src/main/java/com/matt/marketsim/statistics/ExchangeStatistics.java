@@ -30,10 +30,17 @@ public class ExchangeStatistics extends StatisticObject {
         Optional<Order>  buy = summary.getBuyOrder().getOrder();
         Optional<Order>  sell = summary.getSellOrder().getOrder();
 
-        if (!buy.isPresent() || !sell.isPresent())
+        if (buy.isPresent() && sell.isPresent()) {
+            double mid = (buy.get().getPrice() + sell.get().getPrice()) / 2.0;
+            midQuotes.add(mid);
             return;
-        double mid = (buy.get().getPrice() + sell.get().getPrice()) / 2.0;
-        midQuotes.add(mid);
+        }
+
+        if (buy.isPresent())
+            midQuotes.add((double)buy.get().getPrice());
+        if (sell.isPresent())
+            midQuotes.add((double)sell.get().getPrice());
+
     }
 
     public void spreadUpdate(LOBSummary summary) {
